@@ -64,6 +64,7 @@
           - intel-gpu-tools # for intel GPU usage, MIGHT NOT BE FOUND
           - firefox # browser
           - testdisk # life saver if your disk is a bit sus, so its a nice util to have handy
+          - tmux # terminal mulitplexor to mainly allow you to create a re-attachable session on the server. Google for more info on how to use
 
       - name: Install kubectx/kubens
         # https://github.com/ahmetb/kubectx
