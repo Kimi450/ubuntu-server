@@ -128,13 +128,14 @@
             prometheus.prometheusSpec.probeSelectorNilUsesHelmValues=false,\
             prometheus.prometheusSpec.probeSelectorNamespaceSelector=null,\
             prometheus.prometheusSpec.probeSelector=null,\
+            prometheus.prometheusSpec.additionalScrapeConfigs[0].job_name=kubernetes-service-scraper,\
+            prometheus.prometheusSpec.additionalScrapeConfigs[0].kubernetes_sd_configs[0].role=service,\
             grafana.persistence.enabled=true,\
             grafana.adminUser={{ charts.services.kube_prometheus_stack.grafana.admin_username }},\
             grafana.adminPassword={{ charts.services.kube_prometheus_stack.grafana.admin_password }},\
             grafana.ingress.enabled=true,\
             grafana.ingress.ingressClassName=nginx,\
-            grafana.ingress.hosts={grafana.{{ domain_name }}},\
-            grafana.ingress.enabled=true"
+            grafana.ingress.hosts={grafana.{{ domain_name }}}"
 
       - name: Restart pods to pick up any config updates
         include_tasks: tasks-kubernetes-delete-kind-instances.yaml
