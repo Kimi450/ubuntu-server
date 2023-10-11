@@ -137,6 +137,23 @@
             grafana.ingress.ingressClassName=nginx,\
             grafana.ingress.hosts={grafana.{{ domain_name }}}"
 
+      - name: Setup plugins for Grafana
+        block:
+        - name: Search for all Pods labelled app.kubernetes.io/name=grafana
+          kubernetes.core.k8s_info:
+            kind: Pod
+            label_selectors:
+              - app.kubernetes.io/name = grafana
+          register: output
+
+        - name: Install piechart panel plugin for Grafana
+          kubernetes.core.k8s_exec:
+            namespace: "{{ namespace_monitoring }}"
+            pod: "{{ output.resources[0].metadata.name }}"
+            container: grafana
+            command: grafana cli plugins install grafana-piechart-panel
+          ignore_errors: True
+
       - name: Restart pods to pick up any config updates
         include_tasks: tasks-kubernetes-delete-kind-instances.yaml
         vars:

@@ -51,6 +51,7 @@ Use your own server
   sudo apt install software-properties-common
   sudo add-apt-repository --yes --update ppa:ansible/ansible
   sudo apt install ansible
+  ansible-galaxy collection install kubernetes.core
   ```
 
 - #### Update the `group_vars/all` file to fill out the required information there
@@ -96,12 +97,14 @@ Use your own server
 
 - #### After the installation
   - ##### Setup Grafana
-    - Add the recommended dashboards
+    - Add the recommended dashboards (Make sure you select the correct job in the variables section, you can default to `kubernetes-service-scraper`)
       - [Node Exporter Full](https://grafana.com/grafana/dashboards/1860)
+      - [Loki Kubernetes Logs](https://grafana.com/grafana/dashboards/15141)
+      - [Sonarr v3](https://grafana.com/grafana/dashboards/12530-sonarr-v3/)
+      - [Radarr v3](https://grafana.com/grafana/dashboards/12896-radarr-v3/)
       - [Pods (Aggregated view)](https://grafana.com/grafana/dashboards/8860)
       - [Monitor Pod CPU and Memory usage](https://grafana.com/grafana/dashboards/15055)
       - [Node Exporter for Prometheus Dashboard EN v20201010](https://grafana.com/grafana/dashboards/11074)
-      - [Loki Kubernetes Logs](https://grafana.com/grafana/dashboards/15141)
     - Would recommend adding a panel with the following query as it is useful to monitor pods as well
       - For average
         ```
