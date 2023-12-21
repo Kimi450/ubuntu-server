@@ -421,6 +421,7 @@
             {{ helm_common_resources }},\
             {{ helm_common_persistence_config }},\
             persistence.config.hostPath={{ dir_minikube_mount }}{{ dir_data_config_suffix }}/bazarr,\
+            metrics.main.enabled=false,\
             ingress.bazarr.enabled=true,\
             ingress.bazarr.primary=true,\
             ingress.bazarr.ingressClassName=nginx,\
