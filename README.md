@@ -135,6 +135,19 @@ Use your own server
             - Recommend not selecting ```HEVC 10bit``` because for some reason that breaks it
           - Defaults to CPU/software encoding if hardware acceleration does not work for a file, I think.
           - More infomarmation on their [Jellyfin's page for Hardware Acceleration](https://jellyfin.org/docs/general/administration/hardware-acceleration.html)
+    - Add any plugins you may want
+      - [Trackt](https://trakt.tv/dashboard)
+        - To track the shows you watch
+        - Create a Trackt account
+        - Go to ``Admin > Dashboard > Plugins > Catalogue``
+          - Enable Trackt
+          - Restart Jellyfin (Shutdown server from the `Dashboard` and k8s will restart, or delete the pod)
+        - Go to ``Admin > Dashboard > Plugins > Trackt``
+          - Select the user
+          - `Authorize Device`
+          - Follow onscreen instructions
+        - Go to ``Admin > Dashboard > Scheduled Tasks > Trackt``
+          - Create a daily scheduled task for importing data from and exporting data to tract.tv
 
   - ##### Setup qBittorrent
     - Default login credentials are admin/adminadmin
