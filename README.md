@@ -251,6 +251,7 @@ Use your own server
           Anidex
             Add with higher priority, example "1", since it has good english subtitled content
             Add "flaresolverr" tag
+          AniRena
           Nyaa.si
           Tokyo Toshokan
           ```
@@ -296,6 +297,7 @@ Use your own server
       - Go to ``Settings > Provider`` and add providers for subtitles
         - Decent options are:
           - Opensubtitles.com
+          - Opensubtitles.org
           - TVSubtitles
           - YIFY Subtitles
           - Supersubtitles
