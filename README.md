@@ -251,6 +251,7 @@ Use your own server
           Anidex
             Add with higher priority, example "1", since it has good english subtitled content
             Add "flaresolverr" tag
+          Bangumi Moe
           AniRena
           Nyaa.si
           Tokyo Toshokan
