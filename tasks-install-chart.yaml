@@ -1,11 +1,25 @@
 - name: Install {{ release_name }}
   block:
-  - name: "Add helm repo {{ repo_name }} {{ repo_link }}"
-    shell: "helm repo add {{ repo_name }} {{ repo_link }}"
-    ignore_errors: True
+  - name: "Non-OCI Registry Workflow"
+    when: "not 'oci' in repo_link"
+    block:
+    - name: "Add helm repo {{ repo_name }} {{ repo_link }}"
+      shell: "helm repo add {{ repo_name }} {{ repo_link }}"
+      ignore_errors: True
 
-  - name: Update helm repo
-    shell: helm repo update
+    - name: Update helm repo
+      shell: helm repo update
+    
+    - name: "Set chart location to {{ repo_name }}/{{ chart_name }}"
+      set_fact:
+        chart_location: "{{ repo_name }}/{{ chart_name }}"
+
+  - name: "OCI Registry Workflow"
+    when: "'oci' in repo_link"
+    block:
+    - name: "Set chart location to {{ repo_link }}/{{ chart_name }}"
+      set_fact:
+        chart_location: "{{ repo_link }}/{{ chart_name }}"
 
   - name: Install chart
-    shell: "helm upgrade -i -n {{ install_namespace }} {{ release_name }} {{ repo_name }}/{{ chart_name }} {{ set_options }} --timeout {{ timeout }} --create-namespace --wait"
+    shell: "helm upgrade -i -n {{ install_namespace }} {{ release_name }} {{ chart_location }} {{ set_options }} --timeout {{ timeout }} --create-namespace --wait"
