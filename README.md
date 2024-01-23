@@ -242,6 +242,7 @@ Use your own server
         - Standard
           ```
           1337x
+            Add "flaresolverr" tag
           LimeTorrents
           The Pirate Bay
           EZTV
