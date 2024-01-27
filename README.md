@@ -150,7 +150,9 @@ Use your own server
           - Create a daily scheduled task for importing data from and exporting data to tract.tv
 
   - ##### Setup qBittorrent
-    - Default login credentials are admin/adminadmin
+    - Default login credentials are randomly generated, you need to look at ansible logs to get the default login credentials.
+      - Look for the substring `You can log into qBittorrent` in the logs to find the creds in the form `admin/<RANDOM_PASSWORD>`
+        - If `<RANDOM_PASSWORD>` is not seen, that means that a password was found to be set already and that a randomly generated password was not used. Please try to remeber the password or reinstall to override configuration to use default passwords again.
     - Change the default login details
       - Go to ``Tools > Options > Web UI > Authentication``
     - Set default download location to one the mentioned directories (or make sure to put it in the right directory when downloading for ease)

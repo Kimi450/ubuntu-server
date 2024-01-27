@@ -235,10 +235,22 @@
             ingress.main.hosts[0].paths[0].service.name=qbittorrent,\
             ingress.main.hosts[0].paths[0].service.port=10095"
 
+      - name: Search for qbittorent pod
+        kubernetes.core.k8s_info:
+          kind: Pod
+          label_selectors:
+            - app.kubernetes.io/instance = qbittorrent
+            - app.kubernetes.io/name = qbittorrent
+        register: output
+
+      - name: Get randomly generated password from qbittorrent pod logs
+        shell: "kubectl logs {{ output.resources[0].metadata.name }} | grep -i 'temporary password' | cut -d ':' -f 2 | tr -d ' '"
+        register: qbittorrent_random_password
+
       - debug:
           msg: >
             You can log into qBittorrent at 'qbittorrent.{{ domain_name }}' using
-            admin/adminadmin as the default creds. Change this after deployment.
+            "admin/{{ qbittorrent_random_password.stdout }}" as the default creds. Change this after deployment.
             '{{ dir_home }}' from the host is available under '/media' and
             can be used by the application to download things. Downloading in
             the directories under {{ dir_data }} will be picked up by Jellyfin.
