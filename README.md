@@ -154,6 +154,7 @@ Use your own server
     - Change the default login details
       - Go to ``Tools > Options > Web UI > Authentication``
     - Set default download location to one the mentioned directories (or make sure to put it in the right directory when downloading for ease)
+      - Go to ``Tools > Options > Downloads > Default Save Path``
       - Recommend using ``/media/data/downloads``
     - Set seeding limits
       - Recommend seeding limits for when seeding ratio hits "0". It is under ``Tools > Options > BitTorrent > Seeding Limits``
@@ -194,7 +195,8 @@ Use your own server
     - Go to ``Settings`` and click on ``Show Advanced``
     - Enable authentication
       - Go to ``Settings > General``
-      - Set Authentication to `Forms (Login Page)`
+      - Set `Authentication` to `Forms (Login Page)`
+      - Set `Authentication Required` to `Enabled`
       - Set username and password for access
     - Add torrent client
       - Go to ``Settings > Download Clients > Add > qBittorent > Custom``
@@ -229,7 +231,8 @@ Use your own server
   - ##### Setup Prowlarr
     - Enable authentication
       - Go to ``Settings > General``
-      - Set Authentication to `Forms (Login Page)`
+      - Set `Authentication` to `Forms (Login Page)`
+      - Set `Authentication Required` to `Enabled`
       - Set username and password for access
     - Add `FlareSolverr` service as a proxy, refer to [this](https://trash-guides.info/Prowlarr/prowlarr-setup-flaresolverr/) guide for help
       - Go to ``Settings > Indexers``
@@ -337,12 +340,12 @@ Use your own server
       - Setup additional users
       - Give the following roles to *trusted* users for convinience
         ```
-        AutoApproveMusic
-        RequestMovie
-        AutoApproveTv
-        RequestMusic
-        AutoApproveMovie
-        RequestTv
+        Request Tv
+        Request Movie
+        Request Music
+        Auto Approve Tv
+        Auto Approve Movie
+        Auto Approve Music
         ```
 
   - ##### Setup Minikube for remote access
