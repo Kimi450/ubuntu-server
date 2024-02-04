@@ -304,7 +304,6 @@ Use your own server
       - Go to ``Settings > Provider`` and add providers for subtitles
         - Decent options are:
           - Opensubtitles.com
-          - Opensubtitles.org
           - TVSubtitles
           - YIFY Subtitles
           - Supersubtitles
