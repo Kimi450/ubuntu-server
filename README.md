@@ -218,6 +218,11 @@ Use your own server
         | Radarr  | ``/media/data/movies/`` |
         | Lidarr  | ``/media/data/music/``  |
       - Enable renaming
+    - Adjust quality definitions
+      - Go to ``Settings > Quality``
+      - Set the ``Size Limit`` or ``Megabytes Per Minute`` (or equivalent) to appropriate numbers
+        - This will ensure your downloads are not "too big"
+      - For movies and shows, ``2-3GiB/h`` would usually be sufficient as the ``Preferred`` value, and you can leave the ``Max`` value a bit higher to ensure a better chance of download grabs
 
     - Readarr specific config
       - Go to ``Settings > Media Management``
