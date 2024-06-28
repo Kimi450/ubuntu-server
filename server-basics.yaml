@@ -66,7 +66,7 @@
           - testdisk # life saver if your disk is a bit sus, so its a nice util to have handy
           - tmux # terminal mulitplexor to mainly allow you to create a re-attachable session on the server. Google for more info on how to use
           - smartmontools # to be able to use smartctl to get SMART data about storage devices
-
+          - hwinfo # hardware info
       - name: Install pyyaml python package
         ansible.builtin.pip:
           name:
