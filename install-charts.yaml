@@ -15,6 +15,7 @@
     helm_common_general: "\
       global.metallb.addServiceAnnotations=false,\
       global.traefik.addServiceAnnotations=false,\
+      portal.open.enabled=false,\
       operator.verify.enabled=false,\
       workload.main.type=StatefulSet,\
       podOptions.dnsConfig.nameservers={8.8.8.8,8.8.4.4}"
