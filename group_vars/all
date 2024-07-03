@@ -119,6 +119,7 @@ minikube: # cli param values for minikube
   # This cant be less than 2, it is the minimum required for kubernetes
   cpus: "max"
   # This cant be less than 1800, it is the minimum required for kubernetes
+  # Leave at least 2000MB as headroom for the OS to run (system_max - 2000MB)
   memory: "6000"
   disk_size: "50gb"
   nodes: "1"
