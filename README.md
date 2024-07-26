@@ -224,15 +224,15 @@ Use your own server
         - This will ensure your downloads are not "too big"
       - For movies and shows, ``2-3GiB/h`` would usually be sufficient as the ``Preferred`` value, and you can leave the ``Max`` value a bit higher to ensure a better chance of download grabs
     - Radarr/Sonarr specific config
-      - Enforce downloads of original language media only
+      - [EXPERIMENTAL] Enforce downloads of original language media only
         - Go to ``Settings > Custom Formats``
           - Add a new Custom Format with ``Language`` Condition
             - Set ``Language: Original``
             - Set ``Required: True``
         - Go to ``Settings > Profiles``
           - Select all [relevant] profiles and set the following
-            - ``Minimum Custom Format Score`` to ``1`` (sum of the custom formats scores, in this case, 1)
-            - Your new Custom Format's score to be ``1``
+            - ``Minimum Custom Format Score`` to ``0`` (sum of the custom formats scores)
+            - Your new Custom Format's score to be ``-1000`` (something crazy low)
     - Readarr specific config
       - Go to ``Settings > Media Management``
         - Add root folder (you cannot edit an existing one)
