@@ -89,7 +89,7 @@ charts:
     bazarr:
       enabled: True
     # movie and show interface
-    overseerr:
+    jellyseerr:
       enabled: True
     # speed test to server
     librespeed:
