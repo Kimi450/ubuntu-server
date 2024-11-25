@@ -233,6 +233,8 @@ Use your own server
           - Select all [relevant] profiles and set the following
             - ``Minimum Custom Format Score`` to ``0`` (sum of the custom formats scores)
             - Your new Custom Format's score to be ``-1000`` (something crazy low)
+        - Go to ``Settings > Media Management``
+          - Make sure ``Use Hardlinks instead of Copy`` is enabled
     - Readarr specific config
       - Go to ``Settings > Media Management``
         - Add root folder (you cannot edit an existing one)
