@@ -88,18 +88,21 @@ charts:
     # subtitle hunting
     bazarr:
       enabled: True
+    # movie and show interface
+    overseerr:
+      enabled: True
+    # speed test to server
+    librespeed:
+      enabled: True
+    # movie, show and music interface
+    ombi:
+      enabled: False
     # book monitoring
     readarr:
       enabled: False
     # music monitoring
     lidarr:
       enabled: False
-    # movie and show interface
-    ombi:
-      enabled: True
-    # speed test to server
-    librespeed:
-      enabled: True
     # book client
     calibre_web:
       enabled: False

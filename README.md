@@ -326,6 +326,36 @@ Use your own server
     - NOTE:
       - If it doesnt work, manually restart the pod few times. It just works, not sure why. If that doesnt work, try reinstalling.
 
+  - ##### Setup Jellyseerr
+    - One stop shop for Sonarr/Radarr requests
+    - Run the first time setup for Jellyfin
+      - `Choose Server Type`
+        - Select `Jellyfin`
+      - `Account sign in`
+        - Jellyfin URL: `http://jellfin:8096`
+        - Email Address: `<YOUR_EMAIL>`
+        - Username: `<JELLYFIN_USERNAME>`
+        - Password: `<JELLYFIN_PASSWORD>`
+        - You can then login using your Jellyfin credentials
+          - If you do not wish to do so, set a local user password by editing your account under `Users` to login with your email ID instead
+      - `Configure Media Server`
+        - Click on `Sync Libraries`
+          - Enable all Libraries that get listed
+        - Also run a manual scan
+      - `Configure Services`
+        - Setup all the services
+          - Use the correct API keys, hostnames and ports for the services
+              | Service Name | Port |
+              |--------------|------|
+              | jellyfin     | 8096 |
+              | sonarr       | 8989 |
+              | radarr       | 7878 |
+          - Quality profile can be `HD-1080p` or `HD - 720/1080p`
+          - Select the applicable root folders
+          - Check relevant options that suit your needs
+    - Go to `Users` and either add new users or import from Jellyfin directly
+      - Give them `Auto approve` and `Request` permissions for ease where applicable
+
   - ##### Setup Ombi
     - One stop shop for Sonarr/Radarr/Lidarr requests
     - Get the API keys for Jellyfin, Sonarr and Radarr

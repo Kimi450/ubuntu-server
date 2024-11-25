@@ -525,12 +525,39 @@
             ingress.main.hosts[0].host='ombi.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=ombi,\
             ingress.main.hosts[0].paths[0].service.port=3579"
-
       - debug:
           msg: >
               You can log into ombi at 'ombi.{{ domain_name }}'.
               '{{ dir_home }}' is available under '/media' and can be used by
               ombi. If need be, delete any existing server and go to the
+              URL mention above once again to setup a new server.
+
+    - name: Install jellyseerr
+      when: charts.services.jellyseerr.enabled
+      block:
+      - name: Install/Upgrade the jellyseerr chart
+        include_tasks: tasks-install-chart.yaml
+        vars:
+          repo_name: TrueCharts
+          repo_link: oci://tccr.io/truecharts
+          install_namespace: "{{ namespace_generic_services }}"
+          timeout: "{{ charts.timeout }}"
+          release_name: jellyseerr
+          chart_name: jellyseerr
+          set_options: "--set \
+            {{ helm_common_general }},\
+            {{ helm_common_persistence }},\
+            {{ helm_common_security_contexts }},\
+            {{ helm_common_resources }},\
+            {{ helm_common_ingress }},\
+            ingress.main.hosts[0].host='jellyseerr.{{ domain_name }}',\
+            ingress.main.hosts[0].paths[0].service.name=jellyseerr,\
+            ingress.main.hosts[0].paths[0].service.port=5055"
+      - debug:
+          msg: >
+              You can log into jellyseerr at 'jellyseerr.{{ domain_name }}'.
+              '{{ dir_home }}' is available under '/media' and can be used by
+              jellyseerr. If need be, delete any existing server and go to the
               URL mention above once again to setup a new server.
 
     - name: Install librespeed
