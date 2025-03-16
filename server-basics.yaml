@@ -72,6 +72,7 @@
           name:
             - pyyaml
             - kubernetes
+          extra_args: --break-system-packages
 
       - name: Install kubectx/kubens
         # https://github.com/ahmetb/kubectx
@@ -102,12 +103,17 @@
           include_tasks: tasks-clone-git-repo.yaml
           vars:
             repo_dir:  "{{ useful_files_repo_dir }}"
-            repo_link:  https://github.com/Kimi450/useful_files.git
+            repo_link:  https://github.com/Kimi450/useful-files.git
+
+        - name: combine bashrc
+          ansible.builtin.shell: |-
+            cat {{ useful_files_repo_dir }}/.genericrc >> {{ useful_files_repo_dir }}/bash/.bashrc
+          register: hosts_contents
 
         - name: Transfer bashrc file
           copy:
             remote_src: True
-            src: "{{ useful_files_repo_dir }}/.bashrc"
+            src: "{{ useful_files_repo_dir }}/bash/.bashrc"
             dest: "{{ dir_home }}"
 
         - name: Transfer vimrc edit script
