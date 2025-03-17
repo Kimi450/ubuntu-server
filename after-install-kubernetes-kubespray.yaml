@@ -1,0 +1,27 @@
+---
+- name: After installing kubernetes setup
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: setup kubeconfig for user
+      shell: |
+        mkdir -p {{ dir_home }}/.kube
+        cp -i /etc/kubernetes/admin.conf {{ dir_home }}/.kube/config
+        chown $(id -u):$(id -g) {{ dir_home }}/.kube/config
+      become: true
+    
+    - name: setup ufw
+      include_tasks: tasks-allow-ports.yaml
+      vars:
+        ports:
+          - "179"
+          - "4789"
+          - "5473"
+          - "443"
+          - "6443"
+          - "2379"
+          - "4149"
+          - "10250"
+          - "10255"
+          - "10256"
+          - "9099"

@@ -6,11 +6,11 @@ domain_name: "" # FILL OUT
 
 # for basic server setup (in my opinion)
 basics:
-  enabled: True
+  enabled: true
 
 # vnc for remote desktop with GUI
 vnc:
-  enabled: True
+  enabled: true
   # will be truncated to 8 characters
   password: "" # FILL OUT
   # display for what port will be accessed
@@ -19,14 +19,14 @@ vnc:
 
 # squid credentials, for proxy
 squid:
-  enabled: True
+  enabled: true
   username: "" # FILL OUT
   password: "" # FILL OUT
   port: "3128"
 
 # sambashare for network attached storage
 smb:
-  enabled: True
+  enabled: true
   password: "" # FILL OUT
   share_name: "sambashare"
 
@@ -34,7 +34,7 @@ smb:
 # when the server IP changes
 # NOTE: It doesnt add entries, refer to the README.md file for instructions
 cloudflare:
-  enabled: True
+  enabled: true
   # Set your Cloudflare Zone ID
   zone_id: "" # FILL OUT
   # Set your Cloudflare Bearer token to view the zone and edit DNS records in it
@@ -44,7 +44,7 @@ cloudflare:
 
 # ==== Select what charts you wish to install ====
 charts:
-  enabled: True
+  enabled: true
   resources:
     # kubernetes resource requests for the pods
     requests:
@@ -60,85 +60,79 @@ charts:
   services:
     # log monitoring with Loki (Needs Grafana for a UI)
     loki_stack:
-      enabled: True
+      enabled: true
     # metrics monitoring with Grafana and Prometheus
     kube_prometheus_stack:
-      enabled: True
+      enabled: true
       grafana:
         admin_username: "admin" # FILL OUT
         admin_password: "admin" # FILL OUT
     # media client
     jellyfin:
-      enabled: True
+      enabled: true
     # torrents
     qbittorrent:
-      enabled: True
+      enabled: true
     # to bypass cloudflare protection
     flaresolverr:
-      enabled: True
+      enabled: true
     # to manage indexers
     prowlarr:
-      enabled: True
+      enabled: true
     # movie monitoring
     radarr:
-      enabled: True
+      enabled: true
     # show monitoring
     sonarr:
-      enabled: True
+      enabled: true
     # subtitle hunting
     bazarr:
-      enabled: True
+      enabled: true
     # movie and show interface
     jellyseerr:
-      enabled: True
+      enabled: true
     # speed test to server
     librespeed:
-      enabled: True
+      enabled: true
     # movie, show and music interface
     ombi:
-      enabled: False
+      enabled: false
     # book monitoring
     readarr:
-      enabled: False
+      enabled: false
     # music monitoring
     lidarr:
-      enabled: False
+      enabled: false
     # book client
     calibre_web:
-      enabled: False
+      enabled: false
     # book management
     calibre:
-      enabled: False
+      enabled: false
 
 # ==== To install Docker, helm and kubectl ====
 
 cloud_native:
-  enabled: True
+  enabled: true
 
-# ==== Minikube settings ====
+# ==== k8s settings ====
 
-minikube: # cli param values for minikube
-  enabled: True
-  # This cant be less than 2, it is the minimum required for kubernetes
-  cpus: "max"
-  # This cant be less than 1800, it is the minimum required for kubernetes
-  # Leave at least 2000MB as headroom for the OS to run (system_max - 2000MB)
-  memory: "6000"
-  disk_size: "50gb"
-  nodes: "1"
-  cert_expiration: "87660h0m0s"
-  remote_access:
-    enabled: True
+kubespray:
+  enabled: true
+  # Use reset.yml to reset cluster
+  playbook: "cluster.yml"
+  # release branch from the repo: https://github.com/kubernetes-sigs/kubespray
+  release: "release-2.27"
 
 # to allow pinless bluetooth connections to the server
 bluetooth:
   pinless:
-    enabled: False
+    enabled: false
 
 # ==== For the Archived playbooks ====
 
 spotify: # spotify settings
-  enabled: False
+  enabled: false
   username: "NO_NEED_TO_FILL"
   password: "NO_NEED_TO_FILL"
   init_volume: "69"
