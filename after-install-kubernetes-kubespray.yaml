@@ -6,7 +6,7 @@
     - name: setup kubeconfig for user
       shell: |
         mkdir -p {{ dir_home }}/.kube
-        cp -i /etc/kubernetes/admin.conf {{ dir_home }}/.kube/config
+        cp /etc/kubernetes/admin.conf {{ dir_home }}/.kube/config
         chown $(id -u):$(id -g) {{ dir_home }}/.kube/config
       become: true
     
