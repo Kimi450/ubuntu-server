@@ -16,7 +16,7 @@
         uid: "{{ uid_output.stdout }}"
         user: "{{ ansible_user }}"
         architecture: "{{ architecture_output.stdout }}"
-        dir_mount_path: "/media"
+        dir_mount_path: "/data"
         dir_home: "/home/{{ ansible_user }}"
         dir_data: "/home/{{ ansible_user }}/data"
         dir_repos: "/home/{{ ansible_user }}/repos"

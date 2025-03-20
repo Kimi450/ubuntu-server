@@ -284,7 +284,7 @@
         file:
           path: "{{ dir_home }}{{ dir_data_config_suffix }}/prowlarr"
           state: directory
-          mode: '0755'
+          mode: '0777'
 
       - name: Install/Upgrade the prowlarr chart
         include_tasks: tasks-install-chart.yaml
@@ -303,7 +303,7 @@
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_data }}{{ dir_data_config_suffix }}/prowlarr,\
+            persistence.config.hostPath={{ dir_home }}{{ dir_data_config_suffix }}/prowlarr,\
             ingress.main.hosts[0].host='prowlarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=prowlarr,\
             ingress.main.hosts[0].paths[0].service.port=9696"
@@ -323,7 +323,7 @@
         file:
           path: "{{ dir_home }}{{ dir_data_config_suffix }}/radarr"
           state: directory
-          mode: '0755'
+          mode: '0777'
 
       - name: Install/Upgrade the radarr chart
         include_tasks: tasks-install-chart.yaml
@@ -342,7 +342,7 @@
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_data }}{{ dir_data_config_suffix }}/radarr,\
+            persistence.config.hostPath={{ dir_home }}{{ dir_data_config_suffix }}/radarr,\
             ingress.main.hosts[0].host='radarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=radarr,\
             ingress.main.hosts[0].paths[0].service.port=7878"
@@ -361,7 +361,7 @@
         file:
           path: "{{ dir_home }}{{ dir_data_config_suffix }}/sonarr"
           state: directory
-          mode: '0755'
+          mode: '0777'
 
       - name: Install/Upgrade the sonarr chart
         include_tasks: tasks-install-chart.yaml
@@ -380,7 +380,7 @@
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_data }}{{ dir_data_config_suffix }}/sonarr,\
+            persistence.config.hostPath={{ dir_home }}{{ dir_data_config_suffix }}/sonarr,\
             ingress.main.hosts[0].host='sonarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=sonarr,\
             ingress.main.hosts[0].paths[0].service.port=8989"
@@ -399,7 +399,7 @@
         file:
           path: "{{ dir_home }}{{ dir_data_config_suffix }}/bazarr"
           state: directory
-          mode: '0755'
+          mode: '0777'
 
       - name: Install/Upgrade the bazarr chart
         include_tasks: tasks-install-chart.yaml
@@ -418,7 +418,7 @@
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_data }}{{ dir_data_config_suffix }}/bazarr,\
+            persistence.config.hostPath={{ dir_home }}{{ dir_data_config_suffix }}/bazarr,\
             metrics.main.enabled=false,\
             ingress.main.hosts[0].host='bazarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=bazarr,\
@@ -437,7 +437,7 @@
         file:
           path: "{{ dir_home }}{{ dir_data_config_suffix }}/readarr"
           state: directory
-          mode: '0755'
+          mode: '0777'
 
       - name: Install/Upgrade the readarr chart
         include_tasks: tasks-install-chart.yaml
@@ -456,7 +456,7 @@
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_data }}{{ dir_data_config_suffix }}/readarr,\
+            persistence.config.hostPath={{ dir_home }}{{ dir_data_config_suffix }}/readarr,\
             ingress.main.hosts[0].host='readarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=readarr,\
             ingress.main.hosts[0].paths[0].service.port=8787"
@@ -474,7 +474,7 @@
         file:
           path: "{{ dir_home }}{{ dir_data_config_suffix }}/lidarr"
           state: directory
-          mode: '0755'
+          mode: '0777'
 
       - name: Install/Upgrade the lidarr chart
         include_tasks: tasks-install-chart.yaml
@@ -493,7 +493,7 @@
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_data }}{{ dir_data_config_suffix }}/lidarr,\
+            persistence.config.hostPath={{ dir_home }}{{ dir_data_config_suffix }}/lidarr,\
             ingress.main.hosts[0].host='lidarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=lidarr,\
             ingress.main.hosts[0].paths[0].service.port=8686"

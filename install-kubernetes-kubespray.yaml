@@ -95,7 +95,7 @@
       shell: |
         mkdir -p {{ dir_home }}/.kube
         cp /etc/kubernetes/admin.conf {{ dir_home }}/.kube/config
-        chown $(id -u):$(id -g) {{ dir_home }}/.kube/config
+        chown 777 {{ dir_home }}/.kube/config
       become: true
       
   vars:
