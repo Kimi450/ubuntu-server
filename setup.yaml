@@ -28,14 +28,6 @@
         dir_data_downloads: "/home/{{ ansible_user }}/data/downloads"
         dir_data_config_suffix: "/data/app-configs"
 
-- import_playbook: install-kubernetes-kubespray.yaml
-  when:
-    - kubespray.enabled
-
-- import_playbook: after-install-kubernetes-kubespray.yaml
-  when:
-    - kubespray.enabled
-
 - import_playbook: server-basics.yaml
   when:
     - basics.enabled
@@ -43,6 +35,10 @@
 - import_playbook: install-cn-basics.yaml
   when:
     - cloud_native.enabled
+
+- import_playbook: install-kubernetes-kubespray.yaml
+  when:
+    - kubespray.enabled
 
 - import_playbook: install-charts.yaml
   vars:

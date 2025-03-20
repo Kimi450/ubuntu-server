@@ -2,66 +2,85 @@
 # https://github.com/kubernetes-sigs/kubespray/blob/master/docs/ansible/ansible.md
 # https://github.com/kubernetes-sigs/kubespray/blob/master/docs/getting_started/getting-started.md
 - name: Install kubernetes using kubespray
-  hosts: localhost
+  hosts: all
   gather_facts: true
   tasks:
-    - name: setup repo
+    - name: setup ufw
+      include_tasks: tasks-allow-ports.yaml
+      vars:
+        ports:
+          - "179"
+          - "4789"
+          - "5473"
+          - "443"
+          - "6443"
+          - "2379"
+          - "4149"
+          - "10250"
+          - "10255"
+          - "10256"
+          - "9099"
+
+    - name: kubespray installation
+      delegate_to: localhost
       block:
-        - name: Clone useful_files from github
+        - name: Clone kuberspray from github
           include_tasks: tasks-clone-git-repo.yaml
           vars:
             repo_dir: "{{ kubespray_repo_dir }}"
             repo_link: https://github.com/kubernetes-sigs/kubespray.git
+
         - name: "Checkout release branch: {{ kubespray.release }}"
           shell: "cd {{ kubespray_repo_dir }} && git checkout {{ kubespray.release }}"
-    - name: setup config
-      block:
-        - name: setup inventory.ini
+
+        - name: setup config
           block:
-          - name: create inventory file
-            copy:
-              dest: "{{ kubespray_inventory_ini }}"
-              content: |
-                [all:vars]
-                ansible_connection=ssh
-                ansible_become_user=root
-                ansible_host={{ hostvars['home-main'].ansible_host }}
-                ansible_port={{ hostvars['home-main'].ansible_port }}
-                ansible_ssh_user={{ hostvars['home-main'].ansible_user }}
-                ansible_user={{ hostvars['home-main'].ansible_user }}
-                ansible_sudo_pass={{ hostvars['home-main'].ansible_sudo_pass }}
+            - name: setup inventory.ini
+              block:
+              - name: create inventory file
+                copy:
+                  dest: "{{ kubespray_inventory_ini }}"
+                  content: |
+                    [all:vars]
+                    ansible_connection=ssh
+                    ansible_become_user=root
+                    ansible_host={{ hostvars['home-main'].ansible_host }}
+                    ansible_port={{ hostvars['home-main'].ansible_port }}
+                    ansible_ssh_user={{ hostvars['home-main'].ansible_user }}
+                    ansible_user={{ hostvars['home-main'].ansible_user }}
+                    ansible_sudo_pass={{ hostvars['home-main'].ansible_sudo_pass }}
 
-                [kube_control_plane]
-                home-main etcd_member_name=etcd1
+                    [kube_control_plane]
+                    home-main etcd_member_name=etcd1
 
-                [kube_node]
-                home-main etcd_member_name=etcd1
+                    [kube_node]
+                    home-main etcd_member_name=etcd1
 
-                [etcd:children]
-                kube_control_plane
-                kube_node
+                    [etcd:children]
+                    kube_control_plane
+                    kube_node
 
-        - name: setup addons
-          block:
-          - name: "update {{ kubespray_addons_yml }}"
-            ansible.builtin.lineinfile:
-              path: "{{ kubespray_addons_yml }}"
-              regexp: "{{ item }}:.*"
-              line: "{{ item }}: true"
-            loop:
-              - helm_enabled
-              - ingress_nginx_enabled
-              - cert_manager_enabled
-              - metallb_enabled
-              - local_path_provisioner_enabled
+            - name: setup addons
+              block:
+              - name: "update {{ kubespray_addons_yml }}"
+                ansible.builtin.lineinfile:
+                  path: "{{ kubespray_addons_yml }}"
+                  regexp: "{{ item }}:.*"
+                  line: "{{ item }}: true"
+                loop:
+                  - helm_enabled
+                  - ingress_nginx_enabled
+                  - cert_manager_enabled
+                  - metallb_enabled
+                  - local_path_provisioner_enabled
 
-          - name: "update {{ kubespray_k8s_cluster_yml }}"
-            ansible.builtin.lineinfile:
-              path: "{{ kubespray_k8s_cluster_yml }}"
-              regexp: "^{{ item }}:.*"
-              line: "{{ item }}: true"
-            with_items:
-              - kube_proxy_strict_arp
+              - name: "update {{ kubespray_k8s_cluster_yml }}"
+                ansible.builtin.lineinfile:
+                  path: "{{ kubespray_k8s_cluster_yml }}"
+                  regexp: "^{{ item }}:.*"
+                  line: "{{ item }}: true"
+                with_items:
+                  - kube_proxy_strict_arp
 
         - name: "run kubespray playbook (can take a long time): {{ kubespray.playbook }}"
           shell: |
@@ -72,6 +91,13 @@
             export ANSIBLE_CONFIG=../{{ kubespray_repo_dir }}/ansible.cfg;
             ansible-playbook -i ../{{ kubespray_inventory_ini }} ../{{ kubespray_repo_dir }}/{{ kubespray.playbook }} -b -v
 
+    - name: setup kubeconfig for user
+      shell: |
+        mkdir -p {{ dir_home }}/.kube
+        cp /etc/kubernetes/admin.conf {{ dir_home }}/.kube/config
+        chown $(id -u):$(id -g) {{ dir_home }}/.kube/config
+      become: true
+      
   vars:
     kubespray_repo_dir: "./kubespray"
     kubespray_venv_dir: "{{ kubespray_repo_dir }}/kubespray-venv"
