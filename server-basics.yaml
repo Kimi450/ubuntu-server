@@ -72,7 +72,6 @@
           name:
             - pyyaml
             - kubernetes
-          extra_args: --break-system-packages
 
       - name: Install kubectx/kubens
         # https://github.com/ahmetb/kubectx
@@ -85,7 +84,7 @@
       file:
         path: "{{ item }}"
         state: directory
-        mode: '0755'
+        mode: '0777'
       with_items:
         - "{{ dir_data }}"
         - "{{ dir_repos }}"
