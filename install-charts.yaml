@@ -70,6 +70,61 @@
       with_items:
         - "{{ namespace_user }}"
 
+    - name: Install rancher local-path-provisioner
+      when: charts.services.local_path_provisioner.enabled
+      block:
+      - name: apply manifests
+        shell: "kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/{{ charts.services.local_path_provisioner.version }}/deploy/local-path-storage.yaml"
+
+      - name: set default storage class
+        shell: "kubectl patch storageclass local-path -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"}}}'"
+
+    - name: Install metallb
+      when: charts.services.metallb.enabled
+      block:
+      - name: Install/Upgrade the metallb chart
+        include_tasks: tasks-install-chart.yaml
+        vars:
+          repo_name: TrueCharts
+          repo_link: oci://tccr.io/truecharts
+          install_namespace: "{{ namespace_generic_services }}"
+          timeout: "{{ charts.timeout }}"
+          release_name: metallb
+          chart_name: metallb
+          set_options: "--set \
+            {{ helm_common_general }}"
+
+    - name: Install nginx-proxy-manager
+      when: charts.services.nginx_proxy_manager.enabled
+      block:
+      - name: Install/Upgrade the nginx-proxy-manager chart
+        include_tasks: tasks-install-chart.yaml
+        vars:
+          repo_name: TrueCharts
+          repo_link: oci://tccr.io/truecharts
+          install_namespace: "{{ namespace_generic_services }}"
+          timeout: "{{ charts.timeout }}"
+          release_name: nginx-proxy-manager
+          chart_name: nginx-proxy-manager
+          set_options: "--set \
+            {{ helm_common_general }},\
+            {{ helm_common_persistence }},\
+            {{ helm_common_persistence_config }},\
+            {{ helm_common_resources }},\
+            {{ helm_common_ingress }},\
+            persistence.config.hostPath={{ dir_home }}{{ dir_data_config_suffix }}/nginx-proxy-manager,\
+            persistence.data.enabled=true,\
+            persistence.data.type=hostPath,\
+            persistence.data.mountPath=/data,\
+            persistence.data.hostPath={{ dir_home }}{{ dir_data_config_suffix }}/nginx-proxy-manager/data,\
+            persistence.letsencrypt.enabled=true,\
+            persistence.letsencrypt.type=hostPath,\
+            persistence.letsencrypt.mountPath=/etc/letsencrypt,\
+            persistence.letsencrypt.hostPath={{ dir_home }}{{ dir_data_config_suffix }}/nginx-proxy-manager/letsencrypt,\
+            ingress.main.hosts[0].host='nginx-proxy-manager.{{ domain_name }}',\
+            ingress.main.hosts[0].paths[0].service.name=nginx-proxy-manager,\
+            ingress.main.hosts[0].paths[0].service.port=10582"
+
     - name: Install loki-stack
       when: charts.services.loki_stack.enabled
       block:

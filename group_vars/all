@@ -58,6 +58,16 @@ charts:
   # timeout as helm expects it in --timeout for the charts
   timeout: 15m
   services:
+    # provision hostPaths using this controller
+    local_path_provisioner:
+      enabled: true
+      version: "v0.0.31"
+    # metallb to provider routing from k8s to my host
+    metallb:
+      enabled: true
+    # nginx proxies and letsencrypt for tls
+    nginx_proxy_manager:
+      enabled: true
     # log monitoring with Loki (Needs Grafana for a UI)
     loki_stack:
       enabled: true

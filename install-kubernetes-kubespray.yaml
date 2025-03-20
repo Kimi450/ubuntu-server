@@ -60,28 +60,6 @@
                     kube_control_plane
                     kube_node
 
-            - name: setup addons
-              block:
-              - name: "update {{ kubespray_addons_yml }}"
-                ansible.builtin.lineinfile:
-                  path: "{{ kubespray_addons_yml }}"
-                  regexp: "{{ item }}:.*"
-                  line: "{{ item }}: true"
-                loop:
-                  - helm_enabled
-                  - ingress_nginx_enabled
-                  - cert_manager_enabled
-                  - metallb_enabled
-                  - local_path_provisioner_enabled
-
-              - name: "update {{ kubespray_k8s_cluster_yml }}"
-                ansible.builtin.lineinfile:
-                  path: "{{ kubespray_k8s_cluster_yml }}"
-                  regexp: "^{{ item }}:.*"
-                  line: "{{ item }}: true"
-                with_items:
-                  - kube_proxy_strict_arp
-
         - name: "run kubespray playbook (can take a long time): {{ kubespray.playbook }}"
           shell: |
             cd {{ kubespray_repo_dir }};
@@ -95,9 +73,24 @@
       shell: |
         mkdir -p {{ dir_home }}/.kube
         cp /etc/kubernetes/admin.conf {{ dir_home }}/.kube/config
-        chown 777 {{ dir_home }}/.kube/config
+        chmod 777 {{ dir_home }}/.kube/config
       become: true
+
+    - name: Install kubectl
+      # https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+      block:
+      - name: download binary
+        become: true
+        shell: "curl -LO \"https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl\""
+
+      - name: install binary
+        become: true
+        shell: "install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl"
       
+    - name: Install Helm
+      # https://helm.sh/docs/intro/install/
+      shell: "curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash"
+
   vars:
     kubespray_repo_dir: "./kubespray"
     kubespray_venv_dir: "{{ kubespray_repo_dir }}/kubespray-venv"

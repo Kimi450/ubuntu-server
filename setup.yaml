@@ -32,10 +32,6 @@
   when:
     - basics.enabled
 
-- import_playbook: install-cn-basics.yaml
-  when:
-    - cloud_native.enabled
-
 - import_playbook: install-kubernetes-kubespray.yaml
   when:
     - kubespray.enabled
