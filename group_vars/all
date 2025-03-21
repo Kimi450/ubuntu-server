@@ -65,8 +65,8 @@ charts:
     # metallb to provider routing from k8s to my host
     metallb:
       enabled: true
-    # nginx proxies and letsencrypt for tls
-    nginx_proxy_manager:
+    # nginx ingress controller for reverse proxy
+    ingress_nginx:
       enabled: true
     # log monitoring with Loki (Needs Grafana for a UI)
     loki_stack:
