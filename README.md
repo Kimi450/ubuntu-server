@@ -21,8 +21,6 @@ Use your own server
   sudo apt install openssh-server
   sudo systemctl enable ssh
   sudo systemctl start ssh
-  sudo ufw enable
-  sudo ufw allow ssh
   ```
 
 - #### Disable sleep for the server
@@ -411,17 +409,6 @@ Use your own server
 
   - ##### Use Sambashare
     - For external access:
-      - The following info was retrieved by running `sudo ufw status verbose | grep -i samba` on the server which lists what ports were exposed as part of `sudo ufw allow samba`
-      - Expose the following ports for TCP
-        ```
-        139
-        445
-        ```
-      - Expose the following ports for UDP
-        ```
-        137
-        138
-        ```
     - To authenticate
       - Thee username will be the `<ANSIBLE_USER>` you used in the `hosts.yaml` file
       - The password will be in the `group_vars/all` file (`smb.password` section).

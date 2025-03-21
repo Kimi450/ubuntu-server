@@ -54,7 +54,6 @@
           - net-tools # for ifconfig
           - speedtest-cli # for speedtests
           - w3m
-          - ufw #firewall
           - fio # for disk tests
           - mesa-utils # for GPU tests
           - cpustat # for CPU logs

@@ -81,9 +81,3 @@
       vars:
         service_name: "vncserver@{{ vnc.display }}.service"
         become: True
-
-    - include_tasks: tasks-allow-ports.yaml # should already work
-      vars:
-        ports: 
-          - "ssh"
-          - "590{{ vnc.display }}"

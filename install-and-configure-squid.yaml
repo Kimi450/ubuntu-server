@@ -80,11 +80,6 @@
         service_name: "squid"
         become: True
 
-    - include_tasks: tasks-allow-ports.yaml
-      vars:
-        ports: 
-          - "{{ squid.port }}"
-
     - debug:
         msg: >-
           You can now use this server as a proxy. The hostname is
