@@ -44,6 +44,22 @@
                     kube_control_plane
                     kube_node
 
+            - name: setup addons
+              block:
+              - name: "update {{ kubespray_addons_yml }}"
+                ansible.builtin.lineinfile:
+                  path: "{{ kubespray_addons_yml }}"
+                  regexp: "{{ item }}:.*"
+                  line: "{{ item }}: true"
+                loop: "{{ kubespray.addons }}"
+
+              - name: "update {{ kubespray_k8s_cluster_yml }}"
+                ansible.builtin.lineinfile:
+                  path: "{{ kubespray_k8s_cluster_yml }}"
+                  regexp: "^{{ item }}:.*"
+                  line: "{{ item }}: true"
+                loop: "{{ kubespray.k8s_cluster }}"
+
         - name: "run kubespray playbook (can take a long time): {{ kubespray.playbook }}"
           shell: |
             cd {{ kubespray_repo_dir }};

@@ -129,6 +129,19 @@ cloud_native:
 
 kubespray:
   enabled: true
+  # enable addons config
+
+  addons: []
+  # - helm_enabled
+  # - ingress_nginx_enabled
+  # - cert_manager_enabled
+  # - metallb_enabled
+  # - local_path_provisioner_enabled
+  
+  # enable cluster yml config
+  k8s_cluster: []
+  # - kube_proxy_strict_arp
+  
   # Use reset.yml to reset cluster
   playbook: "cluster.yml"
   # release branch from the repo: https://github.com/kubernetes-sigs/kubespray
