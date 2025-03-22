@@ -67,7 +67,7 @@
             . ..{{ kubespray_venv_dir }}/bin/activate;
             pip install -U -r requirements.txt;
             export ANSIBLE_CONFIG=../{{ kubespray_repo_dir }}/ansible.cfg;
-            ansible-playbook -i ../{{ kubespray_inventory_ini }} ../{{ kubespray_repo_dir }}/{{ kubespray.playbook }} -b -v
+            ansible-playbook -i ../{{ kubespray_inventory_ini }} ../{{ kubespray_repo_dir }}/{{ kubespray.playbook }} -b -v {{ kubespray.playbook_args }}
 
     - name: setup kubeconfig for user
       shell: |

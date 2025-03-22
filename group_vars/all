@@ -130,7 +130,6 @@ charts:
 
 kubespray:
   enabled: True
-
   # enable addons config
   addons: []
   # - helm_enabled
@@ -145,6 +144,9 @@ kubespray:
   
   # Use reset.yml to reset cluster
   playbook: "cluster.yml"
+  # extra args for playbook
+  playbook_args: "-e reset_confirmation=yes"
+
   # release branch from the repo: https://github.com/kubernetes-sigs/kubespray
   release: "release-2.27"
 
