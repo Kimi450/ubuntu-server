@@ -97,8 +97,8 @@
           chart_name: ingress-nginx
           set_options: "--set \
             controller.service.type=NodePort,\
-            controller.service.nodePorts.http=30001,\
-            controller.service.nodePorts.https=30002,\
+            controller.service.nodePorts.http=30080,\
+            controller.service.nodePorts.https=30443,\
             controller.service.externalTrafficPolicy=Local"
     
     - name: Install cert-manager
@@ -723,10 +723,12 @@
             securityContext.container.PUID=\"{{ uid }}\",\
             securityContext.container.PGID=\"568\",\
             securityContext.container.seccompProfile.type=Unconfined,\
+            service.main.type=NodePort,\
+            service.main.ports.main.nodePort=30000,\
             service.webserver.enabled=true"
 
       - debug:
           msg: >
-            You can log into calibre at '{{ ip }}:3002'.
+            You can log into calibre at '{{ ip }}:30000'.
             '{{ dir_home }}' from the host is available under '/media' and
             can be used by the application.
