@@ -72,7 +72,7 @@ charts:
       enabled: True
       # email for the ACME account registration
       # FYI: you dont need to create any account for this
-      email: "example@example.com"
+      email: "main@server.com"
     # log monitoring with Loki (Needs Grafana for a UI)
     loki_stack:
       enabled: True
