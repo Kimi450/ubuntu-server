@@ -79,34 +79,26 @@
       - name: set default storage class
         shell: "kubectl patch storageclass local-path -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"}}}'"
 
-    - name: Install metallb
-      when: charts.services.metallb.enabled
-      block:
-      - name: Install/Upgrade the metallb chart
-        include_tasks: tasks-install-chart.yaml
-        vars:
-          repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
-          install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
-          release_name: metallb
-          chart_name: metallb
-          set_options: "--set \
-            {{ helm_common_general }}"
-
     - name: Install ingress-nginx
+      # https://github.com/kubernetes/ingress-nginx/blob/main/docs/deploy/index.md#quick-start
+      # https://github.com/kubernetes/ingress-nginx/blob/main/docs/deploy/baremetal.md#over-a-nodeport-service
       when: charts.services.ingress_nginx.enabled
       block:
       - name: Install/Upgrade the ingress-nginx chart
         include_tasks: tasks-install-chart.yaml
         vars:
-          repo_name: TrueCharts
+          repo_name: nginx-ingress
           repo_link: https://kubernetes.github.io/ingress-nginx
           install_namespace: "ingress-nginx"
           timeout: "{{ charts.timeout }}"
           release_name: ingress-nginx
           chart_name: ingress-nginx
-          set_options: ""
+          set_options: "--set \
+            controller.service.externalTrafficPolicy=true,\
+            controller.service.type=NodePort,\
+            controller.service.nodePorts.http=30001,\
+            controller.service.nodePorts.https=30002,\
+            controller.service.externalTrafficPolicy=Local"
 
     - name: Install loki-stack
       when: charts.services.loki_stack.enabled

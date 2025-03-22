@@ -62,12 +62,15 @@ charts:
     local_path_provisioner:
       enabled: true
       version: "v0.0.31"
-    # metallb to provider routing from k8s to my host
-    metallb:
-      enabled: true
     # nginx ingress controller for reverse proxy
     ingress_nginx:
       enabled: true
+    # manager for tls certs
+    cert_manager:
+      enabled: true
+      # email for the ACME account registration
+      # Can be anything it seems???
+      email: "example@example.com" # FILL OUT
     # log monitoring with Loki (Needs Grafana for a UI)
     loki_stack:
       enabled: true

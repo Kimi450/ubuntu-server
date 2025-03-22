@@ -90,7 +90,7 @@
     - name: Install Helm
       # https://helm.sh/docs/intro/install/
       shell: "curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash"
-
+      become: true
   vars:
     kubespray_repo_dir: "./kubespray"
     kubespray_venv_dir: "{{ kubespray_repo_dir }}/kubespray-venv"
