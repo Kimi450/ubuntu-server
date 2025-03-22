@@ -113,10 +113,10 @@ Use your own server
     - Point Jellyfin to use the directories mentioned in the playbooks for shows, movies, music and books.
       - By default, on the Jellyfin pod, the directories it will be:
         ```
-        /media/data/shows
-        /media/data/movies
-        /media/data/music
-        /media/data/books
+        /data/shows
+        /data/movies
+        /data/music
+        /data/books
         ```
     - Add any other config required.
       - Recommend setting up the Open Subtitles plugin which requires creating an account on [their website](https://www.opensubtitles.org/en/?).
@@ -152,15 +152,15 @@ Use your own server
       - Go to ``Tools > Options > Web UI > Authentication``
     - Set default download location to one the mentioned directories (or make sure to put it in the right directory when downloading for ease)
       - Go to ``Tools > Options > Downloads > Default Save Path``
-      - Recommend using ``/media/data/downloads``
+      - Recommend using ``/data/downloads``
     - Set seeding limits
       - Recommend seeding limits for when seeding ratio hits "0". It is under ``Tools > Options > BitTorrent > Seeding Limits``
     - Set torrent download/upload limits
-      - Recommended to keep 6 active torrents/downloads and 0 uploads. It is under ``Tools > Options > BitTorrent > Torrent Queueing``
+      - Recommended to keep 12 active torrents/downloads and 0 uploads. It is under ``Tools > Options > BitTorrent > Torrent Queueing``
 
   - ##### Setup Calibre
     - Do base setup
-      - Set folder to be ``/media/data/books`` and select ``Yes`` for it to rebuild the library if asked.
+      - Set folder to be ``/data/books`` and select ``Yes`` for it to rebuild the library if asked.
     - Go to ``Preferences > Sharing over the net``
       - Check the box for ``Require username and password to access the Content server``
       - Check the box for ``Run the server automatically when calibre starts``
@@ -172,7 +172,7 @@ Use your own server
 
   - ##### Setup Calibre Web
     - Default login is ``admin/admin123``
-    - Set folder to be ``/media/data/books``
+    - Set folder to be ``/data/books``
     - To enable web reading, click on ``Admin`` (case sensitive) on the top right
       - Click on the user, default is ``admin``
       - Enable ``Allow ebook viewer``
@@ -191,12 +191,11 @@ Use your own server
 
     - Go to ``Settings`` and click on ``Show Advanced``
     - Enable authentication
-      - Go to ``Settings > General``
       - Set `Authentication` to `Forms (Login Page)`
       - Set `Authentication Required` to `Enabled`
       - Set username and password for access
     - Add torrent client
-      - Go to ``Settings > Download Clients > Add > qBittorent > Custom``
+      - Go to ``Settings > Download Clients > Add > qBittorent``
       - Add the host: ``qbittorrent``
       - Add the port: ``10095``
       - Add the username: ``<qBittorrent_username>``
@@ -206,18 +205,21 @@ Use your own server
     - Set the root directories to be the following
       - Go to ``Settings > Media Management``
 
-        | Service | Root Directory          |
-        |---------|-------------------------|
-        | Readarr | ``/media/data/books/``  |
-        | Sonarr  | ``/media/data/shows/``  |
-        | Radarr  | ``/media/data/movies/`` |
-        | Lidarr  | ``/media/data/music/``  |
+        | Service | Root Directory    |
+        |---------|-------------------|
+        | Readarr | ``/data/books/``  |
+        | Sonarr  | ``/data/shows/``  |
+        | Radarr  | ``/data/movies/`` |
+        | Lidarr  | ``/data/music/``  |
       - Enable renaming
     - Adjust quality definitions
       - Go to ``Settings > Quality``
       - Set the ``Size Limit`` or ``Megabytes Per Minute`` (or equivalent) to appropriate numbers
         - This will ensure your downloads are not "too big"
       - For movies and shows, ``2-3GiB/h`` would usually be sufficient as the ``Preferred`` value, and you can leave the ``Max`` value a bit higher to ensure a better chance of download grabs
+        - Min: 0
+        - Preferred: 30
+        - Max: 2000
     - Radarr/Sonarr specific config
       - **[EXPERIMENTAL]** Enforce downloads of original language media only
         - Go to ``Settings > Custom Formats``
@@ -233,7 +235,7 @@ Use your own server
     - Readarr specific config
       - Go to ``Settings > Media Management``
         - Add root folder (you cannot edit an existing one)
-          - Set the path to be ``/media/data/books/``
+          - Set the path to be ``/data/books/``
           - Enable ``Use Calibre`` options the the following defaults
             - Calibre host: ``calibre-webserver``
             - Calibre port: ``8081``
@@ -243,7 +245,6 @@ Use your own server
 
   - ##### Setup Prowlarr
     - Enable authentication
-      - Go to ``Settings > General``
       - Set `Authentication` to `Forms (Login Page)`
       - Set `Authentication Required` to `Enabled`
       - Set username and password for access
@@ -269,7 +270,6 @@ Use your own server
             Add with higher priority, example "1", since it has good english subtitled content
             Add "flaresolverr" tag
           Bangumi Moe
-          AniRena
           Nyaa.si
           Tokyo Toshokan
           ```
@@ -312,6 +312,8 @@ Use your own server
         - Fill out the path mappings if the directories in which data is stored is different for both services (by default both services will use the same directory to access data, so you dont need to change anything for a default install)
       - Go to ``Settings > Languages``
         - Add a language profile and set defaults for movies and series'
+        - You may need to set language filters first before being able to create a profile with the languages in them
+        - Add both, for hearing impaired and regular ones, to increase your chances
       - Go to ``Settings > Provider`` and add providers for subtitles
         - Decent options are:
           - Opensubtitles.com
@@ -350,8 +352,16 @@ Use your own server
           - Quality profile can be `HD-1080p` or `HD - 720/1080p`
           - Select the applicable root folders
           - Check relevant options that suit your needs
+            - General
+              - Enable `Tag Requests`
+              - Enable `Scan`
+              - Enable `Default Server`
+            - Sonarr specific
+              - Enable `Season Folders`
     - Go to `Users` and either add new users or import from Jellyfin directly
-      - Give them `Auto approve` and `Request` permissions for ease where applicable
+      - This is not required by default
+      - Give them `Manage Requests` and other permissions for ease where applicable
+    - Go to `Settings -> Users` and give them all `Auto-Approve` and `Auto-Request` Permissions by default for ease.
 
   - ##### Setup Ombi
     - One stop shop for Sonarr/Radarr/Lidarr requests

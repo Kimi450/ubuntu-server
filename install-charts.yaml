@@ -287,7 +287,7 @@
       - debug:
           msg: >
               You can log into Jellyfin at 'jellyfin.{{ domain_name }}'.
-              '{{ dir_home }}' is available under '/media' and can be used by
+              '{{ dir_data }}' is available under '/data' and can be used by
               Jellyfin. If need be, delete any existing server and go to the
               URL mention above once again to setup a new server.
 
@@ -330,7 +330,7 @@
           msg: >
             You can log into qBittorrent at 'qbittorrent.{{ domain_name }}' using
             "admin/{{ qbittorrent_random_password.stdout }}" as the default creds. Change this after deployment.
-            '{{ dir_home }}' from the host is available under '/media' and
+            '{{ dir_data }}' from the host is available under '/data' and
             can be used by the application to download things. Downloading in
             the directories under {{ dir_data }} will be picked up by Jellyfin.
 
@@ -390,7 +390,7 @@
           msg: >
             You can log into prowlarr at 'prowlarr.{{ domain_name }}'. Go to this
             URL and add the indexers you wish to use.
-            '{{ dir_home }}' from the host is available under '/media' and
+            '{{ dir_data }}' from the host is available under '/data' and
             can be used by the application to download things. Downloading in
             the directories under {{ dir_data }} will be picked up by Jellyfin.
 
@@ -428,7 +428,7 @@
       - debug:
           msg: >
             You can log into radarr at 'radarr.{{ domain_name }}'.
-            '{{ dir_home }}' from the host is available under '/media' and
+            '{{ dir_data }}' from the host is available under '/data' and
             can be used by the application to download things. Downloading in
             the directories under {{ dir_data }} will be picked up by Jellyfin.
 
@@ -466,7 +466,7 @@
       - debug:
           msg: >
             You can log into sonarr at 'sonarr.{{ domain_name }}'.
-            '{{ dir_home }}' from the host is available under '/media' and
+            '{{ dir_data }}' from the host is available under '/data' and
             can be used by the application to download things. Downloading in
             the directories under {{ dir_data }} will be picked up by Jellyfin.
 
@@ -505,7 +505,7 @@
       - debug:
           msg: >
             You can log into bazarr at 'bazarr.{{ domain_name }}'.
-            '{{ dir_home }}' from the host is available under '/media' and
+            '{{ dir_data }}' from the host is available under '/data' and
             can be used by the application.
 
     - name: Install readarr
@@ -542,7 +542,7 @@
       - debug:
           msg: >
             You can log into readarr at 'readarr.{{ domain_name }}'.
-            '{{ dir_home }}' from the host is available under '/media' and
+            '{{ dir_data }}' from the host is available under '/data' and
             can be used by the application.
 
     - name: Install lidarr
@@ -579,7 +579,7 @@
       - debug:
           msg: >
             You can log into lidarr at 'lidarr.{{ domain_name }}'.
-            '{{ dir_home }}' from the host is available under '/media' and
+            '{{ dir_data }}' from the host is available under '/data' and
             can be used by the application.
 
     - name: Install ombi
@@ -606,7 +606,7 @@
       - debug:
           msg: >
               You can log into ombi at 'ombi.{{ domain_name }}'.
-              '{{ dir_home }}' is available under '/media' and can be used by
+              '{{ dir_data }}' is available under '/data' and can be used by
               ombi. If need be, delete any existing server and go to the
               URL mention above once again to setup a new server.
 
@@ -634,7 +634,7 @@
       - debug:
           msg: >
               You can log into jellyseerr at 'jellyseerr.{{ domain_name }}'.
-              '{{ dir_home }}' is available under '/media' and can be used by
+              '{{ dir_data }}' is available under '/data' and can be used by
               jellyseerr. If need be, delete any existing server and go to the
               URL mention above once again to setup a new server.
 
@@ -696,7 +696,7 @@
       - debug:
           msg: >
             You can log into calibre-web at 'calibre-web.{{ domain_name }}'.
-            '{{ dir_home }}' from the host is available under '/media' and
+            '{{ dir_data }}' from the host is available under '/data' and
             can be used by the application.
 
     - name: Install calibre
@@ -730,5 +730,5 @@
       - debug:
           msg: >
             You can log into calibre at '{{ ip }}:30000'.
-            '{{ dir_home }}' from the host is available under '/media' and
+            '{{ dir_data }}' from the host is available under '/data' and
             can be used by the application.
