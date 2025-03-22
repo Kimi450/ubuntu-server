@@ -432,7 +432,7 @@ Use your own server
 
 # Appendix
 
-## [UNTESTED] Prometheus TSDB Backup Restore
+## Prometheus TSDB Backup Restore
 
 In case of a migration, you may choose to wnat to migrate data from prometheus along with the app backups stored in the server's app-config dir.
 
@@ -444,8 +444,7 @@ Resources:
 ### Enable admin API
 
 ```bash
-kubectl -n monitoring patch prometheus kube-prometheus-stack-prometheus \
-  --type merge --patch '{"spec":{"enableAdminAPI":true}}'
+kubectl -n monitoring patch prometheus kube-prometheus-stack-prometheus --type merge --patch '{"spec":{"enableAdminAPI":true}}'
 ```
 
 ### Verify admin API is enabled
@@ -474,23 +473,37 @@ Take snapshot
 curl -v -X 'POST' -ks 'localhost:9090/api/v1/admin/tsdb/snapshot'
 ```
 
-### Download TSDB snapshot from pod to host
+### Download TSDB snapshot
+
+#### Option 1: Download from pod to host
 
 ```bash
-kubectl cp -c prometheus prometheus-kube-prometheus-stack-prometheus-0:/prometheus/snapshots ./
+TMP_DIR=$(mktemp -d)
+kubectl cp -c prometheus prometheus-kube-prometheus-stack-prometheus-0:/prometheus/snapshots ${TMP_DIR}
+```
+
+#### Option 2: Find the PV on your host and make a backup of the contents [RECOMMENDED]
+
+This is easier and in the context of this server's setup.
+
+```bash
+export TMP_DIR=$(mktemp -d)
+
+export PV_DIR=$(kubectl get pv -o yaml $(kubectl get pv | grep monitoring/prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0 | cut -d' ' -f1) | grep "path:" | cut -d " " -f 6)
+
+cp -r ${PV_DIR}/prometheus-db/snapshots/* ${TMP_DIR}
 ```
 
 ### Restore Backup
 
-```bash
-export DIR="./20250322T135503Z-3afab86228527d60"
+Copy over your backup to any other host if applicable.
 
-# clear dir
-kubectl -n monitoring -c prometheus exec -it prometheus-kube-prometheus-stack-prometheus-0 -- /bin/sh -c "rm -rf /prometheus/*"
+```bash
+export PV_DIR=$(kubectl get pv -o yaml $(kubectl get pv | grep monitoring/prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0 | cut -d' ' -f1) | grep "path:" | cut -d " " -f 6)
+
+# clear dir. Might not be needed
+rm -rf ${PV_DIR}/prometheus-db/*
 
 # copy over old data
-kubectl -n monitoring -c prometheus cp ${DIR} prometheus-kube-prometheus-stack-prometheus-0:/prometheus/
-
-# move old data into expected dir
-kubectl -n monitoring -c prometheus exec prometheus-kube-prometheus-stack-prometheus-0 -- /bin/sh -c "mv /prometheus/${DIR}/* /prometheus"
+mv ${TMP_DIR}/* ${PV_DIR}/prometheus-db/
 ```
