@@ -6,11 +6,13 @@ domain_name: "" # FILL OUT
 
 # for basic server setup (in my opinion)
 basics:
-  enabled: true
+  enabled: True
+  # reboot machine
+  reboot: True
 
 # vnc for remote desktop with GUI
 vnc:
-  enabled: true
+  enabled: True
   # will be truncated to 8 characters
   password: "" # FILL OUT
   # display for what port will be accessed
@@ -19,14 +21,14 @@ vnc:
 
 # squid credentials, for proxy
 squid:
-  enabled: true
+  enabled: True
   username: "" # FILL OUT
   password: "" # FILL OUT
   port: "3128"
 
 # sambashare for network attached storage
 smb:
-  enabled: true
+  enabled: True
   password: "" # FILL OUT
   share_name: "sambashare"
 
@@ -34,7 +36,7 @@ smb:
 # when the server IP changes
 # NOTE: It doesnt add entries, refer to the README.md file for instructions
 cloudflare:
-  enabled: true
+  enabled: True
   # Set your Cloudflare Zone ID
   zone_id: "" # FILL OUT
   # Set your Cloudflare Bearer token to view the zone and edit DNS records in it
@@ -44,7 +46,7 @@ cloudflare:
 
 # ==== Select what charts you wish to install ====
 charts:
-  enabled: true
+  enabled: True
   resources:
     # kubernetes resource requests for the pods
     requests:
@@ -60,53 +62,53 @@ charts:
   services:
     # provision hostPaths using this controller
     local_path_provisioner:
-      enabled: true
+      enabled: True
       version: "v0.0.31"
     # nginx ingress controller for reverse proxy
     ingress_nginx:
-      enabled: true
+      enabled: True
     # manager for tls certs
     cert_manager:
-      enabled: true
+      enabled: True
       # email for the ACME account registration
-      # Can be anything it seems???
-      email: "example@example.com" # FILL OUT
+      # FYI: you dont need to create any account for this
+      email: "example@example.com"
     # log monitoring with Loki (Needs Grafana for a UI)
     loki_stack:
-      enabled: true
+      enabled: True
     # metrics monitoring with Grafana and Prometheus
     kube_prometheus_stack:
-      enabled: true
+      enabled: True
       grafana:
         admin_username: "admin" # FILL OUT
         admin_password: "admin" # FILL OUT
     # media client
     jellyfin:
-      enabled: true
+      enabled: True
     # torrents
     qbittorrent:
-      enabled: true
+      enabled: True
     # to bypass cloudflare protection
     flaresolverr:
-      enabled: true
+      enabled: True
     # to manage indexers
     prowlarr:
-      enabled: true
+      enabled: True
     # movie monitoring
     radarr:
-      enabled: true
+      enabled: True
     # show monitoring
     sonarr:
-      enabled: true
+      enabled: True
     # subtitle hunting
     bazarr:
-      enabled: true
+      enabled: True
     # movie and show interface
     jellyseerr:
-      enabled: true
+      enabled: True
     # speed test to server
     librespeed:
-      enabled: true
+      enabled: True
     # movie, show and music interface
     ombi:
       enabled: false
@@ -123,17 +125,13 @@ charts:
     calibre:
       enabled: false
 
-# ==== To install Docker, helm and kubectl ====
-
-cloud_native:
-  enabled: true
 
 # ==== k8s settings ====
 
 kubespray:
-  enabled: true
-  # enable addons config
+  enabled: True
 
+  # enable addons config
   addons: []
   # - helm_enabled
   # - ingress_nginx_enabled

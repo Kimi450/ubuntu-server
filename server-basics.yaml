@@ -129,3 +129,8 @@
           command: "{{ useful_files_repo_dir }}/vimmer.sh"
       vars:
         useful_files_repo_dir: "{{ dir_repos }}/useful_files"
+
+    - name: "reboot machine: {{ basics.reboot }}"
+      when: "{{ basics.reboot }}"
+      become: true
+      reboot:

@@ -1,10 +1,10 @@
 all:
   hosts:
     home-main:
-      ansible_host: <YOUR_SERVER_IP_OR_DOMAIN_NAME>
-      ansible_port: <YOUR_SERVER_SSH_PORT>
-      ansible_user: <YOUR_SERVER_USERNAME>
-      ansible_sudo_pass: <YOUR_SERVER_PASSWORD>
+      ansible_host: "" # FILL OUT
+      ansible_port: 22 # FILL OUT
+      ansible_user: "" # FILL OUT
+      ansible_sudo_pass: "" # FILL OUT
     # adding multiple hosts wont play well with the group_vars file probably with the current setup
     # So use the below as just an example
     # home-throwaway:

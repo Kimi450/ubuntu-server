@@ -25,6 +25,8 @@
       ingress.main.primary=true,\
       ingress.main.expandObjectName=true,\
       ingress.main.ingressClassName=nginx,\
+      ingress.main.integrations.certManager.enabled=true,\
+      ingress.main.integrations.certManager.certificateIssuer=letsencrypt-prod,\
       ingress.main.integrations.traefik.enabled=false,\
       ingress.main.hosts[0].paths[0].path='/',\
       ingress.main.hosts[0].paths[0].pathType='Prefix'"
@@ -94,11 +96,53 @@
           release_name: ingress-nginx
           chart_name: ingress-nginx
           set_options: "--set \
-            controller.service.externalTrafficPolicy=true,\
             controller.service.type=NodePort,\
             controller.service.nodePorts.http=30001,\
             controller.service.nodePorts.https=30002,\
             controller.service.externalTrafficPolicy=Local"
+    
+    - name: Install cert-manager
+      # https://cert-manager.io/docs/installation/helm/
+      # https://cert-manager.io/docs/tutorials/acme/nginx-ingress/
+      when: charts.services.cert_manager.enabled
+      block:
+      - name: Install/Upgrade the cert-manager chart
+        include_tasks: tasks-install-chart.yaml
+        vars:
+          repo_name: jetstack
+          repo_link: https://charts.jetstack.io
+          install_namespace: "cert-manager"
+          timeout: "{{ charts.timeout }}"
+          release_name: cert-manager
+          chart_name: cert-manager
+          set_options: "--set \
+            ingressShim.defaultIssuerName=letsencrypt-prod,\
+            prometheus.enabled=true,\
+            crds.enabled=true"
+
+      - name: "install clusterissuer CR with account email: {{ charts.services.cert_manager.email }}"
+        shell: |
+          kubectl apply -f - <<EOF
+            apiVersion: cert-manager.io/v1
+            kind: ClusterIssuer
+            metadata:
+              name: letsencrypt-prod
+              namespace: cert-manager
+            spec:
+              acme:
+                # The ACME server URL
+                server: https://acme-v02.api.letsencrypt.org/directory
+                # Email address used for ACME registration
+                email: "{{ charts.services.cert_manager.email }}"
+                # Name of a secret used to store the ACME account private key
+                privateKeySecretRef:
+                  name: letsencrypt-prod
+                # Enable the HTTP-01 challenge provider
+                solvers:
+                  - http01:
+                      ingress:
+                        ingressClassName: nginx
+          EOF
 
     - name: Install loki-stack
       when: charts.services.loki_stack.enabled
@@ -164,8 +208,12 @@
             grafana.adminUser={{ charts.services.kube_prometheus_stack.grafana.admin_username }},\
             grafana.adminPassword={{ charts.services.kube_prometheus_stack.grafana.admin_password }},\
             grafana.ingress.enabled=true,\
+            grafana.ingress.annotations.cert-manager\\\\.io/cluster-issuer=letsencrypt-prod,\
+            grafana.ingress.annotations.cert-manager\\\\.io/private-key-rotation-policy=Always,\
+            grafana.ingress.tls[0].hosts[0]=grafana.{{ domain_name }},\
+            grafana.ingress.tls[0].secretName=grafana-tls,\
             grafana.ingress.ingressClassName=nginx,\
-            grafana.ingress.hosts={grafana.{{ domain_name }}}"
+            grafana.ingress.hosts[0]=grafana.{{ domain_name }}"
 
       - name: Setup plugins for Grafana
         block:
