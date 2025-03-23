@@ -95,6 +95,7 @@ Use your own server
     - Add the recommended dashboards (Make sure you select the correct job in the variables section, you can default to `kubernetes-service-scraper`)
       - [Node Exporter Full](https://grafana.com/grafana/dashboards/1860)
       - [Loki Kubernetes Logs](https://grafana.com/grafana/dashboards/15141)
+      - [Container Log Dashboard](https://grafana.com/grafana/dashboards/16966)
       - [Sonarr v3](https://grafana.com/grafana/dashboards/12530-sonarr-v3/)
       - [Radarr v3](https://grafana.com/grafana/dashboards/12896-radarr-v3/)
       - [Pods (Aggregated view)](https://grafana.com/grafana/dashboards/8860)
