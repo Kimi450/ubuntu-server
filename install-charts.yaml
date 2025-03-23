@@ -118,6 +118,7 @@
           set_options: "--set \
             ingressShim.defaultIssuerName=letsencrypt-prod,\
             prometheus.enabled=true,\
+            crds.keep=false,\
             crds.enabled=true"
 
       - name: "install clusterissuer CR with account email: {{ charts.services.cert_manager.email }}"
