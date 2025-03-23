@@ -6,6 +6,8 @@
     namespace_user: "{{ ansible_user }}"
     namespace_monitoring: monitoring
     namespace_generic_services: generic-services
+    namespace_cert_manager: cert-manager
+    namespace_ingress: ingress-nginx
 
     helm_kube_prometheus_stack_loki_config: "" # default
 
@@ -91,7 +93,7 @@
         vars:
           repo_name: nginx-ingress
           repo_link: https://kubernetes.github.io/ingress-nginx
-          install_namespace: "ingress-nginx"
+          install_namespace: "{{ namespace_ingress }}"
           timeout: "{{ charts.timeout }}"
           release_name: ingress-nginx
           chart_name: ingress-nginx
@@ -111,7 +113,7 @@
         vars:
           repo_name: jetstack
           repo_link: https://charts.jetstack.io
-          install_namespace: "cert-manager"
+          install_namespace: "{{ namespace_cert_manager }}"
           timeout: "{{ charts.timeout }}"
           release_name: cert-manager
           chart_name: cert-manager
@@ -128,7 +130,7 @@
             kind: ClusterIssuer
             metadata:
               name: letsencrypt-prod
-              namespace: cert-manager
+              namespace: {{ namespace_cert_manager }}
             spec:
               acme:
                 # The ACME server URL
