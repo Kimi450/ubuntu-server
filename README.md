@@ -91,6 +91,10 @@ Use your own server
   - You can add `-vvvv` to get more verbose output
 
 - #### After the installation
+  - ##### [OPTIONAL] Setup Fishet
+    - Consider setting up [fishnet](https://github.com/lichess-org/fishnet) to help [Lichess](https://lichess.org/) run game analysis!
+      - Kubernetes installations are also supported and documented [here](https://github.com/lichess-org/fishnet/blob/master/doc/install.md#kubernetes)
+
   - ##### Setup Grafana
     - Add the recommended dashboards (Make sure you select the correct job in the variables section, you can default to `kubernetes-service-scraper`)
       - [Node Exporter Full](https://grafana.com/grafana/dashboards/1860)
