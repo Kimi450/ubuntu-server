@@ -441,7 +441,7 @@
       block:
       - name: Create config directory on hostpath for prowlarr
         file:
-          path: "{{ dir_home }}{{ dir_data_config_suffix }}/prowlarr"
+          path: "{{ dir_data_configs }}/prowlarr"
           state: directory
           mode: '0777'
 
@@ -462,7 +462,7 @@
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_home }}{{ dir_data_config_suffix }}/prowlarr,\
+            persistence.config.hostPath={{ dir_data_configs }}/prowlarr,\
             ingress.main.hosts[0].host='prowlarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=prowlarr,\
             ingress.main.hosts[0].paths[0].service.port=9696"
@@ -480,7 +480,7 @@
       block:
       - name: Create config directory on hostpath for radarr
         file:
-          path: "{{ dir_home }}{{ dir_data_config_suffix }}/radarr"
+          path: "{{ dir_data_configs }}/radarr"
           state: directory
           mode: '0777'
 
@@ -501,7 +501,7 @@
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_home }}{{ dir_data_config_suffix }}/radarr,\
+            persistence.config.hostPath={{ dir_data_configs }}/radarr,\
             ingress.main.hosts[0].host='radarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=radarr,\
             ingress.main.hosts[0].paths[0].service.port=7878"
@@ -518,7 +518,7 @@
       block:
       - name: Create config directory on hostpath for sonarr
         file:
-          path: "{{ dir_home }}{{ dir_data_config_suffix }}/sonarr"
+          path: "{{ dir_data_configs }}/sonarr"
           state: directory
           mode: '0777'
 
@@ -539,7 +539,7 @@
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_home }}{{ dir_data_config_suffix }}/sonarr,\
+            persistence.config.hostPath={{ dir_data_configs }}/sonarr,\
             ingress.main.hosts[0].host='sonarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=sonarr,\
             ingress.main.hosts[0].paths[0].service.port=8989"
@@ -556,7 +556,7 @@
       block:
       - name: Create config directory on hostpath for bazarr
         file:
-          path: "{{ dir_home }}{{ dir_data_config_suffix }}/bazarr"
+          path: "{{ dir_data_configs }}/bazarr"
           state: directory
           mode: '0777'
 
@@ -577,7 +577,7 @@
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_home }}{{ dir_data_config_suffix }}/bazarr,\
+            persistence.config.hostPath={{ dir_data_configs }}/bazarr,\
             metrics.main.enabled=false,\
             ingress.main.hosts[0].host='bazarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=bazarr,\
@@ -594,7 +594,7 @@
       block:
       - name: Create config directory on hostpath for readarr
         file:
-          path: "{{ dir_home }}{{ dir_data_config_suffix }}/readarr"
+          path: "{{ dir_data_configs }}/readarr"
           state: directory
           mode: '0777'
 
@@ -615,7 +615,7 @@
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_home }}{{ dir_data_config_suffix }}/readarr,\
+            persistence.config.hostPath={{ dir_data_configs }}/readarr,\
             ingress.main.hosts[0].host='readarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=readarr,\
             ingress.main.hosts[0].paths[0].service.port=8787"
@@ -631,7 +631,7 @@
       block:
       - name: Create config directory on hostpath for lidarr
         file:
-          path: "{{ dir_home }}{{ dir_data_config_suffix }}/lidarr"
+          path: "{{ dir_data_configs }}/lidarr"
           state: directory
           mode: '0777'
 
@@ -652,7 +652,7 @@
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_home }}{{ dir_data_config_suffix }}/lidarr,\
+            persistence.config.hostPath={{ dir_data_configs }}/lidarr,\
             ingress.main.hosts[0].host='lidarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=lidarr,\
             ingress.main.hosts[0].paths[0].service.port=8686"

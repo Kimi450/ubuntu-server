@@ -27,7 +27,7 @@
         dir_data_books: "/home/{{ ansible_user }}/data/books"
         dir_data_music: "/home/{{ ansible_user }}/data/music"
         dir_data_downloads: "/home/{{ ansible_user }}/data/downloads"
-        dir_data_config_suffix: "/data/app-configs"
+        dir_data_configs: "/home/{{ ansible_user }}/data/app-configs"
 
 - import_playbook: server-basics.yaml
   when:
