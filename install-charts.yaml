@@ -8,6 +8,7 @@
     namespace_generic_services: generic-services
     namespace_cert_manager: cert-manager
     namespace_ingress: ingress-nginx
+    namespace_cloudnative_postgres: "cnpg-system"
 
     helm_kube_prometheus_stack_loki_config: "" # default
 
@@ -253,6 +254,77 @@
             You can log into Grafana at 'grafana.{{ domain_name }}' using
             {{ charts.services.kube_prometheus_stack.grafana.admin_username }}/
             {{ charts.services.kube_prometheus_stack.grafana.admin_password }}
+
+    - name: Install cnpg
+      when: charts.services.cnpg.enabled
+      block:
+      - name: Install/Upgrade the cnpg chart
+        include_tasks: tasks-install-chart.yaml
+        vars:
+          repo_name: cnpg
+          repo_link: https://cloudnative-pg.github.io/charts
+          install_namespace: "{{ namespace_cloudnative_postgres }}"
+          timeout: "{{ charts.timeout }}"
+          release_name: cnpg
+          chart_name: cloudnative-pg
+          set_options: "--set \
+            crds.create=true"
+
+    - name: Install immich
+      when: charts.services.immich.enabled
+      block:
+      - name: Install/Upgrade the immich chart
+        include_tasks: tasks-install-chart.yaml
+        vars:
+          repo_name: TrueCharts
+          repo_link: oci://tccr.io/truecharts
+          install_namespace: "{{ namespace_generic_services }}"
+          timeout: "{{ charts.timeout }}"
+          release_name: immich
+          chart_name: immich
+          set_options: "--set \
+            {{ helm_common_general }},\
+            {{ helm_common_security_contexts }},\
+            {{ helm_common_resources }},\
+            {{ helm_common_ingress }},\
+            persistence.mlcache.enabled=true,\
+            persistence.mlcache.type=hostPath,\
+            persistence.mlcache.hostPath={{ dir_data_immich }}/mlcache,\
+            persistence.microcache.enabled=true,\
+            persistence.microcache.type=hostPath,\
+            persistence.microcache.hostPath={{ dir_data_immich }}/microcache,\
+            persistence.library.enabled=true,\
+            persistence.library.type=hostPath,\
+            persistence.library.hostPath={{ dir_data_immich }}/library,\
+            persistence.uploads.enabled=true,\
+            persistence.uploads.type=hostPath,\
+            persistence.uploads.hostPath={{ dir_data_immich }}/uploads,\
+            persistence.backups.enabled=true,\
+            persistence.backups.type=hostPath,\
+            persistence.backups.hostPath={{ dir_data_immich }}/backups,\
+            persistence.thumbs.enabled=true,\
+            persistence.thumbs.type=hostPath,\
+            persistence.thumbs.hostPath={{ dir_data_immich }}/thumbs,\
+            persistence.profile.enabled=true,\
+            persistence.profile.type=hostPath,\
+            persistence.profile.hostPath={{ dir_data_immich }}/profile,\
+            persistence.video.enabled=true,\
+            persistence.video.type=hostPath,\
+            persistence.video.hostPath={{ dir_data_immich }}/encoded-video,\
+            securityContext.container.runAsUser=0,\
+            securityContext.container.privileged=true,\
+            securityContext.container.runAsNonRoot=false,\
+            securityContext.container.allowPrivilegeEscalation=true,\
+            ingress.main.hosts[0].host='immich.{{ domain_name }}',\
+            ingress.main.hosts[0].paths[0].service.name=immich,\
+            ingress.main.hosts[0].paths[0].service.port=8096"
+
+      - debug:
+          msg: >
+              You can log into Jellyfin at 'jellyfin.{{ domain_name }}'.
+              '{{ dir_data }}' is available under '/data' and can be used by
+              Jellyfin. If need be, delete any existing server and go to the
+              URL mention above once again to setup a new server.
 
     - name: Install jellyfin
       when: charts.services.jellyfin.enabled

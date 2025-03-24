@@ -20,6 +20,7 @@
         dir_home: "/home/{{ ansible_user }}"
         dir_data: "/home/{{ ansible_user }}/data"
         dir_repos: "/home/{{ ansible_user }}/repos"
+        dir_data_immich: "/home/{{ ansible_user }}/data/immich"
         dir_data_movies: "/home/{{ ansible_user }}/data/movies"
         dir_data_shows: "/home/{{ ansible_user }}/data/shows"
         dir_data_games: "/home/{{ ansible_user }}/data/games"

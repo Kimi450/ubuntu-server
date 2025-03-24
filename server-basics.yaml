@@ -92,6 +92,7 @@
         - "{{ dir_data_games }}"
         - "{{ dir_data_books }}"
         - "{{ dir_data_music }}"
+        - "{{ dir_data_immich }}"
         - "{{ dir_data_downloads }}"
         - "{{ dir_home }}{{ dir_data_config_suffix }}"
 

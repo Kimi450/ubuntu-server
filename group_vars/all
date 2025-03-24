@@ -6,13 +6,13 @@ domain_name: "" # FILL OUT
 
 # for basic server setup (in my opinion)
 basics:
-  enabled: True
+  enabled: true
   # reboot machine
-  reboot: True
+  reboot: true
 
 # vnc for remote desktop with GUI
 vnc:
-  enabled: True
+  enabled: true
   # will be truncated to 8 characters
   password: "" # FILL OUT
   # display for what port will be accessed
@@ -21,14 +21,14 @@ vnc:
 
 # squid credentials, for proxy
 squid:
-  enabled: True
+  enabled: true
   username: "" # FILL OUT
   password: "" # FILL OUT
   port: "3128"
 
 # sambashare for network attached storage
 smb:
-  enabled: True
+  enabled: true
   password: "" # FILL OUT
   share_name: "sambashare"
 
@@ -36,79 +36,112 @@ smb:
 # when the server IP changes
 # NOTE: It doesnt add entries, refer to the README.md file for instructions
 cloudflare:
-  enabled: True
+  enabled: true
+
   # Set your Cloudflare Zone ID
   zone_id: "" # FILL OUT
+
   # Set your Cloudflare Bearer token to view the zone and edit DNS records in it
   auth_key: "" # FILL OUT
+
   # WORK_IN_PROGRESS: Set your Cloudfare API token for editing zone DNS
   api_token: "WORK_IN_PROGRESS"
 
 # ==== Select what charts you wish to install ====
 charts:
-  enabled: True
+  enabled: true
+  
   resources:
     # kubernetes resource requests for the pods
     requests:
       cpu: 10m
       memory: 50M
+  
     # kubernetes resource limits for the pods
     # leave some headroom for the OS to not lose server access in case of an issue
     limits:
       cpu: 4
       memory: "6000M"
+  
   # timeout as helm expects it in --timeout for the charts
   timeout: 15m
+  
   services:
+    
     # provision hostPaths using this controller
     local_path_provisioner:
-      enabled: True
+      enabled: true
       version: "v0.0.31"
+    
     # nginx ingress controller for reverse proxy
     ingress_nginx:
-      enabled: True
+      enabled: true
+    
     # manager for tls certs
     cert_manager:
-      enabled: True
+      enabled: true
       # email for the ACME account registration
       # FYI: you dont need to create any account for this
       email: "main@server.com"
+    
     # log monitoring with Loki (Needs Grafana for a UI)
     loki_stack:
-      enabled: True
+      enabled: true
+    
     # metrics monitoring with Grafana and Prometheus
     kube_prometheus_stack:
-      enabled: True
+      enabled: true
       grafana:
         admin_username: "admin" # FILL OUT
         admin_password: "admin" # FILL OUT
+    
     # media client
     jellyfin:
-      enabled: True
+      enabled: true
+    
     # torrents
     qbittorrent:
-      enabled: True
+      enabled: true
+    
     # to bypass cloudflare protection
     flaresolverr:
-      enabled: True
+      enabled: true
+    
     # to manage indexers
     prowlarr:
-      enabled: True
+      enabled: true
+    
     # movie monitoring
     radarr:
-      enabled: True
+      enabled: true
+    
     # show monitoring
     sonarr:
-      enabled: True
+      enabled: true
+    
     # subtitle hunting
     bazarr:
-      enabled: True
+      enabled: true
+    
     # movie and show interface
     jellyseerr:
-      enabled: True
+      enabled: true
+    
     # speed test to server
     librespeed:
-      enabled: True
+      enabled: true
+    
+    # cloud native instance of postgres DB
+    cnpg:
+      enabled: true
+
+    # google photos alternative
+    # NOTE: REQUIRES YOU TO HAVE CNPG INSTALLED BEFORE
+    #       - Either set `cnpg.enabled` to true or
+    #       - make sure you have installed it first (incase of an upgrade)
+    immich:
+      enabled: true
+
     # movie, show and music interface
     ombi:
       enabled: false
@@ -129,7 +162,16 @@ charts:
 # ==== k8s settings ====
 
 kubespray:
-  enabled: True
+  enabled: true
+  
+  # Use reset.yml to reset cluster
+  playbook: "cluster.yml"
+  # extra args for playbook
+  playbook_args: "-e reset_confirmation=yes"
+
+  # release branch from the repo: https://github.com/kubernetes-sigs/kubespray
+  release: "release-2.27"
+
   # enable addons config
   addons: []
   # - helm_enabled
@@ -142,13 +184,6 @@ kubespray:
   k8s_cluster: []
   # - kube_proxy_strict_arp
   
-  # Use reset.yml to reset cluster
-  playbook: "cluster.yml"
-  # extra args for playbook
-  playbook_args: "-e reset_confirmation=yes"
-
-  # release branch from the repo: https://github.com/kubernetes-sigs/kubespray
-  release: "release-2.27"
 
 # to allow pinless bluetooth connections to the server
 bluetooth:
