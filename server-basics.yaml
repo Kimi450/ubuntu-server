@@ -86,13 +86,6 @@
         mode: '0777'
       with_items:
         - "{{ basics.repos_dir }}"
-        - "{{ charts.services.radarr.dir }}"
-        - "{{ charts.services.sonarr.dir }}"
-        - "{{ charts.services.readarr.dir }}"
-        - "{{ charts.services.lidarr.dir }}"
-        - "{{ charts.services.immich.dir }}"
-        - "{{ charts.services.qbittorrent.dir }}"
-        - "{{ charts.services.configs_dir }}"
       become: true # incase the dirs created are at root level
 
     - name: Setup the bashrc file and the vimrc file

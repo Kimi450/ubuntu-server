@@ -90,6 +90,21 @@
       securityContext.container.runAsGroup=568"
 
   tasks:
+    - name: Create directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0777'
+      with_items:
+        - "{{ charts.services.configs_dir }}"
+        - "{{ charts.services.radarr.dir }}"
+        - "{{ charts.services.sonarr.dir }}"
+        - "{{ charts.services.readarr.dir }}"
+        - "{{ charts.services.lidarr.dir }}"
+        - "{{ charts.services.immich.dir }}"
+        - "{{ charts.services.qbittorrent.dir }}"
+      become: true # incase the dirs created are at root level
+
     - name: Install rancher local-path-provisioner
       when: charts.services.local_path_provisioner.enabled
       block:
