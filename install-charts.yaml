@@ -45,14 +45,11 @@
       persistence.shared.enabled=false,\
       persistence.shm.enabled=false,\
       persistence.temp.enabled=false,\
-      persistence.varlogs.enabled=False,\
-      persistence.config.enabled=true,\
-      persistence.config.size=1Gi"
+      persistence.varlogs.enabled=false"
 
     helm_common_persistence_config: "\
       persistence.config.enabled=true,\
-      persistence.config.type=hostPath,\
-      persistence.config.mountPath=/data/config"
+      persistence.config.type=hostPath"
 
     helm_common_persistence_movies: "\
       persistence.movies.enabled=true,\
@@ -368,6 +365,8 @@
             {{ helm_common_persistence_books }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
+            {{ helm_common_persistence_config }},\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/jellyfin,\
             securityContext.container.runAsUser=0,\
             securityContext.container.privileged=true,\
             securityContext.container.runAsNonRoot=false,\
@@ -409,6 +408,8 @@
             {{ helm_common_persistence_downloads }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
+            {{ helm_common_persistence_config }},\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/qbittorrent,\
             ingress.main.hosts[0].host='qbittorrent.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=qbittorrent,\
             ingress.main.hosts[0].paths[0].service.port=10095"
@@ -449,7 +450,8 @@
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
-            {{ helm_common_resources }}"
+            {{ helm_common_resources }},\
+            persistence.config.enabled=false"
 
       - debug:
           msg: >
@@ -729,6 +731,8 @@
             {{ helm_common_security_contexts }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
+            {{ helm_common_persistence_config }},\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/jellyseerr,\
             ingress.main.hosts[0].host='jellyseerr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=jellyseerr,\
             ingress.main.hosts[0].paths[0].service.port=5055"
@@ -758,6 +762,8 @@
             {{ helm_common_persistence }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
+            {{ helm_common_persistence_config }},\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/librespeed,\
             securityContext.container.PUID=\"{{ uid }}\",\
             securityContext.container.PGID=\"568\",\
             ingress.main.hosts[0].host='librespeed.{{ domain_name }}',\
