@@ -85,16 +85,18 @@
         state: directory
         mode: '0777'
       with_items:
-        - "{{ dir_data }}"
-        - "{{ dir_repos }}"
-        - "{{ dir_data_movies }}"
-        - "{{ dir_data_shows }}"
-        - "{{ dir_data_games }}"
-        - "{{ dir_data_books }}"
-        - "{{ dir_data_music }}"
-        - "{{ dir_data_immich }}"
-        - "{{ dir_data_downloads }}"
-        - "{{ dir_data_configs }}"
+        - "{{ basics.home_dir }}"
+        - "{{ basics.repos_dir }}"
+        - "{{ vnc.working_dir }}"
+        - "{{ smb.share_dir }}"
+        - "{{ charts.services.radarr.dir }}"
+        - "{{ charts.services.sonarr.dir }}"
+        - "{{ charts.services.readarr.dir }}"
+        - "{{ charts.services.lidarr.dir }}"
+        - "{{ charts.services.immich.dir }}"
+        - "{{ charts.services.qbittorrent.dir }}"
+        - "{{ charts.services.configs_dir }}"
+      become: true # incase the dirs created are at root level
 
     - name: Setup the bashrc file and the vimrc file
       block:
@@ -113,13 +115,13 @@
           copy:
             remote_src: True
             src: "{{ useful_files_repo_dir }}/bash/.bashrc"
-            dest: "{{ dir_home }}"
+            dest: "{{ basics.home_dir }}"
 
         - name: Transfer vimrc edit script
           copy:
             remote_src: True
             src: "{{ useful_files_repo_dir }}/vimmer.sh"
-            dest: "{{ dir_home }}"
+            dest: "{{ basics.home_dir }}"
             mode: "0755"
 
         - name: Run vimrc edit script
@@ -129,7 +131,7 @@
           become: true
           command: "{{ useful_files_repo_dir }}/vimmer.sh"
       vars:
-        useful_files_repo_dir: "{{ dir_repos }}/useful_files"
+        useful_files_repo_dir: "{{ basics.repos_dir }}/useful_files"
 
     - name: "reboot machine: {{ basics.reboot }}"
       when: "{{ basics.reboot }}"

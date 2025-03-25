@@ -58,22 +58,22 @@
         line: "Group={{ ansible_user }}"
         backrefs: yes
 
-    - name: "Service file edit: Change WorkingDirectory to be {{ dir_home }}"
+    - name: "Service file edit: Change WorkingDirectory to be {{ vnc.working_dir }}"
       become: True
       # https://gist.github.com/drmalex07/c0f9304deea566842490
       lineinfile:
         path: "{{ service_file_location }}"
         regexp: '^WorkingDirectory=(.*)$'
-        line: "WorkingDirectory={{ dir_home }}"
+        line: "WorkingDirectory={{ vnc.working_dir }}"
         backrefs: yes
 
-    - name: "Service file edit: Change WorkingDirectory to be {{ dir_home }}/.vnc/%H:%i.pid"
+    - name: "Service file edit: Change WorkingDirectory to be {{ vnc.working_dir }}/.vnc/%H:%i.pid"
       become: True
       # https://gist.github.com/drmalex07/c0f9304deea566842490
       lineinfile:
         path: "{{ service_file_location }}"
         regexp: '^PIDFile=(.*)$'
-        line: "PIDFile={{ dir_home }}/.vnc/%H:%i.pid"
+        line: "PIDFile={{ vnc.working_dir }}/.vnc/%H:%i.pid"
         backrefs: yes
 
     - name: Reload systemd service

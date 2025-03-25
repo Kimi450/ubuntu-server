@@ -3,7 +3,7 @@
   hosts: home-main
   gather_facts: false
   vars:
-    repo_dir: "{{ dir_repos }}/spotifyd"
+    repo_dir: "{{ basics.repos_dir }}/spotifyd"
     systemd_file_location: /etc/systemd/system/
   tasks:
     # https://spotifyd.github.io/spotifyd/installation/Ubuntu.html#building-spotifyd

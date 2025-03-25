@@ -3,7 +3,6 @@
   hosts: all
   gather_facts: true
   vars:
-    namespace_user: "{{ ansible_user }}"
     namespace_monitoring: monitoring
     namespace_generic_services: generic-services
     namespace_cert_manager: cert-manager
@@ -53,13 +52,37 @@
     helm_common_persistence_config: "\
       persistence.config.enabled=true,\
       persistence.config.type=hostPath,\
-      persistence.config.mountPath=/config"
+      persistence.config.mountPath=/data/config"
 
-    helm_common_persistence_media: "\
-      persistence.media.enabled=true,\
-      persistence.media.type=hostPath,\
-      persistence.media.mountPath={{ dir_mount_path }},\
-      persistence.media.hostPath={{ dir_data }}"
+    helm_common_persistence_movies: "\
+      persistence.movies.enabled=true,\
+      persistence.movies.type=hostPath,\
+      persistence.movies.mountPath=/data/movies,\
+      persistence.movies.hostPath={{ charts.services.radarr.dir }}"
+
+    helm_common_persistence_shows: "\
+      persistence.shows.enabled=true,\
+      persistence.shows.type=hostPath,\
+      persistence.shows.mountPath=/data/shows,\
+      persistence.shows.hostPath={{ charts.services.sonarr.dir }}"
+
+    helm_common_persistence_books: "\
+      persistence.books.enabled=true,\
+      persistence.books.type=hostPath,\
+      persistence.books.mountPath=/data/books,\
+      persistence.books.hostPath={{ charts.services.readarr.dir }}"
+
+    helm_common_persistence_music: "\
+      persistence.music.enabled=true,\
+      persistence.music.type=hostPath,\
+      persistence.music.mountPath=/data/music,\
+      persistence.music.hostPath={{ charts.services.lidarr.dir }}"
+
+    helm_common_persistence_downloads: "\
+      persistence.downloads.enabled=true,\
+      persistence.downloads.type=hostPath,\
+      persistence.downloads.mountPath=/data/downloads,\
+      persistence.downloads.hostPath={{ charts.services.qbittorrent.dir }}"
 
     # readOnlyRootFilesystem=false is needed for the app to be able to take
     # backups in /config/Backups
@@ -70,11 +93,6 @@
       securityContext.container.runAsGroup=568"
 
   tasks:
-    - name: Create namespaces namespace
-      shell: "kubectl create namespace {{ item }} --dry-run=client -o yaml | kubectl apply -f -"
-      with_items:
-        - "{{ namespace_user }}"
-
     - name: Install rancher local-path-provisioner
       when: charts.services.local_path_provisioner.enabled
       block:
@@ -289,42 +307,39 @@
             {{ helm_common_ingress }},\
             persistence.mlcache.enabled=true,\
             persistence.mlcache.type=hostPath,\
-            persistence.mlcache.hostPath={{ dir_data_immich }}/mlcache,\
+            persistence.mlcache.hostPath={{ charts.services.immich.dir }}/mlcache,\
             persistence.microcache.enabled=true,\
             persistence.microcache.type=hostPath,\
-            persistence.microcache.hostPath={{ dir_data_immich }}/microcache,\
+            persistence.microcache.hostPath={{ charts.services.immich.dir }}/microcache,\
             persistence.library.enabled=true,\
             persistence.library.type=hostPath,\
-            persistence.library.hostPath={{ dir_data_immich }}/library,\
+            persistence.library.hostPath={{ charts.services.immich.dir }}/library,\
             persistence.uploads.enabled=true,\
             persistence.uploads.type=hostPath,\
-            persistence.uploads.hostPath={{ dir_data_immich }}/uploads,\
+            persistence.uploads.hostPath={{ charts.services.immich.dir }}/uploads,\
             persistence.backups.enabled=true,\
             persistence.backups.type=hostPath,\
-            persistence.backups.hostPath={{ dir_data_immich }}/backups,\
+            persistence.backups.hostPath={{ charts.services.immich.dir }}/backups,\
             persistence.thumbs.enabled=true,\
             persistence.thumbs.type=hostPath,\
-            persistence.thumbs.hostPath={{ dir_data_immich }}/thumbs,\
+            persistence.thumbs.hostPath={{ charts.services.immich.dir }}/thumbs,\
             persistence.profile.enabled=true,\
             persistence.profile.type=hostPath,\
-            persistence.profile.hostPath={{ dir_data_immich }}/profile,\
+            persistence.profile.hostPath={{ charts.services.immich.dir }}/profile,\
             persistence.video.enabled=true,\
             persistence.video.type=hostPath,\
-            persistence.video.hostPath={{ dir_data_immich }}/encoded-video,\
+            persistence.video.hostPath={{ charts.services.immich.dir }}/encoded-video,\
             securityContext.container.runAsUser=0,\
             securityContext.container.privileged=true,\
             securityContext.container.runAsNonRoot=false,\
             securityContext.container.allowPrivilegeEscalation=true,\
             ingress.main.hosts[0].host='immich.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=immich,\
-            ingress.main.hosts[0].paths[0].service.port=8096"
+            ingress.main.hosts[0].paths[0].service.port=10323"
 
       - debug:
           msg: >
-              You can log into Jellyfin at 'jellyfin.{{ domain_name }}'.
-              '{{ dir_data }}' is available under '/data' and can be used by
-              Jellyfin. If need be, delete any existing server and go to the
-              URL mention above once again to setup a new server.
+              You can log into Immich at 'immich.{{ domain_name }}'.
 
     - name: Install jellyfin
       when: charts.services.jellyfin.enabled
@@ -347,7 +362,10 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_media }},\
+            {{ helm_common_persistence_shows }},\
+            {{ helm_common_persistence_movies }},\
+            {{ helm_common_persistence_music }},\
+            {{ helm_common_persistence_books }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             securityContext.container.runAsUser=0,\
@@ -368,7 +386,7 @@
       - debug:
           msg: >
               You can log into Jellyfin at 'jellyfin.{{ domain_name }}'.
-              '{{ dir_data }}' is available under '/data' and can be used by
+              Data directories are available under '/data' and can be used by
               Jellyfin. If need be, delete any existing server and go to the
               URL mention above once again to setup a new server.
 
@@ -388,7 +406,7 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_media }},\
+            {{ helm_common_persistence_downloads }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             ingress.main.hosts[0].host='qbittorrent.{{ domain_name }}',\
@@ -410,10 +428,11 @@
       - debug:
           msg: >
             You can log into qBittorrent at 'qbittorrent.{{ domain_name }}' using
-            "admin/{{ qbittorrent_random_password.stdout }}" as the default creds. Change this after deployment.
-            '{{ dir_data }}' from the host is available under '/data' and
-            can be used by the application to download things. Downloading in
-            the directories under {{ dir_data }} will be picked up by Jellyfin.
+            "admin/{{ qbittorrent_random_password.stdout }}" as the default creds.
+            Change this after deployment. Downloads directory from the host is
+            available under '/data' and can be used by the application to
+            download things. Downloads in that directory will be relevant
+            processing apps (like Radarr, Sonarr, etc if applicable).
 
     - name: Install flaresolverr
       when: charts.services.flaresolverr.enabled
@@ -441,7 +460,7 @@
       block:
       - name: Create config directory on hostpath for prowlarr
         file:
-          path: "{{ dir_data_configs }}/prowlarr"
+          path: "{{ charts.services.configs_dir }}/prowlarr"
           state: directory
           mode: '0777'
 
@@ -458,11 +477,10 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_media }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_data_configs }}/prowlarr,\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/prowlarr,\
             ingress.main.hosts[0].host='prowlarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=prowlarr,\
             ingress.main.hosts[0].paths[0].service.port=9696"
@@ -471,16 +489,13 @@
           msg: >
             You can log into prowlarr at 'prowlarr.{{ domain_name }}'. Go to this
             URL and add the indexers you wish to use.
-            '{{ dir_data }}' from the host is available under '/data' and
-            can be used by the application to download things. Downloading in
-            the directories under {{ dir_data }} will be picked up by Jellyfin.
 
     - name: Install radarr
       when: charts.services.radarr.enabled
       block:
       - name: Create config directory on hostpath for radarr
         file:
-          path: "{{ dir_data_configs }}/radarr"
+          path: "{{ charts.services.configs_dir }}/radarr"
           state: directory
           mode: '0777'
 
@@ -497,11 +512,12 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_media }},\
+            {{ helm_common_persistence_movies }},\
+            {{ helm_common_persistence_downloads }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_data_configs }}/radarr,\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/radarr,\
             ingress.main.hosts[0].host='radarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=radarr,\
             ingress.main.hosts[0].paths[0].service.port=7878"
@@ -509,16 +525,16 @@
       - debug:
           msg: >
             You can log into radarr at 'radarr.{{ domain_name }}'.
-            '{{ dir_data }}' from the host is available under '/data' and
-            can be used by the application to download things. Downloading in
-            the directories under {{ dir_data }} will be picked up by Jellyfin.
+            Data directories from the host are available under '/data' and
+            can be used by the application to download things. Downloads in
+            that directory will be picked up by Jellyfin.
 
     - name: Install sonarr
       when: charts.services.sonarr.enabled
       block:
       - name: Create config directory on hostpath for sonarr
         file:
-          path: "{{ dir_data_configs }}/sonarr"
+          path: "{{ charts.services.configs_dir }}/sonarr"
           state: directory
           mode: '0777'
 
@@ -535,11 +551,12 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_media }},\
+            {{ helm_common_persistence_shows }},\
+            {{ helm_common_persistence_downloads }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_data_configs }}/sonarr,\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/sonarr,\
             ingress.main.hosts[0].host='sonarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=sonarr,\
             ingress.main.hosts[0].paths[0].service.port=8989"
@@ -547,16 +564,16 @@
       - debug:
           msg: >
             You can log into sonarr at 'sonarr.{{ domain_name }}'.
-            '{{ dir_data }}' from the host is available under '/data' and
-            can be used by the application to download things. Downloading in
-            the directories under {{ dir_data }} will be picked up by Jellyfin.
+            Data directories from the host are available under '/data' and
+            can be used by the application to download things. Downloads in
+            that directory will be picked up by Jellyfin.
 
     - name: Install bazarr
       when: charts.services.bazarr.enabled
       block:
       - name: Create config directory on hostpath for bazarr
         file:
-          path: "{{ dir_data_configs }}/bazarr"
+          path: "{{ charts.services.configs_dir }}/bazarr"
           state: directory
           mode: '0777'
 
@@ -573,11 +590,12 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_media }},\
+            {{ helm_common_persistence_shows }},\
+            {{ helm_common_persistence_movies }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_data_configs }}/bazarr,\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/bazarr,\
             metrics.main.enabled=false,\
             ingress.main.hosts[0].host='bazarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=bazarr,\
@@ -586,7 +604,7 @@
       - debug:
           msg: >
             You can log into bazarr at 'bazarr.{{ domain_name }}'.
-            '{{ dir_data }}' from the host is available under '/data' and
+            Data directories from the host are available under '/data' and
             can be used by the application.
 
     - name: Install readarr
@@ -594,7 +612,7 @@
       block:
       - name: Create config directory on hostpath for readarr
         file:
-          path: "{{ dir_data_configs }}/readarr"
+          path: "{{ charts.services.configs_dir }}/readarr"
           state: directory
           mode: '0777'
 
@@ -611,11 +629,12 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_media }},\
+            {{ helm_common_persistence_books }},\
+            {{ helm_common_persistence_downloads }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_data_configs }}/readarr,\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/readarr,\
             ingress.main.hosts[0].host='readarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=readarr,\
             ingress.main.hosts[0].paths[0].service.port=8787"
@@ -623,7 +642,7 @@
       - debug:
           msg: >
             You can log into readarr at 'readarr.{{ domain_name }}'.
-            '{{ dir_data }}' from the host is available under '/data' and
+            Data directories from the host are available under '/data' and
             can be used by the application.
 
     - name: Install lidarr
@@ -631,7 +650,7 @@
       block:
       - name: Create config directory on hostpath for lidarr
         file:
-          path: "{{ dir_data_configs }}/lidarr"
+          path: "{{ charts.services.configs_dir }}/lidarr"
           state: directory
           mode: '0777'
 
@@ -648,11 +667,12 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_media }},\
+            {{ helm_common_persistence_music }},\
+            {{ helm_common_persistence_downloads }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
-            persistence.config.hostPath={{ dir_data_configs }}/lidarr,\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/lidarr,\
             ingress.main.hosts[0].host='lidarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=lidarr,\
             ingress.main.hosts[0].paths[0].service.port=8686"
@@ -660,7 +680,7 @@
       - debug:
           msg: >
             You can log into lidarr at 'lidarr.{{ domain_name }}'.
-            '{{ dir_data }}' from the host is available under '/data' and
+            Data directories from the host are available under '/data' and
             can be used by the application.
 
     - name: Install ombi
@@ -687,7 +707,7 @@
       - debug:
           msg: >
               You can log into ombi at 'ombi.{{ domain_name }}'.
-              '{{ dir_data }}' is available under '/data' and can be used by
+              Data directories are available under '/data' and can be used by
               ombi. If need be, delete any existing server and go to the
               URL mention above once again to setup a new server.
 
@@ -715,7 +735,7 @@
       - debug:
           msg: >
               You can log into jellyseerr at 'jellyseerr.{{ domain_name }}'.
-              '{{ dir_data }}' is available under '/data' and can be used by
+              Data directories are available under '/data' and can be used by
               jellyseerr. If need be, delete any existing server and go to the
               URL mention above once again to setup a new server.
 
@@ -765,7 +785,8 @@
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
-            {{ helm_common_persistence_media }},\
+            {{ helm_common_persistence_books }},\
+            {{ helm_common_persistence_downloads }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             securityContext.container.PUID=\"{{ uid }}\",\
@@ -777,7 +798,7 @@
       - debug:
           msg: >
             You can log into calibre-web at 'calibre-web.{{ domain_name }}'.
-            '{{ dir_data }}' from the host is available under '/data' and
+            Data directories from the host are available under '/data' and
             can be used by the application.
 
     - name: Install calibre
@@ -799,7 +820,8 @@
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
-            {{ helm_common_persistence_media }},\
+            {{ helm_common_persistence_books }},\
+            {{ helm_common_persistence_downloads }},\
             {{ helm_common_resources }},\
             securityContext.container.PUID=\"{{ uid }}\",\
             securityContext.container.PGID=\"568\",\
@@ -811,5 +833,5 @@
       - debug:
           msg: >
             You can log into calibre at '{{ ip }}:30000'.
-            '{{ dir_data }}' from the host is available under '/data' and
+            Data directories from the host are available under '/data' and
             can be used by the application.

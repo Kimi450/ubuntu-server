@@ -3,7 +3,6 @@
   hosts: all
   gather_facts: True
   vars:
-    share_directory: "{{ dir_home }}"
     config_location: /etc/samba/smb.conf
   tasks:
     # https://ubuntu.com/tutorials/install-and-configure-samba#1-overview
@@ -14,9 +13,9 @@
         pkg: samba
         state: latest
 
-    - name: "Create {{ share_directory }} if it does not exist"
+    - name: "Create {{ smb.share_dir }} if it does not exist"
       ansible.builtin.file:
-        path: "{{ share_directory }}"
+        path: "{{ smb.share_dir }}"
         state: directory
         mode: '0755'
 
@@ -27,7 +26,7 @@
         block: |
           [{{ smb.share_name }}]
               comment = Samba on Ubuntu
-              path = {{ share_directory }}
+              path = {{ smb.share_dir }}
               read only = no
               browsable = yes
 

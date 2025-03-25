@@ -7,27 +7,9 @@
       shell: "id -u `whoami`"
       register: uid_output
 
-    - name: Get architecture
-      command: dpkg --print-architecture
-      register: architecture_output
-    
     - name: Set shared facts
       set_fact:
         uid: "{{ uid_output.stdout }}"
-        user: "{{ ansible_user }}"
-        architecture: "{{ architecture_output.stdout }}"
-        dir_mount_path: "/data"
-        dir_home: "/home/{{ ansible_user }}"
-        dir_data: "/home/{{ ansible_user }}/data"
-        dir_repos: "/home/{{ ansible_user }}/repos"
-        dir_data_immich: "/home/{{ ansible_user }}/data/immich"
-        dir_data_movies: "/home/{{ ansible_user }}/data/movies"
-        dir_data_shows: "/home/{{ ansible_user }}/data/shows"
-        dir_data_games: "/home/{{ ansible_user }}/data/games"
-        dir_data_books: "/home/{{ ansible_user }}/data/books"
-        dir_data_music: "/home/{{ ansible_user }}/data/music"
-        dir_data_downloads: "/home/{{ ansible_user }}/data/downloads"
-        dir_data_configs: "/home/{{ ansible_user }}/data/app-configs"
 
 - import_playbook: server-basics.yaml
   when:

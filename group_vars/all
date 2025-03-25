@@ -10,6 +10,12 @@ basics:
   # reboot machine
   reboot: true
 
+  # user's home dir
+  home_dir: "/home/{{ ansible_user }}"
+
+  # dir to pull repos into
+  repos_dir: "/home/{{ ansible_user }}/repos"
+
 # vnc for remote desktop with GUI
 vnc:
   enabled: true
@@ -18,6 +24,9 @@ vnc:
   # display for what port will be accessed
   # use 0-9 only for access port to be 590{{display}}
   display: "4"
+
+  # working directory for the VNC session
+  working_dir: "/home/{{ ansible_user }}"
 
 # squid credentials, for proxy
 squid:
@@ -32,6 +41,9 @@ smb:
   password: "" # FILL OUT
   share_name: "sambashare"
 
+  # the directory to share
+  share_dir: "/home/{{ ansible_user }}"
+
 # If you are using cloudflare and want to auto update entries
 # when the server IP changes
 # NOTE: It doesnt add entries, refer to the README.md file for instructions
@@ -43,9 +55,6 @@ cloudflare:
 
   # Set your Cloudflare Bearer token to view the zone and edit DNS records in it
   auth_key: "" # FILL OUT
-
-  # WORK_IN_PROGRESS: Set your Cloudfare API token for editing zone DNS
-  api_token: "WORK_IN_PROGRESS"
 
 # ==== Select what charts you wish to install ====
 charts:
@@ -67,7 +76,10 @@ charts:
   timeout: 15m
   
   services:
-    
+
+    # directory in which the apps will store their configs
+    configs_dir: "/home/{{ ansible_user }}/data/app-configs"
+
     # provision hostPaths using this controller
     local_path_provisioner:
       enabled: true
@@ -81,8 +93,8 @@ charts:
     cert_manager:
       enabled: true
       # email for the ACME account registration
-      # FYI: you dont need to create any account for this
-      email: "main@server.com"
+      # FYI: you dont need to create any account for this, just use an email ID
+      email: "" # FILL OUT
     
     # log monitoring with Loki (Needs Grafana for a UI)
     loki_stack:
@@ -95,6 +107,20 @@ charts:
         admin_username: "admin" # FILL OUT
         admin_password: "admin" # FILL OUT
     
+    # cloud native instance of postgres DB
+    cnpg:
+      enabled: true
+
+    # google photos alternative
+    # NOTE: REQUIRES YOU TO HAVE CNPG INSTALLED BEFORE
+    #       - Either set `cnpg.enabled` to true or
+    #       - make sure you have installed it first (incase of an upgrade)
+    immich:
+      enabled: true
+      # base dir for all immich info, including backups, cache, etc
+      # look at `install-charts.yaml` for more information
+      dir: "/home/{{ ansible_user }}/data/immich"
+
     # media client
     jellyfin:
       enabled: true
@@ -102,6 +128,8 @@ charts:
     # torrents
     qbittorrent:
       enabled: true
+      # dir to download files
+      dir: "/home/{{ ansible_user }}/data/downloads"
     
     # to bypass cloudflare protection
     flaresolverr:
@@ -114,10 +142,14 @@ charts:
     # movie monitoring
     radarr:
       enabled: true
-    
+      # dir to store and organise movies
+      dir: "/home/{{ ansible_user }}/data/movies"
+
     # show monitoring
     sonarr:
       enabled: true
+      # dir to store and organise shows
+      dir: "/home/{{ ansible_user }}/data/shows"
     
     # subtitle hunting
     bazarr:
@@ -130,32 +162,29 @@ charts:
     # speed test to server
     librespeed:
       enabled: true
-    
-    # cloud native instance of postgres DB
-    cnpg:
-      enabled: true
 
-    # google photos alternative
-    # NOTE: REQUIRES YOU TO HAVE CNPG INSTALLED BEFORE
-    #       - Either set `cnpg.enabled` to true or
-    #       - make sure you have installed it first (incase of an upgrade)
-    immich:
-      enabled: true
-
-    # movie, show and music interface
-    ombi:
-      enabled: false
     # book monitoring
     readarr:
       enabled: false
+      # dir to store and organise books
+      dir: "/home/{{ ansible_user }}/data/books"
+
     # music monitoring
     lidarr:
       enabled: false
+      # dir to store and organise music
+      dir: "/home/{{ ansible_user }}/data/music"
+
     # book client
     calibre_web:
       enabled: false
+
     # book management
     calibre:
+      enabled: false
+
+    # movie, show and music interface
+    ombi:
       enabled: false
 
 
