@@ -234,7 +234,7 @@ Use your own server
       - For movies and shows, ``2-3GiB/h`` would usually be sufficient as the ``Preferred`` value, and you can leave the ``Max`` value a bit higher to ensure a better chance of download grabs
         - Min: 0
         - Preferred: 30
-        - Max: 2000
+        - Max: 70 (you can also use 2000 but you might get bigger files more often)
     - Radarr/Sonarr specific config
       - **[EXPERIMENTAL]** Enforce downloads of original language media only
         - Go to ``Settings > Custom Formats``
