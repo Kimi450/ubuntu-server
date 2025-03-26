@@ -234,7 +234,7 @@ Use your own server
         - Go to ``Settings > Profiles``
           - Select all [relevant] profiles and set the following
             - ``Minimum Custom Format Score`` to ``0`` (sum of the custom formats scores)
-            - Your new Custom Format's score to be ``-1000`` (something crazy low)
+            - Your new Custom Format's score to be ``0`` (if the value is lower than the minimum score then downloads will be blocked)
         - Go to ``Settings > Media Management``
           - Make sure ``Use Hardlinks instead of Copy`` is enabled
     - Readarr specific config
