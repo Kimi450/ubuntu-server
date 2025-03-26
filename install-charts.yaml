@@ -51,36 +51,6 @@
       persistence.config.enabled=true,\
       persistence.config.type=hostPath"
 
-    helm_common_persistence_movies: "\
-      persistence.movies.enabled=true,\
-      persistence.movies.type=hostPath,\
-      persistence.movies.mountPath=/data/movies,\
-      persistence.movies.hostPath={{ charts.services.radarr.dir }}"
-
-    helm_common_persistence_shows: "\
-      persistence.shows.enabled=true,\
-      persistence.shows.type=hostPath,\
-      persistence.shows.mountPath=/data/shows,\
-      persistence.shows.hostPath={{ charts.services.sonarr.dir }}"
-
-    helm_common_persistence_books: "\
-      persistence.books.enabled=true,\
-      persistence.books.type=hostPath,\
-      persistence.books.mountPath=/data/books,\
-      persistence.books.hostPath={{ charts.services.readarr.dir }}"
-
-    helm_common_persistence_music: "\
-      persistence.music.enabled=true,\
-      persistence.music.type=hostPath,\
-      persistence.music.mountPath=/data/music,\
-      persistence.music.hostPath={{ charts.services.lidarr.dir }}"
-
-    helm_common_persistence_downloads: "\
-      persistence.downloads.enabled=true,\
-      persistence.downloads.type=hostPath,\
-      persistence.downloads.mountPath=/data/downloads,\
-      persistence.downloads.hostPath={{ charts.services.qbittorrent.dir }}"
-
     # readOnlyRootFilesystem=false is needed for the app to be able to take
     # backups in /config/Backups
     # runAsUser={{ uid }} gives write access on the pod
@@ -90,20 +60,106 @@
       securityContext.container.runAsGroup=568"
 
   tasks:
-    - name: Create directories
-      file:
-        path: "{{ item }}"
-        state: directory
-        mode: '0777'
-      with_items:
-        - "{{ charts.services.configs_dir }}"
-        - "{{ charts.services.radarr.dir }}"
-        - "{{ charts.services.sonarr.dir }}"
-        - "{{ charts.services.readarr.dir }}"
-        - "{{ charts.services.lidarr.dir }}"
-        - "{{ charts.services.immich.dir }}"
-        - "{{ charts.services.qbittorrent.dir }}"
-      become: true # incase the dirs created are at root level
+
+    - name: Process variable to add disks
+      block:
+        - name: "Create host path dir {{ item.host_path }}"
+          file:
+            path: "{{ item.host_path }}"
+            state: directory
+            mode: '0777'
+          become: true # incase the dirs are created at root level
+          loop: "{{ charts.services.radarr.persistence }}"
+        - name: Set facts
+          set_fact:
+            helm_common_persistence_movies: >-
+              {{- helm_common_persistence_movies | default('')
+                  + 'persistence.movies-' + item.name + '.enabled=true,'
+                  + 'persistence.movies-' + item.name + '.type=hostPath,'
+                  + 'persistence.movies-' + item.name + '.hostPath=' +  item.host_path + ','
+                  + 'persistence.movies-' + item.name + '.mountPath=/data/' + item.name + '/movies,'
+              -}}
+          loop: "{{ charts.services.radarr.persistence }}"
+
+    - name: Process variable to add disks
+      block:
+        - name: "Create host path dir {{ item.host_path }}"
+          file:
+            path: "{{ item.host_path }}"
+            state: directory
+            mode: '0777'
+          become: true # incase the dirs are created at root level
+          loop: "{{ charts.services.sonarr.persistence }}"
+        - name: Set facts
+          set_fact:
+            helm_common_persistence_shows: >-
+              {{- helm_common_persistence_shows | default('')
+                  + 'persistence.shows-' + item.name + '.enabled=true,'
+                  + 'persistence.shows-' + item.name + '.type=hostPath,'
+                  + 'persistence.shows-' + item.name + '.hostPath=' +  item.host_path + ','
+                  + 'persistence.shows-' + item.name + '.mountPath=/data/' + item.name + '/shows,'
+              -}}
+          loop: "{{ charts.services.sonarr.persistence }}"
+
+    - name: Process variable to add disks
+      block:
+        - name: "Create host path dir {{ item.host_path }}"
+          file:
+            path: "{{ item.host_path }}"
+            state: directory
+            mode: '0777'
+          become: true # incase the dirs are created at root level
+          loop: "{{ charts.services.readarr.persistence }}"
+        - name: Set facts
+          set_fact:
+            helm_common_persistence_books: >-
+              {{- helm_common_persistence_books | default('')
+                  + 'persistence.books-' + item.name + '.enabled=true,'
+                  + 'persistence.books-' + item.name + '.type=hostPath,'
+                  + 'persistence.books-' + item.name + '.hostPath=' +  item.host_path + ','
+                  + 'persistence.books-' + item.name + '.mountPath=/data/' + item.name + '/books,'
+              -}}
+          loop: "{{ charts.services.readarr.persistence }}"
+
+    - name: Process variable to add disks
+      block:
+        - name: "Create host path dir {{ item.host_path }}"
+          file:
+            path: "{{ item.host_path }}"
+            state: directory
+            mode: '0777'
+          become: true # incase the dirs are created at root level
+          loop: "{{ charts.services.lidarr.persistence }}"
+        - name: Set facts
+          set_fact:
+            helm_common_persistence_music: >-
+              {{- helm_common_persistence_music | default('')
+                  + 'persistence.music-' + item.name + '.enabled=true,'
+                  + 'persistence.music-' + item.name + '.type=hostPath,'
+                  + 'persistence.music-' + item.name + '.hostPath=' +  item.host_path + ','
+                  + 'persistence.music-' + item.name + '.mountPath=/data/' + item.name + '/music,'
+              -}}
+          loop: "{{ charts.services.lidarr.persistence }}"
+
+    - name: Process variable to add disks
+      block:
+        - name: "Create host path dir {{ item.host_path }}"
+          file:
+            path: "{{ item.host_path }}"
+            state: directory
+            mode: '0777'
+          become: true # incase the dirs are created at root level
+          loop: "{{ charts.services.qbittorrent.persistence }}"
+        - name: Set facts
+          set_fact:
+            helm_common_persistence_downloads: >-
+              {{- helm_common_persistence_downloads | default('')
+                  + 'persistence.downloads-' + item.name + '.enabled=true,'
+                  + 'persistence.downloads-' + item.name + '.type=hostPath,'
+                  + 'persistence.downloads-' + item.name + '.hostPath=' +  item.host_path + ','
+                  + 'persistence.downloads-' + item.name + '.mountPath=/data/' + item.name + '/downloads,'
+              -}}
+          loop: "{{ charts.services.qbittorrent.persistence }}"
 
     - name: Install rancher local-path-provisioner
       when: charts.services.local_path_provisioner.enabled
@@ -319,28 +375,28 @@
             {{ helm_common_ingress }},\
             persistence.mlcache.enabled=true,\
             persistence.mlcache.type=hostPath,\
-            persistence.mlcache.hostPath={{ charts.services.immich.dir }}/mlcache,\
+            persistence.mlcache.hostPath={{ charts.services.immich.host_path }}/mlcache,\
             persistence.microcache.enabled=true,\
             persistence.microcache.type=hostPath,\
-            persistence.microcache.hostPath={{ charts.services.immich.dir }}/microcache,\
+            persistence.microcache.hostPath={{ charts.services.immich.host_path }}/microcache,\
             persistence.library.enabled=true,\
             persistence.library.type=hostPath,\
-            persistence.library.hostPath={{ charts.services.immich.dir }}/library,\
+            persistence.library.hostPath={{ charts.services.immich.host_path }}/library,\
             persistence.uploads.enabled=true,\
             persistence.uploads.type=hostPath,\
-            persistence.uploads.hostPath={{ charts.services.immich.dir }}/uploads,\
+            persistence.uploads.hostPath={{ charts.services.immich.host_path }}/uploads,\
             persistence.backups.enabled=true,\
             persistence.backups.type=hostPath,\
-            persistence.backups.hostPath={{ charts.services.immich.dir }}/backups,\
+            persistence.backups.hostPath={{ charts.services.immich.host_path }}/backups,\
             persistence.thumbs.enabled=true,\
             persistence.thumbs.type=hostPath,\
-            persistence.thumbs.hostPath={{ charts.services.immich.dir }}/thumbs,\
+            persistence.thumbs.hostPath={{ charts.services.immich.host_path }}/thumbs,\
             persistence.profile.enabled=true,\
             persistence.profile.type=hostPath,\
-            persistence.profile.hostPath={{ charts.services.immich.dir }}/profile,\
+            persistence.profile.hostPath={{ charts.services.immich.host_path }}/profile,\
             persistence.video.enabled=true,\
             persistence.video.type=hostPath,\
-            persistence.video.hostPath={{ charts.services.immich.dir }}/encoded-video,\
+            persistence.video.hostPath={{ charts.services.immich.host_path }}/encoded-video,\
             securityContext.container.runAsUser=0,\
             securityContext.container.privileged=true,\
             securityContext.container.runAsNonRoot=false,\
@@ -374,10 +430,10 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_shows }},\
-            {{ helm_common_persistence_movies }},\
-            {{ helm_common_persistence_music }},\
-            {{ helm_common_persistence_books }},\
+            {{ helm_common_persistence_shows }}\
+            {{ helm_common_persistence_movies }}\
+            {{ helm_common_persistence_music }}\
+            {{ helm_common_persistence_books }}\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
@@ -420,7 +476,7 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_downloads }},\
+            {{ helm_common_persistence_downloads }}\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
@@ -529,8 +585,8 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_movies }},\
-            {{ helm_common_persistence_downloads }},\
+            {{ helm_common_persistence_movies }}\
+            {{ helm_common_persistence_downloads }}\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
@@ -568,8 +624,8 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_shows }},\
-            {{ helm_common_persistence_downloads }},\
+            {{ helm_common_persistence_shows }}\
+            {{ helm_common_persistence_downloads }}\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
@@ -607,8 +663,8 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_shows }},\
-            {{ helm_common_persistence_movies }},\
+            {{ helm_common_persistence_shows }}\
+            {{ helm_common_persistence_movies }}\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
@@ -646,8 +702,8 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_books }},\
-            {{ helm_common_persistence_downloads }},\
+            {{ helm_common_persistence_books }}\
+            {{ helm_common_persistence_downloads }}}\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
@@ -684,8 +740,8 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_music }},\
-            {{ helm_common_persistence_downloads }},\
+            {{ helm_common_persistence_music }}\
+            {{ helm_common_persistence_downloads }}}\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
@@ -806,8 +862,8 @@
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
-            {{ helm_common_persistence_books }},\
-            {{ helm_common_persistence_downloads }},\
+            {{ helm_common_persistence_books }}\
+            {{ helm_common_persistence_downloads }}}\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             securityContext.container.PUID=\"{{ uid }}\",\
@@ -841,8 +897,8 @@
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
-            {{ helm_common_persistence_books }},\
-            {{ helm_common_persistence_downloads }},\
+            {{ helm_common_persistence_books }}\
+            {{ helm_common_persistence_downloads }}}\
             {{ helm_common_resources }},\
             securityContext.container.PUID=\"{{ uid }}\",\
             securityContext.container.PGID=\"568\",\

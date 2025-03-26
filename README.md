@@ -91,6 +91,16 @@ Use your own server
   - You can add `-vvvv` to get more verbose output
 
 - #### After the installation
+
+  **REMEMBER**: You can add additional directories for services via the `group_vars` file as well under the `persistence` section.
+
+  ```yaml
+  - name: spare-disk
+    host_path: "/mnt/b/downloads"
+  ```
+
+  The above section will mount `/mnt/b/downloads` onto the pod as `/data/spare-disk/downloads`
+
   - ##### [OPTIONAL] Setup Fishet
     - Consider setting up [fishnet](https://github.com/lichess-org/fishnet) to help [Lichess](https://lichess.org/) run game analysis!
       - Kubernetes installations are also supported and documented [here](https://github.com/lichess-org/fishnet/blob/master/doc/install.md#kubernetes)
@@ -118,10 +128,10 @@ Use your own server
     - Point Jellyfin to use the directories mentioned in the playbooks for shows, movies, music and books.
       - By default, on the Jellyfin pod, the directories it will be:
         ```
-        /data/shows
-        /data/movies
-        /data/music
-        /data/books
+        /data/root-disk/shows
+        /data/root-disk/movies
+        /data/root-disk/music
+        /data/root-disk/books
         ```
     - Add any other config required.
       - Recommend setting up the Open Subtitles plugin which requires creating an account on [their website](https://www.opensubtitles.org/en/?).
@@ -157,7 +167,7 @@ Use your own server
       - Go to ``Tools > Options > Web UI > Authentication``
     - Set default download location to one the mentioned directories (or make sure to put it in the right directory when downloading for ease)
       - Go to ``Tools > Options > Downloads > Default Save Path``
-      - Recommend using ``/data/downloads``
+      - Recommend using ``/data/root-disk/downloads``
     - Set seeding limits
       - Recommend seeding limits for when seeding ratio hits "0". It is under ``Tools > Options > BitTorrent > Seeding Limits``
     - Set torrent download/upload limits
@@ -165,7 +175,7 @@ Use your own server
 
   - ##### Setup Calibre
     - Do base setup
-      - Set folder to be ``/data/books`` and select ``Yes`` for it to rebuild the library if asked.
+      - Set folder to be ``/data/root-disk/books`` and select ``Yes`` for it to rebuild the library if asked.
     - Go to ``Preferences > Sharing over the net``
       - Check the box for ``Require username and password to access the Content server``
       - Check the box for ``Run the server automatically when calibre starts``
@@ -177,7 +187,7 @@ Use your own server
 
   - ##### Setup Calibre Web
     - Default login is ``admin/admin123``
-    - Set folder to be ``/data/books``
+    - Set folder to be ``/data/root-disk/books``
     - To enable web reading, click on ``Admin`` (case sensitive) on the top right
       - Click on the user, default is ``admin``
       - Enable ``Allow ebook viewer``
@@ -212,10 +222,10 @@ Use your own server
 
         | Service | Root Directory    |
         |---------|-------------------|
-        | Readarr | ``/data/books/``  |
-        | Sonarr  | ``/data/shows/``  |
-        | Radarr  | ``/data/movies/`` |
-        | Lidarr  | ``/data/music/``  |
+        | Readarr | ``/data/root-disk/books/``  |
+        | Sonarr  | ``/data/root-disk/shows/``  |
+        | Radarr  | ``/data/root-disk/movies/`` |
+        | Lidarr  | ``/data/root-disk/music/``  |
       - Enable renaming
     - Adjust quality definitions
       - Go to ``Settings > Quality``
@@ -240,7 +250,7 @@ Use your own server
     - Readarr specific config
       - Go to ``Settings > Media Management``
         - Add root folder (you cannot edit an existing one)
-          - Set the path to be ``/data/books/``
+          - Set the path to be ``/data/root-disk/books/``
           - Enable ``Use Calibre`` options the the following defaults
             - Calibre host: ``calibre-webserver``
             - Calibre port: ``8081``
