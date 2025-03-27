@@ -169,9 +169,9 @@ Use your own server
       - Go to ``Tools > Options > Downloads > Default Save Path``
       - Recommend using ``/data/root-disk/downloads``
     - Set seeding limits
-      - Recommend seeding limits for when seeding ratio hits "0". It is under ``Tools > Options > BitTorrent > Seeding Limits``
+      - Recommend seeding limits for when seeding ratio hits "1" to give back to the community. It is under ``Tools > Options > BitTorrent > Seeding Limits``
     - Set torrent download/upload limits
-      - Recommended to keep 12 active torrents/downloads and 0 uploads. It is under ``Tools > Options > BitTorrent > Torrent Queueing``
+      - Recommended to keep 12 active torrents, 6 downloads and 6 uploads. It is under ``Tools > Options > BitTorrent > Torrent Queueing``
 
   - ##### Setup Calibre
     - Do base setup
@@ -215,8 +215,9 @@ Use your own server
       - Add the port: ``10095``
       - Add the username: ``<qBittorrent_username>``
       - Add the password: ``<qBittorrent_password>``
-      - Uncheck the ``Remove Completed`` option.
-        - When enabled, this seems to delete the downloaded files sometimes. Not sure why.
+      - Enable the ``Remove Completed`` option.
+        - This will copy the download from the downloads directory to the destination directory for the service. Once the seeding limits are reached, it will delete the torrent and its files from the downloads directory.
+        - More information on [sonarrs's wiki page](https://wiki.servarr.com/sonarr/settings#Torrent_Process) and [radarr's wiki page](https://wiki.servarr.com/radarr/settings#Torrent_Process) under `Remove Completed Downloads`. They should all have the same idea though.
     - Set the root directories to be the following
       - Go to ``Settings > Media Management``
 
@@ -235,6 +236,8 @@ Use your own server
         - Min: 0
         - Preferred: 30
         - Max: 70 (you can also use 2000 but you might get bigger files more often)
+    - Go to ``Settings > Media Management``
+        - If present, make sure ``Use Hardlinks instead of Copy`` is enabled
     - Radarr/Sonarr specific config
       - **[EXPERIMENTAL]** Enforce downloads of original language media only
         - Go to ``Settings > Custom Formats``
@@ -245,8 +248,6 @@ Use your own server
           - Select all [relevant] profiles and set the following
             - ``Minimum Custom Format Score`` to ``0`` (sum of the custom formats scores)
             - Your new Custom Format's score to be ``0`` (if the value is lower than the minimum score then downloads will be blocked)
-        - Go to ``Settings > Media Management``
-          - Make sure ``Use Hardlinks instead of Copy`` is enabled
     - Readarr specific config
       - Go to ``Settings > Media Management``
         - Add root folder (you cannot edit an existing one)
