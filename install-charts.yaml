@@ -60,10 +60,16 @@
       securityContext.container.runAsGroup=568"
 
   tasks:
+    - name: "Create host path dir for config"
+      file:
+        path: "{{ charts.services.configs_dir }}"
+        state: directory
+        mode: '0777'
+      become: true # incase the dirs are created at root level
 
     - name: Process variable to add disks
       block:
-        - name: "Create host path dir {{ item.host_path }}"
+        - name: "Create host path dir"
           file:
             path: "{{ item.host_path }}"
             state: directory
@@ -83,7 +89,7 @@
 
     - name: Process variable to add disks
       block:
-        - name: "Create host path dir {{ item.host_path }}"
+        - name: "Create host path dir"
           file:
             path: "{{ item.host_path }}"
             state: directory
@@ -103,7 +109,7 @@
 
     - name: Process variable to add disks
       block:
-        - name: "Create host path dir {{ item.host_path }}"
+        - name: "Create host path dir"
           file:
             path: "{{ item.host_path }}"
             state: directory
@@ -123,7 +129,7 @@
 
     - name: Process variable to add disks
       block:
-        - name: "Create host path dir {{ item.host_path }}"
+        - name: "Create host path dir"
           file:
             path: "{{ item.host_path }}"
             state: directory
@@ -143,7 +149,7 @@
 
     - name: Process variable to add disks
       block:
-        - name: "Create host path dir {{ item.host_path }}"
+        - name: "Create host path dir"
           file:
             path: "{{ item.host_path }}"
             state: directory
@@ -389,6 +395,7 @@
             {{ helm_common_security_contexts }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/immich,\
             persistence.mlcache.enabled=true,\
             persistence.mlcache.type=hostPath,\
             persistence.mlcache.hostPath={{ charts.services.immich.host_path }}/mlcache,\
@@ -428,6 +435,12 @@
     - name: Install jellyfin
       when: charts.services.jellyfin.enabled
       block:
+      - name: Create config directory on hostpath for jellyfin
+        file:
+          path: "{{ charts.services.configs_dir }}/jellyfin"
+          state: directory
+          mode: '0777'
+
       - name: Install/Upgrade the jellyfin chart
         include_tasks: tasks-install-chart.yaml
         vars:
@@ -479,6 +492,12 @@
     - name: Install qbittorrent
       when: charts.services.qbittorrent.enabled
       block:
+      - name: Create config directory on hostpath for qbittorrent
+        file:
+          path: "{{ charts.services.configs_dir }}/qbittorrent"
+          state: directory
+          mode: '0777'
+
       - name: Install/Upgrade the qbittorrent chart
         include_tasks: tasks-install-chart.yaml
         vars:
@@ -775,6 +794,12 @@
     - name: Install ombi
       when: charts.services.ombi.enabled
       block:
+      - name: Create config directory on hostpath for ombi
+        file:
+          path: "{{ charts.services.configs_dir }}/ombi"
+          state: directory
+          mode: '0777'
+
       - name: Install/Upgrade the ombi chart
         include_tasks: tasks-install-chart.yaml
         vars:
@@ -790,6 +815,8 @@
             {{ helm_common_security_contexts }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
+            {{ helm_common_persistence_config }},\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/ombi,\
             ingress.main.hosts[0].host='ombi.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=ombi,\
             ingress.main.hosts[0].paths[0].service.port=3579"
@@ -803,6 +830,12 @@
     - name: Install jellyseerr
       when: charts.services.jellyseerr.enabled
       block:
+      - name: Create config directory on hostpath for jellyseerr
+        file:
+          path: "{{ charts.services.configs_dir }}/jellyseerr"
+          state: directory
+          mode: '0777'
+
       - name: Install/Upgrade the jellyseerr chart
         include_tasks: tasks-install-chart.yaml
         vars:
