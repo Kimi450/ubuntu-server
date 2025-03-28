@@ -59,7 +59,19 @@
       securityContext.container.runAsUser={{ uid }},\
       securityContext.container.runAsGroup=568"
 
+    venv_dir: "{{ basics.home_dir }}/.venv-install-charts"
+    venv_python: "{{ venv_dir }}/bin/python3"
+
   tasks:
+    - name: Generate a virtual env with dependences for playbook
+      pip:
+        name:
+          - kubernetes
+        virtualenv: "{{ venv_dir }}"
+        # On Debian-based systems the correct python*-venv package must
+        # be installed to use the `venv` module.
+        virtualenv_command: "python3 -m venv"
+
     - name: "Create host path dir for config"
       file:
         path: "{{ charts.services.configs_dir }}"
@@ -317,45 +329,31 @@
             grafana.ingress.ingressClassName=nginx,\
             grafana.ingress.hosts[0]=grafana.{{ domain_name }}"
 
-      - name: Setup plugins for Grafana
+      - name: Search for all Pods labelled app.kubernetes.io/name=grafana
         vars:
-          venv_dir: "{{ basics.home_dir }}/.ansible-grafana-venv"
-          venv_python: "{{ venv_dir }}/bin/python3"
-        block:
-          - name: Generate a virtual env with dependencies
-            pip:
-              name:
-                - kubernetes
-              virtualenv: "{{ venv_dir }}"
-              # On Debian-based systems the correct python*-venv package must
-              # be installed to use the `venv` module.
-              virtualenv_command: "python3 -m venv"
+          ansible_python_interpreter: "{{ venv_python }}"
+        kubernetes.core.k8s_info:
+          kind: Pod
+          label_selectors:
+            - app.kubernetes.io/name = grafana
+        register: output
 
-          - name: Search for all Pods labelled app.kubernetes.io/name=grafana
-            vars:
-              ansible_python_interpreter: "{{ venv_python }}"
-            kubernetes.core.k8s_info:
-              kind: Pod
-              label_selectors:
-                - app.kubernetes.io/name = grafana
-            register: output
+      - name: Install piechart panel plugin for Grafana
+        vars:
+          ansible_python_interpreter: "{{ venv_python }}"
+        kubernetes.core.k8s_exec:
+          namespace: "{{ namespace_monitoring }}"
+          pod: "{{ output.resources[0].metadata.name }}"
+          container: grafana
+          command: grafana cli plugins install grafana-piechart-panel
+        ignore_errors: True
 
-          - name: Install piechart panel plugin for Grafana
-            vars:
-              ansible_python_interpreter: "{{ venv_python }}"
-            kubernetes.core.k8s_exec:
-              namespace: "{{ namespace_monitoring }}"
-              pod: "{{ output.resources[0].metadata.name }}"
-              container: grafana
-              command: grafana cli plugins install grafana-piechart-panel
-            ignore_errors: True
-
-          - name: Restart pods to pick up any config updates
-            include_tasks: tasks-kubernetes-delete-kind-instances.yaml
-            vars:
-              kind: pod
-              namespace: "{{ namespace_monitoring }}"
-              contains: kube-prometheus-stack
+      - name: Restart pods to pick up any config updates
+        include_tasks: tasks-kubernetes-delete-kind-instances.yaml
+        vars:
+          kind: pod
+          namespace: "{{ namespace_monitoring }}"
+          contains: kube-prometheus-stack
 
       - debug:
           msg: >
@@ -521,6 +519,8 @@
             ingress.main.hosts[0].paths[0].service.port=10095"
 
       - name: Search for qbittorent pod
+        vars:
+          ansible_python_interpreter: "{{ venv_python }}"
         kubernetes.core.k8s_info:
           kind: Pod
           label_selectors:
