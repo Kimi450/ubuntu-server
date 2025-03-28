@@ -21,24 +21,33 @@
           block:
             - name: setup inventory.ini
               block:
-              - name: create inventory file
+              - name: generate inventories entry
+                set_fact:
+                  inventory_entries: >
+                    {{- inventory_entries | default('')
+                        + item + ' etcd_member_name='  + '"' + 'etcd' +  my_idx|string + '"'
+                        + ' ansible_host=' + '"' + hostvars[item].ansible_host + '"'
+                        + ' ansible_port=' + '"' + hostvars[item].ansible_port|string + '"'
+                        + ' ansible_user=' + '"' + hostvars[item].ansible_user + '"'
+                        + ' ansible_sudo_pass=' + '"' + hostvars[item].ansible_sudo_pass + '"'
+                    -}}
+                loop: "{{ query('inventory_hostnames', 'all') }}"
+                loop_control:
+                  index_var: my_idx
+
+              - name: populate inventory file
                 copy:
                   dest: "{{ kubespray_inventory_ini }}"
                   content: |
                     [all:vars]
                     ansible_connection=ssh
                     ansible_become_user=root
-                    ansible_host={{ hostvars['home-main'].ansible_host }}
-                    ansible_port={{ hostvars['home-main'].ansible_port }}
-                    ansible_ssh_user={{ hostvars['home-main'].ansible_user }}
-                    ansible_user={{ hostvars['home-main'].ansible_user }}
-                    ansible_sudo_pass={{ hostvars['home-main'].ansible_sudo_pass }}
 
                     [kube_control_plane]
-                    home-main etcd_member_name=etcd1
+                    {{ inventory_entries }}
 
                     [kube_node]
-                    home-main etcd_member_name=etcd1
+                    {{ inventory_entries }}
 
                     [etcd:children]
                     kube_control_plane
