@@ -120,6 +120,9 @@
         useful_files_repo_dir: "{{ basics.repos_dir }}/useful_files"
 
     - name: "reboot machine: {{ basics.reboot }}"
+      block:
+        # nested because conditions dont work in this task
+        - name: reboot
+          reboot:
+          become: true
       when: "{{ basics.reboot }}"
-      become: true
-      reboot:
