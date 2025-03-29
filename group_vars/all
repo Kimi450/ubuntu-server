@@ -119,7 +119,7 @@ charts:
       enabled: true
       # base dir for all immich info, including backups, cache, etc
       # look at `install-charts.yaml` for more information
-      host_path: "/home/{{ ansible_user }}/data/downloads"
+      host_path: "/home/{{ ansible_user }}/data/immich"
 
     # home automation portal
     home_assistant:
