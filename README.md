@@ -239,6 +239,8 @@ Use your own server
     - Go to ``Settings > Media Management``
         - If present, make sure ``Use Hardlinks instead of Copy`` is enabled
     - Radarr/Sonarr specific config
+      - Go to ``Settings > Profiles``
+        - If present, for all relevant profiles (or just all of them), set the `Language` for the profile to be `Original` (or whatever language you prefer it to be instead) to download the media in that specific language.
       - **[EXPERIMENTAL]** Enforce downloads of original language media only
         - Go to ``Settings > Custom Formats``
           - Add a new Custom Format with ``Language`` Condition
