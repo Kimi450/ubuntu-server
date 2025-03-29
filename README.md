@@ -444,7 +444,7 @@ Use your own server
     - You need to create DNS entries to access the Ingress services. The following entries are recommended:
       - `*.<DOMAIN_NAME>`
       - `<DOMAIN_NAME>`
-    - You can port forward the following ports on your router to gain external access. On your router:
+    - You can port forward (NAT based) the following ports on your router to gain external access. On your router:
       - Set a static IP for your server (if applicable) so the router doesnt assign a different IP to the machine breaking your port-forwarding setup
       - Following are some sample rules based on the `all` file defaults for port forwarding, feel free to tweak to your needs.
 
