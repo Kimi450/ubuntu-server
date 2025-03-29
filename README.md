@@ -135,28 +135,28 @@ Use your own server
         ```
     - Add any other config required.
       - Recommend setting up the Open Subtitles plugin which requires creating an account on [their website](https://www.opensubtitles.org/en/?).
-      - For Hardware acceleration go to ``Admin > Dashboard > Playback``
-          - Enable ``Hardware acceleration``
-          - Select ``Video Acceleration API (VAAPI)`` which is setup already to use the **integrated Intel GPU**. Not tested with anything else (like a dedicated AMD/Nvidea GPU)
+      - For Hardware acceleration go to `Admin > Dashboard > Playback`
+          - Enable `Hardware acceleration`
+          - Select `Video Acceleration API (VAAPI)` which is setup already to use the **integrated Intel GPU**. Not tested with anything else (like a dedicated AMD/Nvidea GPU)
             - You should see CPU usage drop and GPU usage go up, disable it if you dont or troubleshoot.
-            - You can use the ``intel-gpu-tools`` package to monitor (notice GPU usage when hardware encoding is enabled, and no GPU usage when it is disabled) at least the intel GPU by running the command below on the host:
-              ``sudo intel_gpu_top``
+            - You can use the `intel-gpu-tools` package to monitor (notice GPU usage when hardware encoding is enabled, and no GPU usage when it is disabled) at least the intel GPU by running the command below on the host:
+              `sudo intel_gpu_top`
           - Select the formats for which hardware acceleration should be enabled
-            - Recommend not selecting ```HEVC 10bit``` because for some reason that breaks it
+            - Recommend not selecting `HEVC 10bit` because for some reason that breaks it
           - Defaults to CPU/software encoding if hardware acceleration does not work for a file, I think.
           - More infomarmation on their [Jellyfin's page for Hardware Acceleration](https://jellyfin.org/docs/general/administration/hardware-acceleration.html)
     - Add any plugins you may want
       - [Trackt](https://trakt.tv/dashboard)
         - To track the shows you watch
         - Create a Trackt account
-        - Go to ``Admin > Dashboard > Plugins > Catalogue``
+        - Go to `Admin > Dashboard > Plugins > Catalogue`
           - Enable Trackt
           - Restart Jellyfin (Shutdown server from the `Dashboard` and k8s will restart, or delete the pod)
-        - Go to ``Admin > Dashboard > Plugins > Trackt``
+        - Go to `Admin > Dashboard > Plugins > Trackt`
           - Select the user
           - `Authorize Device`
           - Follow onscreen instructions
-        - Go to ``Admin > Dashboard > Scheduled Tasks > Trackt``
+        - Go to `Admin > Dashboard > Scheduled Tasks > Trackt`
           - Create a daily scheduled task for importing data from and exporting data to tract.tv
 
   - ##### Setup qBittorrent
@@ -164,33 +164,33 @@ Use your own server
       - Look for the substring `You can log into qBittorrent` in the logs to find the creds in the form `admin/<RANDOM_PASSWORD>`
         - If `<RANDOM_PASSWORD>` is not seen, that means that a password was found to be set already and that a randomly generated password was not used. Please try to remeber the password or reinstall to override configuration to use default passwords again.
     - Change the default login details
-      - Go to ``Tools > Options > Web UI > Authentication``
+      - Go to `Tools > Options > Web UI > Authentication`
     - Set default download location to one the mentioned directories (or make sure to put it in the right directory when downloading for ease)
-      - Go to ``Tools > Options > Downloads > Default Save Path``
-      - Recommend using ``/data/root-disk/downloads``
+      - Go to `Tools > Options > Downloads > Default Save Path`
+      - Recommend using `/data/root-disk/downloads`
     - Set seeding limits
-      - Recommend seeding limits for when seeding ratio hits "1" to give back to the community. It is under ``Tools > Options > BitTorrent > Seeding Limits``
+      - Recommend seeding limits for when seeding ratio hits "1" to give back to the community. It is under `Tools > Options > BitTorrent > Seeding Limits`
     - Set torrent download/upload limits
-      - Recommended to keep 12 active torrents, 6 downloads and 6 uploads. It is under ``Tools > Options > BitTorrent > Torrent Queueing``
+      - Recommended to keep 12 active torrents, 6 downloads and 6 uploads. It is under `Tools > Options > BitTorrent > Torrent Queueing`
 
   - ##### Setup Calibre
     - Do base setup
-      - Set folder to be ``/data/root-disk/books`` and select ``Yes`` for it to rebuild the library if asked.
-    - Go to ``Preferences > Sharing over the net``
-      - Check the box for ``Require username and password to access the Content server``
-      - Check the box for ``Run the server automatically when calibre starts``
-      - Click on ``Start server``
-      - Go to the ``User accounts tab`` and create a user
-        - Make a note of the credentials for use in ``Readarr`` setup
+      - Set folder to be `/data/root-disk/books` and select `Yes` for it to rebuild the library if asked.
+    - Go to `Preferences > Sharing over the net`
+      - Check the box for `Require username and password to access the Content server`
+      - Check the box for `Run the server automatically when calibre starts`
+      - Click on `Start server`
+      - Go to the `User accounts tab` and create a user
+        - Make a note of the credentials for use in `Readarr` setup
       - Restart the app/pod
         - You can do so by also pressing `CTRL + R` on the main screen
 
   - ##### Setup Calibre Web
-    - Default login is ``admin/admin123``
-    - Set folder to be ``/data/root-disk/books``
-    - To enable web reading, click on ``Admin`` (case sensitive) on the top right
-      - Click on the user, default is ``admin``
-      - Enable ``Allow ebook viewer``
+    - Default login is `admin/admin123`
+    - Set folder to be `/data/root-disk/books`
+    - To enable web reading, click on `Admin` (case sensitive) on the top right
+      - Click on the user, default is `admin`
+      - Enable `Allow ebook viewer`
       - Change password to something more secure
       - Save settings
 
@@ -204,62 +204,62 @@ Use your own server
       | Radarr  | Movies   |
       | Lidarr  | Music    |
 
-    - Go to ``Settings`` and click on ``Show Advanced``
+    - Go to `Settings` and click on `Show Advanced`
     - Enable authentication
       - Set `Authentication` to `Forms (Login Page)`
       - Set `Authentication Required` to `Enabled`
       - Set username and password for access
     - Add torrent client
-      - Go to ``Settings > Download Clients > Add > qBittorent``
-      - Add the host: ``qbittorrent``
-      - Add the port: ``10095``
-      - Add the username: ``<qBittorrent_username>``
-      - Add the password: ``<qBittorrent_password>``
-      - Enable the ``Remove Completed`` option.
+      - Go to `Settings > Download Clients > Add > qBittorent`
+      - Add the host: `qbittorrent`
+      - Add the port: `10095`
+      - Add the username: `<qBittorrent_username>`
+      - Add the password: `<qBittorrent_password>`
+      - Enable the `Remove Completed` option.
         - This will copy the download from the downloads directory to the destination directory for the service. Once the seeding limits are reached, it will delete the torrent and its files from the downloads directory.
         - More information on [sonarrs's wiki page](https://wiki.servarr.com/sonarr/settings#Torrent_Process) and [radarr's wiki page](https://wiki.servarr.com/radarr/settings#Torrent_Process) under `Remove Completed Downloads`. They should all have the same idea though.
     - Set the root directories to be the following
-      - Go to ``Settings > Media Management``
+      - Go to `Settings > Media Management`
 
         | Service | Root Directory    |
         |---------|-------------------|
-        | Readarr | ``/data/root-disk/books/``  |
-        | Sonarr  | ``/data/root-disk/shows/``  |
-        | Radarr  | ``/data/root-disk/movies/`` |
-        | Lidarr  | ``/data/root-disk/music/``  |
+        | Readarr | `/data/root-disk/books/`  |
+        | Sonarr  | `/data/root-disk/shows/`  |
+        | Radarr  | `/data/root-disk/movies/` |
+        | Lidarr  | `/data/root-disk/music/`  |
       - Enable renaming
     - Adjust quality definitions
-      - Go to ``Settings > Quality``
-      - Set the ``Size Limit`` or ``Megabytes Per Minute`` (or equivalent) to appropriate numbers
+      - Go to `Settings > Quality`
+      - Set the `Size Limit` or `Megabytes Per Minute` (or equivalent) to appropriate numbers
         - This will ensure your downloads are not "too big"
-      - For movies and shows, ``2-3GiB/h`` would usually be sufficient as the ``Preferred`` value, and you can leave the ``Max`` value a bit higher to ensure a better chance of download grabs
+      - For movies and shows, `2-3GiB/h` would usually be sufficient as the `Preferred` value, and you can leave the `Max` value a bit higher to ensure a better chance of download grabs
         - Min: 0
         - Preferred: 30
         - Max: 70 (you can also use 2000 but you might get bigger files more often)
-    - Go to ``Settings > Media Management``
-        - If present, make sure ``Use Hardlinks instead of Copy`` is enabled
+    - Go to `Settings > Media Management`
+        - If present, make sure `Use Hardlinks instead of Copy` is enabled
     - Radarr/Sonarr specific config
-      - Go to ``Settings > Profiles``
+      - Go to `Settings > Profiles`
         - If present, for all relevant profiles (or just all of them), set the `Language` for the profile to be `Original` (or whatever language you prefer it to be instead) to download the media in that specific language.
       - **[EXPERIMENTAL]** Enforce downloads of original language media only
-        - Go to ``Settings > Custom Formats``
-          - Add a new Custom Format with ``Language`` Condition
-            - Set ``Language: Original``
-            - Set ``Required: True``
-        - Go to ``Settings > Profiles``
+        - Go to `Settings > Custom Formats`
+          - Add a new Custom Format with `Language` Condition
+            - Set `Language: Original`
+            - Set `Required: True`
+        - Go to `Settings > Profiles`
           - Select all [relevant] profiles and set the following
-            - ``Minimum Custom Format Score`` to ``0`` (sum of the custom formats scores)
-            - Your new Custom Format's score to be ``0`` (if the value is lower than the minimum score then downloads will be blocked)
+            - `Minimum Custom Format Score` to `0` (sum of the custom formats scores)
+            - Your new Custom Format's score to be `0` (if the value is lower than the minimum score then downloads will be blocked)
     - Readarr specific config
-      - Go to ``Settings > Media Management``
+      - Go to `Settings > Media Management`
         - Add root folder (you cannot edit an existing one)
-          - Set the path to be ``/data/root-disk/books/``
-          - Enable ``Use Calibre`` options the the following defaults
-            - Calibre host: ``calibre-webserver``
-            - Calibre port: ``8081``
-            - Calibre Username: ``<calibre_username>``
-            - Calibre Password: ``<calibre_password>``
-        - Enabled ``Rename Books`` and use the defaults
+          - Set the path to be `/data/root-disk/books/`
+          - Enable `Use Calibre` options the the following defaults
+            - Calibre host: `calibre-webserver`
+            - Calibre port: `8081`
+            - Calibre Username: `<calibre_username>`
+            - Calibre Password: `<calibre_password>`
+        - Enabled `Rename Books` and use the defaults
 
   - ##### Setup Prowlarr
     - Enable authentication
@@ -267,7 +267,7 @@ Use your own server
       - Set `Authentication Required` to `Enabled`
       - Set username and password for access
     - Add `FlareSolverr` service as a proxy, refer to [this](https://trash-guides.info/Prowlarr/prowlarr-setup-flaresolverr/) guide for help
-      - Go to ``Settings > Indexers``
+      - Go to `Settings > Indexers`
       - Add a new proxy for `FlareSolverr`
         - Add a tag to it, for example `flaresolverr`
           - **NOTE:** This tag needs to be used for any indexer that needs to bypass CloudFlare and DDoS-Gaurd protection
@@ -292,7 +292,7 @@ Use your own server
           Tokyo Toshokan
           ```
         - It is recommended to use private indexers for books and music as they are harder to find otherwise
-    - Add Sonarr, Radarr, Lidarr and Readarr to the ``Settings > Apps > Application`` section using the correct API token and kubernetes service names
+    - Add Sonarr, Radarr, Lidarr and Readarr to the `Settings > Apps > Application` section using the correct API token and kubernetes service names
       - By default prowlarr server will be:
         ```
         http://prowlarr:9696
@@ -311,14 +311,14 @@ Use your own server
 
   - ##### Setup Bazarr
     - Enable authentication
-      - Go to ``Settings > General``
-      - Under ``Security`` select ``Form`` as the form of ``Authentication``
+      - Go to `Settings > General`
+      - Under `Security` select `Form` as the form of `Authentication`
       - Set username and password for access
     - Follow the official [Setup Guide](https://wiki.bazarr.media/Getting-Started/Setup-Guide/)
-      - Go to ``Settings > Radarr`` and ``Settings > Sonarr``
+      - Go to `Settings > Radarr` and `Settings > Sonarr`
         - Click on `Enable`
         - Fill out the details and save
-          - Use the API tokens from the respective services, found under ``Settings > General > Security > API Key``
+          - Use the API tokens from the respective services, found under `Settings > General > Security > API Key`
           - Use the kubernetes service name and port
 
             | Service Name | Port |
@@ -328,17 +328,17 @@ Use your own server
 
           - Set a suitable minimum score, probabl `70` is fine
         - Fill out the path mappings if the directories in which data is stored is different for both services (by default both services will use the same directory to access data, so you dont need to change anything for a default install)
-      - Go to ``Settings > Languages``
+      - Go to `Settings > Languages`
         - Add a language profile and set defaults for movies and series'
         - You may need to set language filters first before being able to create a profile with the languages in them
         - Add both, for hearing impaired and regular ones, to increase your chances
-      - Go to ``Settings > Provider`` and add providers for subtitles
+      - Go to `Settings > Provider` and add providers for subtitles
         - Decent options are:
           - Opensubtitles.com
           - TVSubtitles
           - YIFY Subtitles
           - Supersubtitles
-      - Go to ``Settings > Subtitles`` and make changes if needed
+      - Go to `Settings > Subtitles` and make changes if needed
       - Manually add the language profile to all the scanned media after first installation
     - NOTE:
       - If it doesnt work, manually restart the pod few times. It just works, not sure why. If that doesnt work, try reinstalling.
@@ -389,12 +389,12 @@ Use your own server
     - One stop shop for Sonarr/Radarr/Lidarr requests
     - Get the API keys for Jellyfin, Sonarr and Radarr
       - Jellyfin
-        - Go to ``Admin > Dashboard > API Keys``
+        - Go to `Admin > Dashboard > API Keys`
         - Generate a new API key with an appropriate name
       - Sonarr/Radarr/Lidarr
-        - Use the API tokens from the respective services, found under ``Settings > General > Security > API Key`` 
+        - Use the API tokens from the respective services, found under `Settings > General > Security > API Key` 
     - Set credentials for login
-    - Go to ``Settings``
+    - Go to `Settings`
       - Use the correct API keys, hostnames and ports for the services
           | Service Name | Port |
           |--------------|------|
@@ -402,15 +402,15 @@ Use your own server
           | sonarr       | 8989 |
           | radarr       | 7878 |
           | lidarr       | 8686 |
-      - Click on the ``Load Profiles`` and ``Load Root Folders`` buttons and use the appropriate defaults as used in the services seen [here](#setup-radarrsonarrreadarrlidarr).
-      - Setup ``Movies`` using ``Radarr``
-      - Setup ``TV`` using ``Sonarr``
-        - Enable the ``Enable season folders`` option
-        - Enable the ``V3`` option
-      - Setup ``Music`` using ``Lidarr``
-      - Setup ``Media Server`` using ``Jellyfin``
-      - **Dont forget to click on ``Enable`` for each of those setups as well**
-    - Go to ``Users``
+      - Click on the `Load Profiles` and `Load Root Folders` buttons and use the appropriate defaults as used in the services seen [here](#setup-radarrsonarrreadarrlidarr).
+      - Setup `Movies` using `Radarr`
+      - Setup `TV` using `Sonarr`
+        - Enable the `Enable season folders` option
+        - Enable the `V3` option
+      - Setup `Music` using `Lidarr`
+      - Setup `Media Server` using `Jellyfin`
+      - **Dont forget to click on `Enable` for each of those setups as well**
+    - Go to `Users`
       - Setup additional users
       - Give the following roles to *trusted* users for convinience
         ```
