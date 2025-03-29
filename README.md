@@ -444,7 +444,7 @@ Use your own server
     - You need to create DNS entries to access the Ingress services. The following entries are recommended:
       - `*.<DOMAIN_NAME>`
       - `<DOMAIN_NAME>`
-    - You can port forward (NAT based) the following ports on your router to gain external access. On your router:
+    - Setup NAT-ing for the the following ports on your router to gain external access. On your router:
       - Set a static IP for your server (if applicable) so the router doesnt assign a different IP to the machine breaking your port-forwarding setup
       - Following are some sample rules based on the `all` file defaults for port forwarding, feel free to tweak to your needs.
 
@@ -469,7 +469,31 @@ Use your own server
       | calibre     | LAN            | `<LAN_IP>:30000` (No ingress rules defined)                       |                            30100 |       `<BEST_NOT_TO_EXPOSE_THIS>` |
 
       NOTE: Security is an unkown when exposing a service to the internet.
-
+    - If you cannot do NAT setup on your router and need the server to run ingress on 80 and 443, you can use this [post's answer](https://stackoverflow.com/questions/55907537/how-to-expose-kubernetes-service-on-prem-using-443-80) to run the ingress controller on host network
+      ```yaml
+        kind: ...
+        apiVersion: apps/v1
+        metadata:
+          name: nginx-ingress-controller
+        spec:
+          ...
+          template:
+            spec:
+              hostNetwork: true <---------- Add this
+              containers:
+                - name: nginx-ingress-lb
+                  image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.21.0
+                  ports:
+                    - name: http
+                      hostPort: 80 <---------- Add this
+                      containerPort: 80
+                      protocol: TCP
+                    - name: https
+                      hostPort: 443 <---------- Add this
+                      containerPort: 443
+                      protocol: TCP
+                ...
+      ```
 # Appendix
 
 ## Prometheus TSDB Backup Restore
