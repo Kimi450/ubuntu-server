@@ -429,6 +429,34 @@
           msg: >
               You can log into Immich at 'immich.{{ domain_name }}'.
 
+    - name: Install home-assistant
+      when: charts.services.home_assistant.enabled
+      block:
+      - name: Install/Upgrade the home-assistant chart
+        include_tasks: tasks-install-chart.yaml
+        vars:
+          repo_name: TrueCharts
+          repo_link: oci://tccr.io/truecharts
+          install_namespace: "{{ namespace_generic_services }}"
+          timeout: "{{ charts.timeout }}"
+          release_name: home-assistant
+          chart_name: home-assistant
+          # not incliuding config persistence as it impacts the init setup
+          # specifically the trusted proxies dont get configured blocking
+          # ingress access. This is because the configmaps cannot be mounted
+          # at the expected location (subdir in the hostpath mount)
+          set_options: "--set \
+            {{ helm_common_general }},\
+            {{ helm_common_persistence }},\
+            {{ helm_common_security_contexts }},\
+            {{ helm_common_persistence_downloads }}\
+            {{ helm_common_resources }},\
+            {{ helm_common_ingress }},\
+            homeassistant.trusted_proxies[0]='10.0.0.0/8',\
+            ingress.main.hosts[0].host='home-assistant.{{ domain_name }}',\
+            ingress.main.hosts[0].paths[0].service.name=home-assistant,\
+            ingress.main.hosts[0].paths[0].service.port=8123"
+
     - name: Install jellyfin
       when: charts.services.jellyfin.enabled
       block:

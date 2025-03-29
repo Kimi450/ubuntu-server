@@ -121,6 +121,10 @@ charts:
       # look at `install-charts.yaml` for more information
       host_path: "/home/{{ ansible_user }}/data/downloads"
 
+    # home automation portal
+    home_assistant:
+      enabled: true
+
     # media client
     jellyfin:
       enabled: true

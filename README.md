@@ -122,6 +122,12 @@ Use your own server
         ```
     - You can find information on how to use [Loki](https://grafana.com/oss/loki/) in Grafana [here](https://grafana.com/docs/loki/latest/operations/grafana/)
 
+  - ##### Setup Home Assistant
+    - Portal for adding and monitoring home automation devices (like zigbee devices)
+      - To add zigbee support to your home assistant backed server, you can buy the [Home Assistant Connect ZBT-1](https://www.home-assistant.io/connectzbt1/)
+    - Follow onscreen instruction to create an account
+    - Getting started information is present on the [home-assistant website](https://www.home-assistant.io/getting-started/)
+
   - ##### Setup Jellyfin
     - Initial setup is just following on-screen instructions.
       - If asked to select server, delete it and refresh the page.
