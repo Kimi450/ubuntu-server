@@ -496,6 +496,12 @@ Use your own server
       ```
 # Appendix
 
+## Kubernetes metrics server
+
+For troubleshooting, it might be useful to run the metrics server on your cluster
+
+Refer to this [guide](https://medium.com/@cloudspinx/fix-error-metrics-api-not-available-in-kubernetes-aa10766e1c2f) for it.
+
 ## Prometheus TSDB Backup Restore
 
 In case of a migration, you may choose to wnat to migrate data from prometheus along with the app backups stored in the server's app-config dir.
