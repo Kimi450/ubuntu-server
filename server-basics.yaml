@@ -67,7 +67,7 @@
           - smartmontools # to be able to use smartctl to get SMART data about storage devices
           - hwinfo # hardware info
           - python3-venv # to create venvs for pip installs
-
+          - sysbench # cpu benchmark util
       - name: Install kubectx/kubens
         # https://github.com/ahmetb/kubectx
         snap:
