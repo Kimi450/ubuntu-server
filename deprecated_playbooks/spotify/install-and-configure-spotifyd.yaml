@@ -1,6 +1,6 @@
 ---
 - name: Install and configure spotifyd
-  hosts: home-main
+  hosts: all
   gather_facts: false
   vars:
     repo_dir: "{{ basics.repos_dir }}/spotifyd"
