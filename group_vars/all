@@ -134,6 +134,9 @@ charts:
       prometheus:
         # default prometheus scrape interval
         scrape_interval: 30s
+        # retention for metrics (y, w, d, h, m, s)
+        # Minimum I think will be 2h
+        retention: 730d
       grafana:
         admin_username: "admin" # FILL OUT
         admin_password: "admin" # FILL OUT

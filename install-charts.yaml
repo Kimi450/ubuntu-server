@@ -301,7 +301,7 @@
           chart_name: kube-prometheus-stack
           set_options: "--set \
             {{ helm_kube_prometheus_stack_loki_config }}\
-            prometheus.prometheusSpec.retention=730d,\
+            prometheus.prometheusSpec.retention={{ charts.services.kube_prometheus_stack.prometheus.retention }},\
             prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes={'ReadWriteOnce'},\
             prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage='50Gi',\
             prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false,\
