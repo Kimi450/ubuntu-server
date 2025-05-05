@@ -4,6 +4,7 @@
 # Domain name to be used
 domain_name: "" # FILL OUT
 
+# =================== Basic server package and env setup ===================
 # for basic server setup (in my opinion)
 basics:
   enabled: true
@@ -28,6 +29,7 @@ vnc:
   # working directory for the VNC session
   working_dir: "/home/{{ ansible_user }}"
 
+# =================== Squid proxy ===================
 # squid credentials, for proxy
 squid:
   enabled: true
@@ -35,6 +37,7 @@ squid:
   password: "" # FILL OUT
   port: "3128"
 
+# =================== Samba share ===================
 # sambashare for network attached storage
 smb:
   enabled: true
@@ -44,6 +47,7 @@ smb:
   # the directory to share
   share_dir: "/home/{{ ansible_user }}"
 
+# =================== Cloud update DNS record updater ===================
 # If you are using cloudflare and want to auto update entries
 # when the server IP changes
 # NOTE: It doesnt add entries, refer to the README.md file for instructions
@@ -56,7 +60,31 @@ cloudflare:
   # Set your Cloudflare Bearer token to view the zone and edit DNS records in it
   auth_key: "" # FILL OUT
 
-# ==== Select what charts you wish to install ====
+# =================== k8s settings ===================
+kubespray:
+  enabled: true
+  
+  # Use reset.yml to reset cluster
+  playbook: "cluster.yml"
+  # extra args for playbook
+  playbook_args: "-e reset_confirmation=yes"
+
+  # release branch from the repo: https://github.com/kubernetes-sigs/kubespray
+  release: "release-2.27"
+
+  # enable addons config
+  addons: []
+  # - helm_enabled
+  # - ingress_nginx_enabled
+  # - cert_manager_enabled
+  # - metallb_enabled
+  # - local_path_provisioner_enabled
+  
+  # enable cluster yml config
+  k8s_cluster: []
+  # - kube_proxy_strict_arp
+
+# =================== Select what charts you wish to install ===================
 charts:
   enabled: true
   
@@ -103,6 +131,9 @@ charts:
     # metrics monitoring with Grafana and Prometheus
     kube_prometheus_stack:
       enabled: true
+      prometheus:
+        # default prometheus scrape interval
+        scrape_interval: 30s
       grafana:
         admin_username: "admin" # FILL OUT
         admin_password: "admin" # FILL OUT
@@ -236,40 +267,13 @@ charts:
     ombi:
       enabled: false
 
-
-# ==== k8s settings ====
-
-kubespray:
-  enabled: true
-  
-  # Use reset.yml to reset cluster
-  playbook: "cluster.yml"
-  # extra args for playbook
-  playbook_args: "-e reset_confirmation=yes"
-
-  # release branch from the repo: https://github.com/kubernetes-sigs/kubespray
-  release: "release-2.27"
-
-  # enable addons config
-  addons: []
-  # - helm_enabled
-  # - ingress_nginx_enabled
-  # - cert_manager_enabled
-  # - metallb_enabled
-  # - local_path_provisioner_enabled
-  
-  # enable cluster yml config
-  k8s_cluster: []
-  # - kube_proxy_strict_arp
-  
-
+# =================== Bluetooth setup ===================
 # to allow pinless bluetooth connections to the server
 bluetooth:
   pinless:
     enabled: false
 
-# ==== For the Archived playbooks ====
-
+# =================== For the Archived playbooks ===================
 spotify: # spotify settings
   enabled: false
   username: "NO_NEED_TO_FILL"
