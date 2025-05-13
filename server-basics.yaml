@@ -118,6 +118,16 @@
           command: "{{ useful_files_repo_dir }}/vimmer.sh"
       vars:
         useful_files_repo_dir: "{{ basics.repos_dir }}/useful_files"
+      
+    # some services might need this increase
+    - name: Increase kernal inotify watch limit
+      blockinfile:
+        path: /etc/sysctl.conf
+        block: |
+          fs.inotify.max_user_watches=2099999999
+          fs.inotify.max_user_instances=2099999999
+          fs.inotify.max_queued_events=2099999999
+      become: true
 
     - name: reboot
       reboot:
