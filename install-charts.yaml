@@ -319,6 +319,7 @@
             prometheus.prometheusSpec.additionalScrapeConfigs[0].job_name=kubernetes-service-scraper,\
             prometheus.prometheusSpec.additionalScrapeConfigs[0].kubernetes_sd_configs[0].role=service,\
             prometheus.prometheusSpec.scrapeInterval={{ charts.services.kube_prometheus_stack.prometheus.scrape_interval }},\
+            grafana.initChownData.enabled=false,\
             grafana.persistence.enabled=true,\
             grafana.adminUser={{ charts.services.kube_prometheus_stack.grafana.admin_username }},\
             grafana.adminPassword={{ charts.services.kube_prometheus_stack.grafana.admin_password }},\
