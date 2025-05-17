@@ -215,7 +215,30 @@ charts:
           host_path: "/home/{{ ansible_user }}/data/shows"
         # - name: spare-disk
         #   host_path: "/mnt/b/shows"
-    
+
+    # media transcoding
+    tdarr:
+      enabled: true
+
+      # Generated API key used by nodes to authenticate against tdarr server
+      apiKey: "" # FILL OUT
+
+      # dirs to store and organise cache for transcoding efforts.
+      # Useful if you dont wanna use the overlays (like `/temp` in the
+      # which ends up as an overlay on root disk which is ephemeral)
+      # and have caching for specific disk libraries on their respective disks
+      # or just a persistent cache on a specific disk
+      #
+      # probably want to use SSDs here, check readme
+      #
+      # you can specify different mounts present on your server
+      # NOTE: The 'name' must follow the following regex validation: '[a-z0-9]([-a-z0-9]*[a-z0-9])?'
+      #       If you dont know what that means, just use lower case characters
+      #       and dashes to separate them or a mix of upper and lowercase characters
+      persistence:
+        - name: root-disk
+          host_path: "/home/{{ ansible_user }}/data/cache"
+
     # subtitle hunting
     bazarr:
       enabled: true

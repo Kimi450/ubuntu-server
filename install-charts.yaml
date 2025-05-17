@@ -87,6 +87,26 @@
             state: directory
             mode: '0777'
           become: true # incase the dirs are created at root level
+          loop: "{{ charts.services.tdarr.persistence }}"
+        - name: Set facts
+          set_fact:
+            helm_common_persistence_cache: >-
+              {{- helm_common_persistence_cache | default('')
+                  + 'persistence.cache-' + item.name + '.enabled=true,'
+                  + 'persistence.cache-' + item.name + '.type=hostPath,'
+                  + 'persistence.cache-' + item.name + '.hostPath=' +  item.host_path + ','
+                  + 'persistence.cache-' + item.name + '.mountPath=/data/' + item.name + '/cache,'
+              -}}
+          loop: "{{ charts.services.tdarr.persistence }}"
+
+    - name: Process variable to add disks
+      block:
+        - name: "Create host path dir"
+          file:
+            path: "{{ item.host_path }}"
+            state: directory
+            mode: '0777'
+          become: true # incase the dirs are created at root level
           loop: "{{ charts.services.radarr.persistence }}"
         - name: Set facts
           set_fact:
@@ -429,7 +449,7 @@
 
       - debug:
           msg: >
-              You can log into Immich at 'immich.{{ domain_name }}'.
+            You can log into Immich at 'immich.{{ domain_name }}'.
 
     - name: Install home-assistant
       when: charts.services.home_assistant.enabled
@@ -512,10 +532,10 @@
 
       - debug:
           msg: >
-              You can log into Jellyfin at 'jellyfin.{{ domain_name }}'.
-              Data directories are available under '/data' and can be used by
-              Jellyfin. If need be, delete any existing server and go to the
-              URL mention above once again to setup a new server.
+            You can log into Jellyfin at 'jellyfin.{{ domain_name }}'.
+            Data directories are available under '/data' and can be used by
+            Jellyfin. If need be, delete any existing server and go to the
+            URL mention above once again to setup a new server.
 
     - name: Install qbittorrent
       when: charts.services.qbittorrent.enabled
@@ -710,6 +730,54 @@
             can be used by the application to download things. Downloads in
             that directory will be picked up by Jellyfin.
 
+    - name: Install tdarr
+      when: charts.services.tdarr.enabled
+      block:
+      - name: Create config directory on hostpath for tdarr
+        file:
+          path: "{{ charts.services.configs_dir }}/tdarr"
+          state: directory
+          mode: '0777'
+        become: true
+
+      - name: Install/Upgrade the tdarr chart
+        include_tasks: tasks-install-chart.yaml
+        vars:
+          repo_name: TrueCharts
+          repo_link: oci://tccr.io/truecharts
+          install_namespace: "{{ namespace_generic_services }}"
+          timeout: "{{ charts.timeout }}"
+          release_name: tdarr
+          chart_name: tdarr
+          # For auth
+          # https://docs.tdarr.io/docs/other/authentication
+          # Setting PGID and PUID as this is used by Tdarr for all its
+          # operations. Without setting this the "Copy Action" was failing
+          set_options: "--set \
+            {{ helm_common_general }},\
+            {{ helm_common_persistence }},\
+            {{ helm_common_persistence_shows }}\
+            {{ helm_common_persistence_movies }}\
+            {{ helm_common_persistence_cache }}\
+            {{ helm_common_resources }},\
+            {{ helm_common_ingress }},\
+            securityContext.container.PUID=\"0\",\
+            securityContext.container.PGID=\"0\",\
+            workload.main.podSpec.containers.main.env.auth=true,\
+            workload.main.podSpec.containers.main.env.apiKey={{ charts.services.tdarr.apiKey }},\
+            persistence.configs.enabled=true,\
+            persistence.configs.type=hostPath,\
+            persistence.configs.hostPath={{ charts.services.configs_dir }}/tdarr,\
+            ingress.main.hosts[0].host='tdarr.{{ domain_name }}',\
+            ingress.main.hosts[0].paths[0].service.name=tdarr,\
+            ingress.main.hosts[0].paths[0].service.port=8265"
+
+      - debug:
+          msg: >
+            You can log into tdarr at 'tdarr.{{ domain_name }}'.
+            Data directories are available under '/data' and can be used by
+            tdarr.
+
     - name: Install bazarr
       when: charts.services.bazarr.enabled
       block:
@@ -860,10 +928,10 @@
             ingress.main.hosts[0].paths[0].service.port=3579"
       - debug:
           msg: >
-              You can log into ombi at 'ombi.{{ domain_name }}'.
-              Data directories are available under '/data' and can be used by
-              ombi. If need be, delete any existing server and go to the
-              URL mention above once again to setup a new server.
+            You can log into ombi at 'ombi.{{ domain_name }}'.
+            Data directories are available under '/data' and can be used by
+            ombi. If need be, delete any existing server and go to the
+            URL mention above once again to setup a new server.
 
     - name: Install jellyseerr
       when: charts.services.jellyseerr.enabled
@@ -897,10 +965,10 @@
             ingress.main.hosts[0].paths[0].service.port=5055"
       - debug:
           msg: >
-              You can log into jellyseerr at 'jellyseerr.{{ domain_name }}'.
-              Data directories are available under '/data' and can be used by
-              jellyseerr. If need be, delete any existing server and go to the
-              URL mention above once again to setup a new server.
+            You can log into jellyseerr at 'jellyseerr.{{ domain_name }}'.
+            Data directories are available under '/data' and can be used by
+            jellyseerr. If need be, delete any existing server and go to the
+            URL mention above once again to setup a new server.
 
     - name: Install librespeed
       when: charts.services.librespeed.enabled

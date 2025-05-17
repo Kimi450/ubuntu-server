@@ -349,6 +349,24 @@ Use your own server
     - NOTE:
       - If it doesnt work, manually restart the pod few times. It just works, not sure why. If that doesnt work, try reinstalling.
 
+  - ##### Setup Tdarr
+    - Used for transcoding media to help reduce storage requirements
+    - NOTE: This will use a lot of your resources
+    - It will get the same mounts as the ones defined in Radarr and Sonarr
+    - Follow setup instructions shown after logging into it
+      - For the most part, the default plugins they have are fine, feel free to tweak/experiment more (and contribute back if you find something useful!)
+      - In the `Tdarr` tab, `Staging Section`, enable `Auto accept successful transcodes`
+      - For the workers, start off with just 1 CPU worker and see how much that affects your server's stability before you add more.
+      - Add all the libraries from all the disks that have been configured for radarr and sonarr with relevant caches
+        - Potentially use the cache dir that lives on the same disk (for example, libraries on `root-disk` to use the cache dir on `root-disk` under `/data/root-disk/cache`)
+          - According to [documentation](https://docs.tdarr.io/docs/library-setup/transcode-cache), it is recommended to use an SSD as the cache (preferably, but not as a requirement, where the original data does not live)
+      - In the `Tools` tab, go to `API Keys`, generate an API Key and use that in the `group_vars/all` file `apiKey` for tdarr. Then redeploy to register any nodes (including internal node) with the server.
+        - This is required till upstream changes are made. Tracked in: https://github.com/Kimi450/ubuntu_server/issues/32
+      - **NOTE:** GPU Transcoding is not tested as of 20250518
+        - You probably want a dedicated GPU for this otherwise your CPU might get overloaded (if using integrated graphics)
+        - To make it work, the first step would be to go to the `Tdarr` tab, go to the relevant nodes (like `Internal Node`) and enable `Allow GPU workers to do CPU tasks`. Then `Restart` the nodes at the top of that view.
+        - TBD (figure out GPU passthrough for Tdarr)
+
   - ##### Setup Jellyseerr
     - One stop shop for Sonarr/Radarr requests
     - Run the first time setup for Jellyfin
