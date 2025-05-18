@@ -415,6 +415,7 @@
             {{ helm_common_security_contexts }},\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
+            service.machinelearning.enabled={{ charts.services.immich.machinelearning }},\
             persistence.mlcache.enabled=true,\
             persistence.mlcache.type=hostPath,\
             persistence.mlcache.hostPath={{ charts.services.immich.host_path }}/mlcache,\

@@ -154,6 +154,10 @@ charts:
       # base dir for all immich info, including backups, cache, etc
       # look at `install-charts.yaml` for more information
       host_path: "/home/{{ ansible_user }}/data/immich"
+      # machinelearning service toogle.
+      # It can cause instability when the learning is taking place if you have a not very powerful server
+      # disable if it causes issues.
+      machinelearning: true
 
     # home automation portal
     home_assistant:
