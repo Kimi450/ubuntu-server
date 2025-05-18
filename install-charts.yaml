@@ -762,8 +762,8 @@
             {{ helm_common_persistence_cache }}\
             {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
-            securityContext.container.PUID=\"0\",\
-            securityContext.container.PGID=\"0\",\
+            securityContext.container.PUID=\"{{ uid }}\",\
+            securityContext.container.PGID=\"568\",\
             workload.main.podSpec.containers.main.env.auth=true,\
             workload.main.podSpec.containers.main.env.apiKey={{ charts.services.tdarr.apiKey }},\
             persistence.configs.enabled=true,\
