@@ -70,7 +70,7 @@ kubespray:
   playbook_args: "-e reset_confirmation=yes"
 
   # release branch from the repo: https://github.com/kubernetes-sigs/kubespray
-  release: "release-2.27"
+  release: "release-2.28"
 
   # enable addons config
   addons: []
