@@ -120,6 +120,13 @@
         useful_files_repo_dir: "{{ basics.repos_dir }}/useful_files"
       
     # some services might need this increase
+    - name: "Create /etc/sysctl.conf"
+      become: true
+      file:
+        path: "/etc/sysctl.conf"
+        state: touch
+        mode: '0777'
+
     - name: Increase kernal inotify watch limit
       blockinfile:
         path: /etc/sysctl.conf
