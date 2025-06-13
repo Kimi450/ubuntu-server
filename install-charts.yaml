@@ -222,6 +222,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: ingress-nginx
           chart_name: ingress-nginx
+          version: "{{ charts.services.ingress_nginx.version }}"
           # setting proxy-body-size=0 disables size checks for uploads and sets
           # it as the default for all ingresses handled by this controller
           #   https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#custom-max-body-size   
@@ -248,6 +249,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: cert-manager
           chart_name: cert-manager
+          version: "{{ charts.services.cert_manager.version }}"
           set_options: "--set \
             ingressShim.defaultIssuerName=letsencrypt-prod,\
             prometheus.enabled=true,\
@@ -291,6 +293,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: loki-stack
           chart_name: loki-stack
+          version: "{{ charts.services.loki_stack.version }}"
           set_options: "--set \
             loki.isDefault=False,\
             test_pod.enable=False,\
@@ -319,6 +322,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: kube-prometheus-stack
           chart_name: kube-prometheus-stack
+          version: "{{ charts.services.kube_prometheus_stack.version }}"
           set_options: "--set \
             {{ helm_kube_prometheus_stack_loki_config }}\
             prometheus.prometheusSpec.retention={{ charts.services.kube_prometheus_stack.prometheus.retention }},\
@@ -395,6 +399,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: cnpg
           chart_name: cloudnative-pg
+          version: "{{ charts.services.cnpg.version }}"
           set_options: "--set \
             crds.create=true"
 
@@ -410,6 +415,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: immich
           chart_name: immich
+          version: "{{ charts.services.immich.version }}"
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_security_contexts }},\
@@ -464,6 +470,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: home-assistant
           chart_name: home-assistant
+          version: "{{ charts.services.home_assistant.version }}"
           # not incliuding config persistence as it impacts the init setup
           # specifically the trusted proxies dont get configured blocking
           # ingress access. This is because the configmaps cannot be mounted
@@ -499,6 +506,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: jellyfin
           chart_name: jellyfin
+          version: "{{ charts.services.jellyfin.version }}"
           # to allow the pod to be able to use the /dev mount
           # to access /dev/dri/renderD128 for hwa, these options are set to true
           # - securityContext.container.runAsUser=0
@@ -557,6 +565,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: qbittorrent
           chart_name: qbittorrent
+          version: "{{ charts.services.qbittorrent.version }}"
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
@@ -605,6 +614,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: flaresolverr
           chart_name: flaresolverr
+          version: "{{ charts.services.flaresolverr.version }}"
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
@@ -634,6 +644,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: prowlarr
           chart_name: prowlarr
+          version: "{{ charts.services.prowlarr.version }}"
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
@@ -670,6 +681,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: radarr
           chart_name: radarr
+          version: "{{ charts.services.radarr.version }}"
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
@@ -710,6 +722,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: sonarr
           chart_name: sonarr
+          version: "{{ charts.services.sonarr.version }}"
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
@@ -750,6 +763,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: tdarr
           chart_name: tdarr
+          version: "{{ charts.services.tdarr.version }}"
           # For auth
           # https://docs.tdarr.io/docs/other/authentication
           # Setting PGID and PUID as this is used by Tdarr for all its
@@ -798,6 +812,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: bazarr
           chart_name: bazarr
+          version: "{{ charts.services.bazarr.version }}"
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
@@ -838,6 +853,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: readarr
           chart_name: readarr
+          version: "{{ charts.services.readarr.version }}"
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
@@ -877,6 +893,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: lidarr
           chart_name: lidarr
+          version: "{{ charts.services.lidarr.version }}"
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
@@ -916,6 +933,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: ombi
           chart_name: ombi
+          version: "{{ charts.services.ombi.version }}"
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
@@ -953,6 +971,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: jellyseerr
           chart_name: jellyseerr
+          version: "{{ charts.services.jellyseerr.version }}"
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
@@ -983,6 +1002,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: librespeed
           chart_name: librespeed
+          version: "{{ charts.services.librespeed.version }}"
           # PUID={{ uid }} gives write access on the pod
           # 568 is the default user ID, added to the groups cause why not
           set_options: "--set \
@@ -1014,6 +1034,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: calibre-web
           chart_name: calibre-web
+          version: "{{ charts.services.calibre_web.version }}"
           # PUID={{ uid }} gives write access on the pod
           # 568 is the default user ID, added to the groups cause why not
           set_options: "--set \
@@ -1047,6 +1068,7 @@
           timeout: "{{ charts.timeout }}"
           release_name: calibre
           chart_name: calibre
+          version: "{{ charts.services.calibre.version }}"
           # PUID={{ uid }} gives write access on the pod
           # 568 is the default user ID, added to the groups cause why not
           # securityContext.container.seccompProfile.type is required for the

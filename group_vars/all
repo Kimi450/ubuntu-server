@@ -111,15 +111,17 @@ charts:
     # provision hostPaths using this controller
     local_path_provisioner:
       enabled: true
-      version: "v0.0.31"
+      version: "v0.0.31" # dont use "latest" here
     
     # nginx ingress controller for reverse proxy
     ingress_nginx:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
     
     # manager for tls certs
     cert_manager:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
       # email for the ACME account registration
       # FYI: you dont need to create any account for this, just use an email ID
       email: "" # FILL OUT
@@ -127,10 +129,12 @@ charts:
     # log monitoring with Loki (Needs Grafana for a UI)
     loki_stack:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
     
     # metrics monitoring with Grafana and Prometheus
     kube_prometheus_stack:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
       prometheus:
         # default prometheus scrape interval
         scrape_interval: 30s
@@ -144,6 +148,7 @@ charts:
     # cloud native instance of postgres DB
     cnpg:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
 
     # google photos alternative
     # NOTE: REQUIRES YOU TO HAVE CNPG INSTALLED BEFORE
@@ -151,6 +156,7 @@ charts:
     #       - make sure you have installed it first (incase of an upgrade)
     immich:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
       # base dir for all immich info, including backups, cache, etc
       # look at `install-charts.yaml` for more information
       host_path: "/home/{{ ansible_user }}/data/immich"
@@ -162,14 +168,17 @@ charts:
     # home automation portal
     home_assistant:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
 
     # media client
     jellyfin:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
     
     # torrents
     qbittorrent:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
 
       # dirs to download files
       # you can specify different mounts present on your server
@@ -185,14 +194,17 @@ charts:
     # to bypass cloudflare protection
     flaresolverr:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
     
     # to manage indexers
     prowlarr:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
     
     # movie monitoring
     radarr:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
 
       # dirs to store and organise movies
       # you can specify different mounts present on your server
@@ -208,6 +220,7 @@ charts:
     # show monitoring
     sonarr:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
 
       # dirs to store and organise shows
       # you can specify different mounts present on your server
@@ -223,6 +236,7 @@ charts:
     # media transcoding
     tdarr:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
 
       # Generated API key used by nodes to authenticate against tdarr server
       apiKey: "" # FILL OUT
@@ -246,18 +260,22 @@ charts:
     # subtitle hunting
     bazarr:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
     
     # movie and show interface
     jellyseerr:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
 
     # speed test to server
     librespeed:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
 
     # book monitoring
     readarr:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
 
       # dirs to store and organise books
       # you can specify different mounts present on your server
@@ -273,6 +291,7 @@ charts:
     # music monitoring
     lidarr:
       enabled: true
+      version: "latest" # specify a version to not install the latest version
 
       # dirs to store and organise music
       # you can specify different mounts present on your server
@@ -288,14 +307,17 @@ charts:
     # book client
     calibre_web:
       enabled: false
+      version: "latest" # specify a version to not install the latest version
 
     # book management
     calibre:
       enabled: false
+      version: "latest" # specify a version to not install the latest version
 
     # movie, show and music interface
     ombi:
       enabled: false
+      version: "latest" # specify a version to not install the latest version
 
 # =================== Bluetooth setup ===================
 # to allow pinless bluetooth connections to the server

@@ -1,4 +1,4 @@
-- name: Install {{ release_name }}
+- name: Install {{ release_name }} {{ version }}
   block:
   - name: "Non-OCI Registry Workflow"
     when: "not 'oci' in repo_link"
@@ -21,5 +21,5 @@
       set_fact:
         chart_location: "{{ repo_link }}/{{ chart_name }}"
 
-  - name: Install chart
-    shell: "helm upgrade -i -n {{ install_namespace }} {{ release_name }} {{ chart_location }} {{ set_options }} --timeout {{ timeout }} --create-namespace --wait"
+  - name: Install chart {{ release_name }} {{ version }}
+    shell: "helm upgrade -i -n {{ install_namespace }} {{ release_name }} {{ chart_location }} {{ set_options }} --timeout {{ timeout }} {{ '--version ' + version if version != 'latest' }} --create-namespace --wait"
