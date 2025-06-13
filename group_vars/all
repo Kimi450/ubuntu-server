@@ -239,7 +239,10 @@ charts:
       version: "latest" # specify a version to not install the latest version
 
       # Generated API key used by nodes to authenticate against tdarr server
-      apiKey: "" # FILL OUT
+      # must start with 'tapi_', be at least 14 characters, and contain
+      # only alphanumeric characters and underscores
+      # https://docs.tdarr.io/docs/installation/variables#tdarr-server-variables
+      apiKey: "tapi_PLACEHOLDERKEY" # FILL OUT
 
       # dirs to store and organise cache for transcoding efforts.
       # Useful if you dont wanna use the overlays (like `/temp` in the

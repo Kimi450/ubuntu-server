@@ -768,6 +768,8 @@
           # https://docs.tdarr.io/docs/other/authentication
           # Setting PGID and PUID as this is used by Tdarr for all its
           # operations. Without setting this the "Copy Action" was failing
+          # For API key
+          # https://docs.tdarr.io/docs/installation/variables#tdarr-server-variables
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
@@ -779,6 +781,7 @@
             securityContext.container.PUID=\"{{ uid }}\",\
             securityContext.container.PGID=\"568\",\
             workload.main.podSpec.containers.main.env.auth=true,\
+            workload.main.podSpec.containers.main.env.seededApiKey={{ charts.services.tdarr.apiKey }},\
             workload.main.podSpec.containers.main.env.apiKey={{ charts.services.tdarr.apiKey }},\
             persistence.configs.enabled=true,\
             persistence.configs.type=hostPath,\
