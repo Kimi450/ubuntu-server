@@ -151,6 +151,10 @@ Use your own server
             - Recommend not selecting `HEVC 10bit` because for some reason that breaks it
           - Defaults to CPU/software encoding if hardware acceleration does not work for a file, I think.
           - More infomarmation on their [Jellyfin's page for Hardware Acceleration](https://jellyfin.org/docs/general/administration/hardware-acceleration.html)
+    - Setup Know Proxies to have valid `X-Forwarded-For` config as per the [documentation](https://jellyfin.org/docs/general/post-install/networking/#known-proxies)
+      - Go to `Admin > Dashboard > Networking`
+      - Input the range `10.233.64.0/18` (which is what Kubespray uses by default) for the pod range (where the ingress controller will start as well)
+        - You can use a less restrictive range if you wish as well, eg. `10.0.0.0/8`
     - Add any plugins you may want
       - [Trackt](https://trakt.tv/dashboard)
         - To track the shows you watch
