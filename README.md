@@ -364,6 +364,7 @@ Use your own server
       - Add all the libraries from all the disks that have been configured for radarr and sonarr with relevant caches
         - Potentially use the cache dir that lives on the same disk (for example, libraries on `root-disk` to use the cache dir on `root-disk` under `/data/root-disk/cache`)
           - According to [documentation](https://docs.tdarr.io/docs/library-setup/transcode-cache), it is recommended to use an SSD as the cache (preferably, but not as a requirement, where the original data does not live)
+        - Enable the `Folder Watch` toggle to make sure new files are auto picked up over time as well.
       - In the `Tools` tab, go to `API Keys`, generate an API Key and use that in the `group_vars/all` file `apiKey` for tdarr. Then redeploy to register any nodes (including internal node) with the server.
         - This is required till upstream changes are made. Tracked in: https://github.com/Kimi450/ubuntu_server/issues/32
       - **NOTE:** GPU Transcoding is not tested as of 20250518
