@@ -348,6 +348,25 @@ Use your own server
           - TVSubtitles
           - YIFY Subtitles
           - Supersubtitles
+          - Anime Tosho (needs AniDB Integration)
+            - Thanks to this [reddit post](https://www.reddit.com/r/bazarr/comments/1gaudgp/setup_animetosho_provider/) for instructions.
+            - Go to [AniDB](https://anidb.net/user/register) and sign up for an account
+            - Login to your account
+            - Go to [AniDB](http://anidb.net/perl-bin/animedb.pl?show=client) client registration page.
+            - Add a new Project on the `Add New Project` tab
+            - Fill out the form
+              - Type: `Media Center`
+              - State: `Working`
+              - Public Project: `No, private only`
+              - Target OS: `Web`
+              - Language: `Python`
+              - Contact info as required
+              - Server URL
+            - Once the project is created, go back to the `Projects` tab and then click on the project you just created
+            - On the Project Details Page, click over `Add Client` button, so we will be creating a client for your Project now
+            - Fill the Form for the Client, Make sure you don't forget the `Client Name` and the `Version` because we will be needing it for Bazarr! Also make sure the API is changed to `HTTP API`.
+            - On the bottom part of the `Integrations` click over the `+` button, and setup the AniDB Client. Make sure you fill up exactly how it was configure on AniDB. Click `Save`
+            - Next, you are still on Bazarr settings page, and now you should click over `+` on the top part to add a new Provider, and select `Anime Tosho`.
       - Go to `Settings > Subtitles` and make changes if needed
       - Manually add the language profile to all the scanned media after first installation
     - NOTE:
