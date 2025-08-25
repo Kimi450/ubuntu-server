@@ -47,6 +47,7 @@
           - python3-pip # pip
           - htop # for top resource usage
           - iotop # for top io usage
+          - iotop-c # for top io with cgroup v2 support (successor to iotop: https://github.com/Tomas-M/iotop) -> sudo iotop-c -aP
           - lm-sensors
           - stress # stress tests
           - vlc # media player
