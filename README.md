@@ -432,6 +432,21 @@ Use your own server
   - ##### Setup Immich
     - Just follow onscreen instructions to create an account
     - Setup the config as you please from there!
+    - Sample command for importing a google photos takeout archive using [immich-go](github.com/simulot/immich-go)
+      ```bash
+      immich-go upload from-google-photos \
+          --server=https://<YOUR_DOMAIN_OR_IP>:<PORT> \
+          --api-key=<USER_API_KEY_GENERATED> \
+          --log-file=$HOME/immich-go.logs \
+          --session-tag=true \
+          --include-trashed=true \
+          --include-untitled-albums=true \
+          --manage-burst=Stack \
+          --people-tag=true \
+          --sync-albums \
+          --on-server-errors=continue \
+          <PATH_TO_TAKEOUT_FILES>*.zip
+      ```
 
   - ##### Setup Ombi
     - One stop shop for Sonarr/Radarr/Lidarr requests
