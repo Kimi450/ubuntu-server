@@ -174,7 +174,12 @@ charts:
     jellyfin:
       enabled: true
       version: "latest" # specify a version to not install the latest version
-    
+
+    # media client
+    jellystat:
+      enabled: true
+      version: "latest" # specify a version to not install the latest version
+
     # torrents
     qbittorrent:
       enabled: true

@@ -429,6 +429,13 @@ Use your own server
       - Give them `Manage Requests` and other permissions for ease where applicable
     - Go to `Settings -> Users` and give them all `Auto-Approve` and `Auto-Request` Permissions by default for ease.
 
+  - ##### Setup Jellyseerr
+    - Setup login credentias
+    - Link to Jellyfin
+      - Jellyfin URL: `http://jellfin:8096`
+      - Generate an API key from Jellyfin and use it here
+        - It will be in Jellyfin under `Dashboard -> API Key`
+
   - ##### Setup Immich
     - Just follow onscreen instructions to create an account
     - Setup the config as you please from there!

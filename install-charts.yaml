@@ -546,6 +546,35 @@
             Jellyfin. If need be, delete any existing server and go to the
             URL mention above once again to setup a new server.
 
+    - name: Install jellystat
+      when: charts.services.jellystat.enabled
+      block:
+      - name: Install/Upgrade the jellystat chart
+        include_tasks: tasks-install-chart.yaml
+        vars:
+          repo_name: TrueCharts
+          repo_link: oci://tccr.io/truecharts
+          install_namespace: "{{ namespace_generic_services }}"
+          timeout: "{{ charts.timeout }}"
+          release_name: jellystat
+          chart_name: jellystat
+          version: "{{ charts.services.jellystat.version }}"
+          # to allow the pod to be able to use the /dev mount
+          # to access /dev/dri/renderD128 for hwa, these options are set to true
+          # - securityContext.container.runAsUser=0
+          # - securityContext.container.privileged=true
+          # - securityContext.container.allowPrivilegeEscalation=true
+          set_options: "--set \
+            {{ helm_common_general }},\
+            {{ helm_common_resources }},\
+            {{ helm_common_ingress }},\
+            ingress.main.hosts[0].host='jellystat.{{ domain_name }}',\
+            ingress.main.hosts[0].paths[0].service.name=jellystat"
+
+      - debug:
+          msg: >
+            You can log into jellystat at 'jellystat.{{ domain_name }}'.
+
     - name: Install qbittorrent
       when: charts.services.qbittorrent.enabled
       block:
