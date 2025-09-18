@@ -165,6 +165,18 @@ charts:
       # disable if it causes issues.
       enable_ml: false
 
+    # nextcloud self hosted private cloud which integrates with collabora
+    nextcloud:
+      enabled: true
+      version: "latest" # specify a version to not install the latest version
+      
+      # Collabora office suite of products based on libreoffice
+      collabora:
+        enabled: true
+
+        username: admin
+        password: changeme
+
     # home automation portal
     home_assistant:
       enabled: true

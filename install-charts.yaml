@@ -403,6 +403,43 @@
           set_options: "--set \
             crds.create=true"
 
+    - name: Install collabora
+      when: charts.services.collabora.enabled
+      block:
+      - name: Create config directory on hostpath for collabora
+        file:
+          path: "{{ charts.services.configs_dir }}/collabora"
+          state: directory
+          mode: '0777'
+        become: true
+
+      - name: Install/Upgrade the collabora chart
+        include_tasks: tasks-install-chart.yaml
+        vars:
+          repo_name: TrueCharts
+          repo_link: oci://tccr.io/truecharts
+          install_namespace: "{{ namespace_generic_services }}"
+          timeout: "{{ charts.timeout }}"
+          release_name: collabora
+          chart_name: collabora
+          version: "{{ charts.services.collabora.version }}"
+          set_options: "--set \
+            {{ helm_common_general }},\
+            {{ helm_common_resources }},\
+            {{ helm_common_ingress }},\
+            {{ helm_common_persistence_config }},\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/jellyfin,\
+            securityContext.container.runAsUser=0,\
+            securityContext.container.readOnlyRootFilesystem=false,\
+            securityContext.container.runAsNonRoot=false,\
+            ingress.main.hosts[0].host='collabora.{{ domain_name }}',\
+            ingress.main.hosts[0].paths[0].service.name=collabora,\
+            ingress.main.hosts[0].paths[0].service.port=10043"
+
+      - debug:
+          msg: >
+            You can log into collabora at 'collabora.{{ domain_name }}'.
+
     - name: Install immich
       when: charts.services.immich.enabled
       block:
