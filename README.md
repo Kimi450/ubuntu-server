@@ -455,6 +455,19 @@ Use your own server
           <PATH_TO_TAKEOUT_FILES>*.zip
       ```
 
+  - ##### Setup Guacamole
+    - Clientless remote desktop gateway supporting protocols like ssh, vnc and RDP.
+    - Login using default credentials `guacadmin`/`guacadmin` and change them
+      - Click on top right to go to `Settings`
+      - Go to `Preferences`
+      - Update your password in the `Change Password` section
+    - Add connections by going to top right and clicking on `Settings`
+      - Go to `Connections -> New Connection`
+      - Fill out the details of the connection type with relevant and options
+        - Main part is to full out the `Parameters` Section
+        - Good option to setup here is the SSH config for your server maybe
+      - To access these, click on top right and go to `Home` and click on the connection
+
   - ##### Setup Ombi
     - One stop shop for Sonarr/Radarr/Lidarr requests
     - Get the API keys for Jellyfin, Sonarr and Radarr

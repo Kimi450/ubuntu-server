@@ -458,6 +458,34 @@
           msg: >
             You can log into Immich at 'immich.{{ domain_name }}'.
 
+    - name: Install guacamole
+      when: charts.services.guacamole.enabled
+      block:
+      - name: Install/Upgrade the guacamole chart
+        include_tasks: tasks-install-chart.yaml
+        vars:
+          repo_name: TrueCharts
+          repo_link: oci://tccr.io/truecharts
+          install_namespace: "{{ namespace_generic_services }}"
+          timeout: "{{ charts.timeout }}"
+          release_name: guacamole
+          chart_name: guacamole
+          version: "{{ charts.services.guacamole.version }}"
+          # not incliuding config persistence as it impacts the init setup
+          # specifically the trusted proxies dont get configured blocking
+          # ingress access. This is because the configmaps cannot be mounted
+          # at the expected location (subdir in the hostpath mount)
+          set_options: "--set \
+            {{ helm_common_general }},\
+            {{ helm_common_persistence }},\
+            {{ helm_common_security_contexts }},\
+            {{ helm_common_persistence_downloads }}\
+            {{ helm_common_resources }},\
+            {{ helm_common_ingress }},\
+            ingress.main.hosts[0].host='guacamole.{{ domain_name }}',\
+            ingress.main.hosts[0].paths[0].service.name=guacamole,\
+            ingress.main.hosts[0].paths[0].service.port=10123"
+
     - name: Install home-assistant
       when: charts.services.home_assistant.enabled
       block:
