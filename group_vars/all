@@ -165,6 +165,13 @@ charts:
       # disable if it causes issues.
       enable_ml: false
 
+    # Apache Guacamole is a clientless remote desktop gateway.
+    # It supports standard protocols like VNC, RDP, and SSH
+    # https://guacamole.apache.org/
+    guacamole:
+      enabled: true
+      version: "latest" # specify a version to not install the latest version
+
     # home automation portal
     home_assistant:
       enabled: true
