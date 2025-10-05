@@ -248,6 +248,7 @@ Use your own server
         - Max: 70 (you can also use 2000 but you might get bigger files more often)
     - Go to `Settings > Media Management`
         - If present, make sure `Use Hardlinks instead of Copy` is enabled
+        - Enable the `Unmonitor Deleted Movies` or `Unmonitor Deleted Episodes` option if you want to unmonitor media (not redownload) when deleted from Jellyfin. 
     - Radarr/Sonarr specific config
       - Go to `Settings > Profiles`
         - If present, for all relevant profiles (or just all of them), set the `Language` for the profile to be `Original` (or whatever language you prefer it to be instead) to download the media in that specific language.
@@ -442,8 +443,8 @@ Use your own server
     - Sample command for importing a google photos takeout archive using [immich-go](github.com/simulot/immich-go)
       ```bash
       immich-go upload from-google-photos \
-          --server=https://<YOUR_DOMAIN_OR_IP>:<PORT> \
-          --api-key=<USER_API_KEY_GENERATED> \
+          --server=<IMMICH_URL>:30443 \
+          --api-key=<IMMICH_API_KEY> \
           --log-file=$HOME/immich-go.logs.$(date +'%Y%m%d.%H%M%S') \
           --session-tag=true \
           --include-trashed=true \
@@ -451,8 +452,8 @@ Use your own server
           --manage-burst=Stack \
           --people-tag=true \
           --sync-albums \
-          --on-server-errors=continue \
-          <PATH_TO_TAKEOUT_FILES>*.zip
+          --on-server-errors=stop \
+          <PATH_TO_TAKEOUT>/takeout*.zip
       ```
 
   - ##### Setup Guacamole
