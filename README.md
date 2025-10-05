@@ -444,7 +444,7 @@ Use your own server
       immich-go upload from-google-photos \
           --server=https://<YOUR_DOMAIN_OR_IP>:<PORT> \
           --api-key=<USER_API_KEY_GENERATED> \
-          --log-file=$HOME/immich-go.logs \
+          --log-file=$HOME/immich-go.logs.$(date +'%Y%m%d.%H%M%S') \
           --session-tag=true \
           --include-trashed=true \
           --include-untitled-albums=true \
