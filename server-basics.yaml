@@ -69,6 +69,7 @@
           - hwinfo # hardware info
           - python3-venv # to create venvs for pip installs
           - sysbench # cpu benchmark util
+          - cgroup-tools # to use lscgroup
       - name: Install kubectx/kubens
         # https://github.com/ahmetb/kubectx
         snap:
