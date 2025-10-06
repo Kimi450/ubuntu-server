@@ -63,14 +63,14 @@ Use your own server
       - On the right side you can see the `Zone ID`
       - Put this in the `group_vars/all` file
       - Here you can also see the link to the API token page
-    - Go to the `DNS` page 
+    - Go to the `DNS` page
       - Put in the following records (**REQUIRED**)
 
         | Type | Name                   | Content            | Proxy Status | TTL    |
         |------|------------------------|--------------------|--------------|--------|
         | `A`  | `<YOUR_DOMAIN_NAME>`   | `<YOUR_PUBLIC_IP>` | `DNS only`   | `Auto` |
         | `A`  | `*.<YOUR_DOMAIN_NAME>` | `<YOUR_PUBLIC_IP>` | `DNS only`   | `Auto` |
-  
+
       - Now you can also use `<YOUR_DOMAIN_NAME>` in the `group_vars/all` file instead of the server's IP address
     - Create a Custom API token from the [api-tokens](https://dash.cloudflare.com/profile/api-tokens) page with the following permissions and include the specific `Zone` (or website) from `Zone Resources` section
       - To edit DNS entries
@@ -248,7 +248,7 @@ Use your own server
         - Max: 70 (you can also use 2000 but you might get bigger files more often)
     - Go to `Settings > Media Management`
         - If present, make sure `Use Hardlinks instead of Copy` is enabled
-        - Enable the `Unmonitor Deleted Movies` or `Unmonitor Deleted Episodes` option if you want to unmonitor media (not redownload) when deleted from Jellyfin. 
+        - Enable the `Unmonitor Deleted Movies` or `Unmonitor Deleted Episodes` option if you want to unmonitor media (not redownload) when deleted from Jellyfin.
     - Radarr/Sonarr specific config
       - Go to `Settings > Profiles`
         - If present, for all relevant profiles (or just all of them), set the `Language` for the profile to be `Original` (or whatever language you prefer it to be instead) to download the media in that specific language.
@@ -453,6 +453,7 @@ Use your own server
           --people-tag=true \
           --sync-albums \
           --on-server-errors=stop \
+          --concurrent-uploads 2 \
           <PATH_TO_TAKEOUT>/takeout*.zip
       ```
 
@@ -476,7 +477,7 @@ Use your own server
         - Go to `Admin > Dashboard > API Keys`
         - Generate a new API key with an appropriate name
       - Sonarr/Radarr/Lidarr
-        - Use the API tokens from the respective services, found under `Settings > General > Security > API Key` 
+        - Use the API tokens from the respective services, found under `Settings > General > Security > API Key`
     - Set credentials for login
     - Go to `Settings`
       - Use the correct API keys, hostnames and ports for the services
