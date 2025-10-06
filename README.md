@@ -453,6 +453,7 @@ Use your own server
           --people-tag=true \
           --sync-albums \
           --on-server-errors=stop \
+          --concurrent-uploads 2 \
           /mnt/b/downloads/takeout*.zip
       ```
 
