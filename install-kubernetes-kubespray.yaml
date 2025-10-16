@@ -100,6 +100,10 @@
       # https://helm.sh/docs/intro/install/
       shell: "curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash"
       become: true
+
+    - name: apply metrics server
+      shell: kubectl apply -f https://raw.githubusercontent.com/pythianarora/total-practice/master/sample-kubernetes-code/metrics-server.yaml
+
   vars:
     kubespray_repo_dir: "./kubespray"
     kubespray_venv_dir: "{{ kubespray_repo_dir }}/kubespray-venv"
