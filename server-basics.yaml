@@ -70,6 +70,7 @@
           - python3-venv # to create venvs for pip installs
           - sysbench # cpu benchmark util
           - cgroup-tools # to use lscgroup
+          - sshpass # to use sshpass to bypass interactive password requirement in ssh
       - name: Install kubectx/kubens
         # https://github.com/ahmetb/kubectx
         snap:
