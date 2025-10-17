@@ -1,6 +1,14 @@
 #!/bin/bash
 set -ex
 
+FORMAT="+%FT%T.%3NZ"
+log() {
+    echo "[$(date --utc ${FORMAT})] $@"
+}
+
+ARCH=$(dpkg --print-architecture)
+log "Env variable set: ARCH=${ARCH}" 
+
 # disable swap
 disable_swap() {
     sed -i '/ swap / s/^/#/' /etc/fstab
@@ -88,25 +96,20 @@ install_kubectl() {
 
 
 install_crictl() {
-    CRICTL_VERSION="v1.31.0"
-    ARCH="amd64"
+    local CRICTL_VERSION="v1.31.0"
     curl -L "https://github.com/kubernetes-sigs/cri-tools/releases/download/${CRICTL_VERSION}/crictl-${CRICTL_VERSION}-linux-${ARCH}.tar.gz" | tar -C $DOWNLOAD_DIR -xz
 }
 
-create_download_dir() {
+install_kubeadm_kubelet_as_systemd_service() {
     DOWNLOAD_DIR="/usr/local/bin"
     mkdir -p "$DOWNLOAD_DIR"
-}
 
-
-install_kubeadm_kubelet_as_systemd_service() {
-    RELEASE="$(curl -sSL https://dl.k8s.io/release/stable.txt)"
-    ARCH="amd64"
+    local RELEASE="$(curl -sSL https://dl.k8s.io/release/stable.txt)"
     cd $DOWNLOAD_DIR
     curl -L --remote-name-all https://dl.k8s.io/release/${RELEASE}/bin/linux/${ARCH}/{kubeadm,kubelet}
     chmod +x {kubeadm,kubelet}
 
-    RELEASE_VERSION="v0.16.2"
+    local RELEASE_VERSION="v0.16.2"
     curl -sSL "https://raw.githubusercontent.com/kubernetes/release/${RELEASE_VERSION}/cmd/krel/templates/latest/kubelet/kubelet.service" | sed "s:/usr/bin:${DOWNLOAD_DIR}:g" | tee /usr/lib/systemd/system/kubelet.service
     mkdir -p /usr/lib/systemd/system/kubelet.service.d
     curl -sSL "https://raw.githubusercontent.com/kubernetes/release/${RELEASE_VERSION}/cmd/krel/templates/latest/kubeadm/10-kubeadm.conf" | sed "s:/usr/bin:${DOWNLOAD_DIR}:g" | tee /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf
@@ -116,7 +119,6 @@ install_kubeadm_kubelet_as_systemd_service() {
 
 setup_kubelet_and_kubeadm() {
     install_cni_plugins "amd64" "v1.3.0"
-    create_download_dir
     install_crictl
     install_kubeadm_kubelet_as_systemd_service
 }
@@ -146,12 +148,11 @@ kubeadm_init() {
 
 install_cilium_cli() {
     CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
-    CLI_ARCH=amd64
-    if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
-    curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
-    sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
-    sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
-    rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+    if [ "$(uname -m)" = "aarch64" ]; then ARCH=arm64; fi
+    curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${ARCH}.tar.gz{,.sha256sum}
+    sha256sum --check cilium-linux-${ARCH}.tar.gz.sha256sum
+    sudo tar xzvfC cilium-linux-${ARCH}.tar.gz /usr/local/bin
+    rm cilium-linux-${ARCH}.tar.gz{,.sha256sum}
 }
 
 install_cilium() {
