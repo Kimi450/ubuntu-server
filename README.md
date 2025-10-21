@@ -117,9 +117,21 @@ Use your own server
       - [Node Exporter for Prometheus Dashboard EN v20201010](https://grafana.com/grafana/dashboards/11074)
       - [Monitor Pod CPU and Memory usage](https://grafana.com/grafana/dashboards/15055-monitor-pod-cpu-and-memory-usage/)
     - Would recommend adding a panel with the following query as it is useful to monitor pods as well
-      - For average
+      - For average CPU usage
         ```
         avg(irate(container_cpu_usage_seconds_total[2m])) by (pod,container)
+        ```
+      - For memory usage
+        ```
+        max(container_memory_working_set_bytes{} / (1024*1024)) by (pod)
+        ```
+      - For memory reservation
+        ```
+        max(kube_pod_container_resource_requests{resource="memory"}) by (pod) / (1024*1024)
+        ```
+      - For memory limit
+        ```
+        max(kube_pod_container_resource_limits{resource="memory"}) by (pod) / (1024*1024)
         ```
     - You can find information on how to use [Loki](https://grafana.com/oss/loki/) in Grafana [here](https://grafana.com/docs/loki/latest/operations/grafana/)
 
