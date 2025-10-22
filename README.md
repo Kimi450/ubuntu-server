@@ -169,6 +169,9 @@ Use your own server
       - Input the range `10.233.64.0/18` (which is what Kubespray uses by default) for the pod range (where the ingress controller will start as well)
         - You can use a less restrictive range if you wish as well, eg. `10.0.0.0/8`
     - Add any plugins you may want
+      - [Intro skipper](https://github.com/intro-skipper/intro-skipper)
+        - To skip intros
+        - Refer to the page above for installation
       - [Trackt](https://trakt.tv/dashboard)
         - To track the shows you watch
         - Create a Trackt account
