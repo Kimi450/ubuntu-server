@@ -268,6 +268,15 @@ Use your own server
     - Radarr/Sonarr specific config
       - Go to `Settings > Profiles`
         - If present, for all relevant profiles (or just all of them), set the `Language` for the profile to be `Original` (or whatever language you prefer it to be instead) to download the media in that specific language.
+        - Create a `Release Profile` with the following if you have a machine that is not very powerful and cannot transcode well (or at all, like in: https://github.com/Kimi450/ubuntu-server/issues/36)
+          - Allow list
+            - 264
+          - Block list
+            - hevc
+            - flac
+            - mkv
+            - 265
+          - Make it apply to `any` indexer
       - **[EXPERIMENTAL]** Enforce downloads of original language media only
         - Go to `Settings > Custom Formats`
           - Add a new Custom Format with `Language` Condition
