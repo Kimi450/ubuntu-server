@@ -410,7 +410,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: immich
@@ -465,7 +465,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: guacamole
@@ -493,7 +493,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: home-assistant
@@ -529,7 +529,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: jellyfin
@@ -581,7 +581,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: jellystat
@@ -617,7 +617,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: qbittorrent
@@ -666,7 +666,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: flaresolverr
@@ -696,7 +696,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: prowlarr
@@ -733,7 +733,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: radarr
@@ -774,7 +774,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: sonarr
@@ -815,7 +815,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: tdarr
@@ -867,7 +867,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: bazarr
@@ -908,7 +908,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: readarr
@@ -948,7 +948,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: lidarr
@@ -988,7 +988,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: ombi
@@ -1026,7 +1026,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: jellyseerr
@@ -1057,7 +1057,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: librespeed
@@ -1089,7 +1089,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: calibre-web
@@ -1123,7 +1123,7 @@
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
-          repo_link: oci://tccr.io/truecharts
+          repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
           release_name: calibre
