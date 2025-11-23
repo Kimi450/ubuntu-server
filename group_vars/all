@@ -84,6 +84,16 @@ kubespray:
   k8s_cluster: []
   # - kube_proxy_strict_arp
 
+
+kubeadm:
+  enabled: false
+
+  controlplane:
+    count: 1
+
+  worker:
+    count: 0
+
 # =================== Select what charts you wish to install ===================
 charts:
   enabled: true
