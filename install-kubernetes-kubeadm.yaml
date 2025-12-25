@@ -39,3 +39,9 @@
         #     -s {{ ansible_sudo_pass }}
         #   become: true
         #   when: "{{ kubeadm.worker.count }}"
+
+    - name: make kubeconfig editable for tools to work with it
+      ansible.builtin.file:
+        path: "{{ basics.home_dir }}/.kube/config"
+        mode: '0777'
+      become: true
