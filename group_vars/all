@@ -161,6 +161,11 @@ charts:
       # FYI: you dont need to create any account for this, just use an email ID
       email: "" # FILL OUT
     
+      # Enable this if you are using non-standard ports for your services
+      # and need to use the DNS challenge instead of default HTTP challenge
+      # for certificates. Probably can leave this as it is.
+      dns01_challenge: true
+
     # log monitoring with Loki (Needs Grafana for a UI)
     loki_stack:
       enabled: false

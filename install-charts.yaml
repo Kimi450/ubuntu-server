@@ -257,6 +257,7 @@
             crds.enabled=true"
 
       - name: "install clusterissuer CR with account email: {{ charts.services.cert_manager.email }}"
+        when: not charts.services.cert_manager.dns01_challenge
         shell: |
           kubectl apply -f - <<EOF
             apiVersion: cert-manager.io/v1
@@ -279,6 +280,49 @@
                       ingress:
                         ingressClassName: nginx
           EOF
+
+      - name: "install clusterissuer with dns resolver"
+        when: charts.services.cert_manager.dns01_challenge
+        block:
+          - name: apply secret
+            shell: |
+              kubectl apply -f - <<EOF
+                apiVersion: v1
+                kind: Secret
+                metadata:
+                  name: cloudflare-api-key-secret
+                  namespace: cert-manager
+                type: Opaque
+                stringData:
+                  api-key: {{ cloudflare.auth_key }}
+              EOF
+
+          - name: apply clusterissuer
+            shell: |
+              kubectl apply -f - <<EOF
+                apiVersion: cert-manager.io/v1
+                kind: ClusterIssuer
+                metadata:
+                  name: letsencrypt-prod
+                  namespace: {{ namespace_cert_manager }}
+                spec:
+                  acme:
+                    # The ACME server URL
+                    server: https://acme-v02.api.letsencrypt.org/directory
+                    # Email address used for ACME registration
+                    email: "{{ charts.services.cert_manager.email }}"
+                    # Name of a secret used to store the ACME account private key
+                    privateKeySecretRef:
+                      name: letsencrypt-prod
+                    # Enable the HTTP-01 challenge provider
+                    solvers:
+                      - dns01:
+                          cloudflare:
+                            apiTokenSecretRef:
+                              key: api-key
+                              name: cloudflare-api-key-secret
+                            email: {{ charts.services.cert_manager.email }}
+              EOF
 
     - name: Install loki-stack
       when: charts.services.loki_stack.enabled
