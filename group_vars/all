@@ -7,9 +7,9 @@ domain_name: "" # FILL OUT
 # =================== Basic server package and env setup ===================
 # for basic server setup (in my opinion)
 basics:
-  enabled: true
+  enabled: false
   # reboot machine
-  reboot: true
+  reboot: false
 
   # user's home dir
   home_dir: "/home/{{ ansible_user }}"
@@ -19,7 +19,7 @@ basics:
 
 # vnc for remote desktop with GUI
 vnc:
-  enabled: true
+  enabled: false
   # will be truncated to 8 characters
   password: "" # FILL OUT
   # display for what port will be accessed
@@ -32,7 +32,7 @@ vnc:
 # =================== Squid proxy ===================
 # squid credentials, for proxy
 squid:
-  enabled: true
+  enabled: false
   username: "" # FILL OUT
   password: "" # FILL OUT
   port: "3128"
@@ -40,7 +40,7 @@ squid:
 # =================== Samba share ===================
 # sambashare for network attached storage
 smb:
-  enabled: true
+  enabled: false
   password: "" # FILL OUT
   share_name: "sambashare"
 
@@ -52,7 +52,7 @@ smb:
 # when the server IP changes
 # NOTE: It doesnt add entries, refer to the README.md file for instructions
 cloudflare:
-  enabled: true
+  enabled: false
 
   # Set your Cloudflare Zone ID
   zone_id: "" # FILL OUT
@@ -62,7 +62,7 @@ cloudflare:
 
 # =================== k8s settings ===================
 kubespray:
-  enabled: true
+  enabled: false
   
   # Use reset.yml to reset cluster
   playbook: "cluster.yml"
@@ -84,19 +84,42 @@ kubespray:
   k8s_cluster: []
   # - kube_proxy_strict_arp
 
-
+# =================== k8s settings alternative ===================
 kubeadm:
-  enabled: false
+  enabled: true
 
+  versions:
+    # Refer to the below for a combination that will work
+    # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+
+    # Version of conatinerd to use
+    # https://github.com/containerd/containerd/releases
+    containerd: "https://github.com/containerd/containerd/releases/download/v2.2.1/containerd-static-2.2.1-linux-amd64.tar.gz"
+    
+    # Version of kubernetes to use
+    # https://dl.k8s.io/release/stable.txt
+    kubernetes: v1.35.0
+    
+    # Version of kubernetes release artifacts to use
+    # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+    kubernetes_release: "v0.16.2"
+
+    # Version of the crictl tooling
+    # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+    crictl: "v1.31.0"
+  
+  # Recommend to leave these as defaults, Ive not tested these extensively
   controlplane:
+    # Number of control plane nodes
     count: 1
 
   worker:
+    # Number of worker nodes
     count: 0
 
 # =================== Select what charts you wish to install ===================
 charts:
-  enabled: true
+  enabled: false
   
   resources:
     # kubernetes resource requests for the pods
@@ -120,17 +143,17 @@ charts:
 
     # provision hostPaths using this controller
     local_path_provisioner:
-      enabled: true
+      enabled: false
       version: "v0.0.31" # dont use "latest" here
     
     # nginx ingress controller for reverse proxy
     ingress_nginx:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
     
     # manager for tls certs
     cert_manager:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
       # email for the ACME account registration
       # FYI: you dont need to create any account for this, just use an email ID
@@ -138,12 +161,12 @@ charts:
     
     # log monitoring with Loki (Needs Grafana for a UI)
     loki_stack:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
     
     # metrics monitoring with Grafana and Prometheus
     kube_prometheus_stack:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
       prometheus:
         # default prometheus scrape interval
@@ -157,15 +180,15 @@ charts:
     
     # cloud native instance of postgres DB
     cnpg:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
 
     # google photos alternative
     # NOTE: REQUIRES YOU TO HAVE CNPG INSTALLED BEFORE
-    #       - Either set `cnpg.enabled` to true or
+    #       - Either set `cnpg.enabled` to false or
     #       - make sure you have installed it first (incase of an upgrade)
     immich:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
       # base dir for all immich info, including backups, cache, etc
       # look at `install-charts.yaml` for more information
@@ -179,27 +202,27 @@ charts:
     # It supports standard protocols like VNC, RDP, and SSH
     # https://guacamole.apache.org/
     guacamole:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
 
     # home automation portal
     home_assistant:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
 
     # media client
     jellyfin:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
 
     # media client
     jellystat:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
 
     # torrents
     qbittorrent:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
 
       # dirs to download files
@@ -215,17 +238,17 @@ charts:
     
     # to bypass cloudflare protection
     flaresolverr:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
     
     # to manage indexers
     prowlarr:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
     
     # movie monitoring
     radarr:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
 
       # dirs to store and organise movies
@@ -241,7 +264,7 @@ charts:
 
     # show monitoring
     sonarr:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
 
       # dirs to store and organise shows
@@ -257,7 +280,7 @@ charts:
 
     # media transcoding
     tdarr:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
 
       # Generated API key used by nodes to authenticate against tdarr server
@@ -284,22 +307,22 @@ charts:
 
     # subtitle hunting
     bazarr:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
     
     # movie and show interface
     jellyseerr:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
 
     # speed test to server
     librespeed:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
 
     # book monitoring
     readarr:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
 
       # dirs to store and organise books
@@ -315,7 +338,7 @@ charts:
 
     # music monitoring
     lidarr:
-      enabled: true
+      enabled: false
       version: "latest" # specify a version to not install the latest version
 
       # dirs to store and organise music
