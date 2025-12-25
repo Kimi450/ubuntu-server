@@ -28,6 +28,9 @@ Use your own server
 
   You can do this via the UI or refer to this [stackoverflow post](https://askubuntu.com/questions/47311/how-do-i-disable-my-system-from-going-to-sleep).
 
+- #### Assign a static IP
+  If using kubernetes, allocate a static IP to your machine on your router. If you do not do this, you can end up with an inaccessible cluster till you update the IPs again. Refer to [appendix](#broken-kubernetes-cluster-after-ip-change)
+
 ## Client Setup
 
 - #### Enable passwordless ssh access from remote machine to server (required for ansible to work)
@@ -685,3 +688,47 @@ mv ${TMP_DIR}/* ${PV_DIR}/prometheus-db/
 ## Network troubleshooting tools
 
 This repo will be of use: https://github.com/nicolaka/netshoot
+
+## Broken Kubernetes cluster after IP change
+
+Refer to [this page](https://attamapascalpedro.medium.com/kubernetes-cluster-broke-after-a-node-ip-change-heres-the-fix-and-lessons-learned-98b73604863b) for troubleshooting and fix.
+
+Always keep a static IP for your nodes.
+
+The TLDR fix is to run the following on your node:
+
+```bash
+# update configs
+sudo sed -i 's/<OLD_IP>/<NEW_IP>/g' /etc/kubernetes/*.conf
+sudo grep -R "192.168" /etc/kubernetes/*.conf
+
+sudo sed -i 's/<OLD_IP>/<NEW_IP>/g' /etc/kubernetes/manifests/etcd.yaml
+sudo grep -E 'listen-|advertise|initial-cluster|initial-advertise' /etc/kubernetes/manifests/etcd.yaml
+```
+
+```bash
+# restart kubelet
+sudo systemctl daemon-reexec
+sudo systemctl restart kubelet
+```
+
+```bash
+# backup certs
+sudo cp -r /etc/kubernetes/pki /etc/kubernetes/pki.bak
+
+# remove old keys
+sudo rm /etc/kubernetes/pki/apiserver.*
+
+# regenerate certs
+sudo kubeadm init phase certs apiserver \
+  --apiserver-advertise-address=192.168.0.8 \
+  --apiserver-cert-extra-sans=192.168.0.8,pedroops,PedroOps \
+  --control-plane-endpoint=192.168.0.8
+
+# restart pods
+sudo systemctl restart kubelet
+
+# test
+sudo kubectl cluster-info
+sudo kubectl get nodes
+```
