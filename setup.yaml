@@ -15,9 +15,9 @@
   when:
     - basics.enabled
 
-- import_playbook: install-kubernetes-kubespray.yaml
+- import_playbook: install-kubernetes.yaml
   when:
-    - kubespray.enabled
+    - kubespray.enabled or kubeadm.enabled
 
 - import_playbook: install-charts.yaml
   vars:
