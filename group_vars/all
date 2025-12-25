@@ -111,11 +111,13 @@ kubeadm:
   # Recommend to leave these as defaults, Ive not tested these extensively
   controlplane:
     # Number of control plane nodes
+    # set to 0 to remove
     count: 1
 
   # worker:
   #   # Number of worker nodes
-  #   count: -1
+  #   # set to 0 to remove
+  #   count: 0
 
 # =================== Select what charts you wish to install ===================
 charts:
