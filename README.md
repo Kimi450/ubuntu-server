@@ -164,7 +164,6 @@ Use your own server
         /data/root-disk/books
         ```
     - Add any other config required.
-      - Recommend setting up the Open Subtitles plugin which requires creating an account on [their website](https://www.opensubtitles.org/en/?).
       - For Hardware acceleration go to `Admin > Dashboard > Playback`
           - Enable `Hardware acceleration`
           - Select `Video Acceleration API (VAAPI)` which is setup already to use the **integrated Intel GPU**. Not tested with anything else (like a dedicated AMD/Nvidea GPU)
@@ -174,7 +173,7 @@ Use your own server
           - Select the formats for which hardware acceleration should be enabled
             - Recommend not selecting `HEVC 10bit` because for some reason that breaks it
           - Defaults to CPU/software encoding if hardware acceleration does not work for a file, I think.
-          - More infomarmation on their [Jellyfin's page for Hardware Acceleration](https://jellyfin.org/docs/general/administration/hardware-acceleration.html)
+          - More information on their [Jellyfin's page for Hardware Acceleration](https://jellyfin.org/docs/general/administration/hardware-acceleration.html)
     - Setup Know Proxies to have valid `X-Forwarded-For` config as per the [documentation](https://jellyfin.org/docs/general/post-install/networking/#known-proxies)
       - Go to `Admin > Dashboard > Networking`
       - Input the range `10.233.64.0/18` into `Known Proxies` (which is what Kubespray uses by default) for the pod range (where the ingress controller will start as well)
@@ -182,13 +181,15 @@ Use your own server
       - Go to `Admin > Dashboard`
         - Restart Jellyfin (Shutdown server from the `Dashboard` and k8s will restart, or delete the pod)
     - Add any plugins you may want
+      - Open Subtitles
+        - Requires creating an account on [their website](https://www.opensubtitles.com/)
       - [Intro skipper](https://github.com/intro-skipper/intro-skipper)
         - To skip intros
         - Refer to the page above for installation
       - [Trackt](https://trakt.tv/dashboard)
         - To track the shows you watch
         - Create a Trackt account
-        - Go to `Admin > Dashboard > Plugins > Catalogue`
+        - Go to `Admin > Dashboard > Plugins > All`
           - Enable Trackt
           - Restart Jellyfin (Shutdown server from the `Dashboard` and k8s will restart, or delete the pod)
         - Go to `Admin > Dashboard > Plugins > Trackt`
@@ -436,7 +437,7 @@ Use your own server
       - `Choose Server Type`
         - Select `Jellyfin`
       - `Account sign in`
-        - Jellyfin URL: `http://jellfin:8096`
+        - Jellyfin URL: `http://jellyfin:8096`
         - Email Address: `<YOUR_EMAIL>`
         - Username: `<JELLYFIN_USERNAME>`
         - Password: `<JELLYFIN_PASSWORD>`
@@ -468,10 +469,10 @@ Use your own server
       - Give them `Manage Requests` and other permissions for ease where applicable
     - Go to `Settings -> Users` and give them all `Auto-Approve` and `Auto-Request` Permissions by default for ease.
 
-  - ##### Setup Jellyseerr
-    - Setup login credentias
+  - ##### Setup Jellystat
+    - Setup login credentials
     - Link to Jellyfin
-      - Jellyfin URL: `http://jellfin:8096`
+      - Jellyfin URL: `http://jellyfin:8096`
       - Generate an API key from Jellyfin and use it here
         - It will be in Jellyfin under `Dashboard -> API Key`
 
