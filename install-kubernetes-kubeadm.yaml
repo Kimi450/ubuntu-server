@@ -1,57 +1,41 @@
 ---
-# https://github.com/kubernetes-sigs/kubespray/blob/master/docs/ansible/ansible.md
-# https://github.com/kubernetes-sigs/kubespray/blob/master/docs/getting_started/getting-started.md
 - name: Install kubernetes using kubeadm
   hosts: all
   gather_facts: true
   tasks:
     - name: kubeadm installation
-      delegate_to: localhost
+      environment:
+        CONTAINERD_VERSION: "{{ kubeadm.versions.containerd }}"
+        KUBERNETES_VERSION: "{{ kubeadm.versions.kubernetes }}"
+        KUBERNETES_RELEASE_VERSION: "{{ kubeadm.versions.kubernetes_release }}"
+        CRICTL_VERSION: "{{ kubeadm.versions.crictl }}"
       block:
         - name: copy over bootstrap script
+          ansible.builtin.copy:
+            src: ./kubeadm-cp.bash
+            dest: "{{ basics.home_dir }}"
+            owner: "{{ uid }}"
+            group: "{{ uid }}"
+            mode: '0777'
+            backup: yes
 
         - name: bootstrap control plane node
-          file:
-            path: "{{ item.host_path }}"
-            state: directory
-            mode: '0777'
-          become: true # incase the dirs are created at root level
-          loop: "{{ charts.services.tdarr.persistence }}"
-        - name: bootstrap worker node
-          file:
-            path: "{{ item.host_path }}"
-            state: directory
-            mode: '0777'
-          become: true # incase the dirs are created at root level
-          loop: "{{ charts.services.tdarr.persistence }}"
-
-          when: charts.services.local_path_provisioner.enabled
-
-    - name: Install kubectl
-      # https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
-      block:
-      - name: download binary
-        become: true
-        shell: "curl -LO \"https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl\""
-
-      - name: install binary
-        become: true
-        shell: "install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl"
-      
-    - name: Install Helm
-      # https://helm.sh/docs/intro/install/
-      shell: "curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash"
-      become: true
-
-    - name: apply metrics server
-      shell: kubectl apply -f https://raw.githubusercontent.com/pythianarora/total-practice/master/sample-kubernetes-code/metrics-server.yaml
-
-  vars:
-    kubespray_repo_dir: "./kubespray"
-    kubespray_venv_dir: "{{ kubespray_repo_dir }}/kubespray-venv"
-    kubespray_sample_dir: "{{ kubespray_repo_dir }}/inventory/sample"
-    kubespray_inventory_ini: "{{ kubespray_sample_dir }}/inventory.ini"
-    kubespray_addons_yml: "{{ kubespray_sample_dir }}/group_vars/k8s_cluster/addons.yml"
-    kubespray_k8s_cluster_yml: "{{ kubespray_sample_dir }}/group_vars/k8s_cluster/k8s-cluster.yml"
+          shell: >-
+            {{ basics.home_dir }}/kubeadm-cp.bash -v 
+            -t controlplane 
+            -c {{ kubeadm.controlplane.count }}
+            -h home-main
+            -u {{ ansible_user }}
+            -s {{ ansible_sudo_pass }}
+          become: true
 
 
+        - name: bootstrap control plane node
+          shell: >-
+            {{ basics.home_dir }}/kubeadm-cp.bash -v 
+            -t worker 
+            -c {{ kubeadm.worker.count }}
+            -h home-main
+            -u {{ ansible_user }}
+            -s {{ ansible_sudo_pass }}
+          become: true

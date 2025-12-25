@@ -1,13 +1,13 @@
 #!/bin/bash
 set -e
 
-FORMAT="+%F %T.%3NZ"
+FORMAT='+%F %T.%3NZ'
 log() {
-    echo "[$(date --utc ${FORMAT})] $@"
+    echo [$(date --utc "${FORMAT}")] $@
 }
 
 err() {
-    echo "[$(date --utc ${FORMAT})] ERROR: $@"
+    echo [$(date --utc "${FORMAT}")] ERROR: $@
     exit 1
 }
 
@@ -97,7 +97,7 @@ install_yq() {
     log "installing yq"
 
     # https://github.com/mikefarah/yq
-    wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq &&\
+    wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${ARCH} -O /usr/local/bin/yq &&\
     chmod +x /usr/local/bin/yq
 }
 
@@ -114,7 +114,7 @@ install_containerd() {
     log "installing containerd"
 
     # TODO configurable
-    containerd_url="https://github.com/containerd/containerd/releases/download/v2.1.4/containerd-2.1.4-linux-amd64.tar.gz"
+    containerd_url=${CONTAINERD_VERSION:?}
 
     tmp_dir=$(mktemp -d)
     wget -O ${tmp_dir}/containerd.tar.gz ${containerd_url}
@@ -148,7 +148,7 @@ install_runc() {
     log "installing runc"
 
     # TODO configurable
-    wget -O ${tmp_dir}/runc https://github.com/opencontainers/runc/releases/download/v1.3.2/runc.amd64
+    wget -O ${tmp_dir}/runc https://github.com/opencontainers/runc/releases/download/v1.3.2/runc.${ARCH}
     install -m 755 ${tmp_dir}/runc /usr/local/sbin/runc
 }
 
@@ -186,6 +186,7 @@ build_containerd_config() {
     mkdir -p /etc/containerd
     containerd config default > /etc/containerd/config.toml
    
+    sed -i "/SystemdCgroup/d" /etc/containerd/config.toml
     sed -i "/plugins.'io.containerd.cri.v1.runtime'.containerd.runtimes.runc.options/a SystemdCgroup = true" /etc/containerd/config.toml
     systemctl restart containerd
 }
@@ -203,9 +204,8 @@ setup_containerd() {
     # https://kubernetes.io/docs/setup/production-environment/container-runtimes/
     # https://github.com/containerd/containerd/blob/main/docs/getting-started.md
     setup_containerd_systemd_unit
-    fetch_containerd
     install_runc
-    install_cni_plugins "amd64" "v1.8.0"
+    install_cni_plugins "${ARCH}" "v1.8.0"
     build_containerd_config
 }
 
@@ -226,7 +226,7 @@ net.ipv4.ip_forward = 1
 EOF
 
     # Apply sysctl params without reboot
-    sysctl --system
+    sysctl --system || echo oops
 
     sysctl net.ipv4.ip_forward
 }
@@ -243,6 +243,7 @@ setup_cri() {
 
     network_prerequisites
     install_containerd
+    setup_containerd
 }
 
 # ============= Setup tools ===================
@@ -258,7 +259,7 @@ setup_cri() {
 install_kubectl() {
     log "installing kubectl"
 
-    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl"
     chmod +x kubectl
     mkdir -p ~/.local/bin
     mv ./kubectl /usr/local/bin/kubectl || true
@@ -276,8 +277,8 @@ install_crictl() {
     log "installing crictl"
     
     DOWNLOAD_DIR="/usr/local/bin"
-    local CRICTL_VERSION="v1.31.0"
-    curl -L "https://github.com/kubernetes-sigs/cri-tools/releases/download/${CRICTL_VERSION}/crictl-${CRICTL_VERSION}-linux-${ARCH}.tar.gz" | tar -C $DOWNLOAD_DIR -xz
+    local crictl_version=${CRICTL_VERSION:?}
+    curl -L "https://github.com/kubernetes-sigs/cri-tools/releases/download/${crictl_version}/crictl-${crictl_version}-linux-${ARCH}.tar.gz" | tar -C $DOWNLOAD_DIR -xz
 }
 
 # ============= Setup kubeadm and kubelet ===================
@@ -296,16 +297,17 @@ install_kubeadm_kubelet_as_systemd_service() {
     mkdir -p "$DOWNLOAD_DIR"
 
     log "installing kubeadm and kubelet"
-    local RELEASE="$(curl -sSL https://dl.k8s.io/release/stable.txt)"
     cd $DOWNLOAD_DIR
-    curl -L --remote-name-all https://dl.k8s.io/release/${RELEASE}/bin/linux/${ARCH}/{kubeadm,kubelet}
+    
+    kubernetes_version=${KUBERNETES_VERSION:?}
+    curl -L --remote-name-all https://dl.k8s.io/release/${kubernetes_version}/bin/linux/${ARCH}/{kubeadm,kubelet}
     chmod +x {kubeadm,kubelet}
 
-    log "setting up kuberadm and kubelet systemd service"
-    local RELEASE_VERSION="v0.16.2"
-    curl -sSL "https://raw.githubusercontent.com/kubernetes/release/${RELEASE_VERSION}/cmd/krel/templates/latest/kubelet/kubelet.service" | sed "s:/usr/bin:${DOWNLOAD_DIR}:g" | tee /usr/lib/systemd/system/kubelet.service
+    log "setting up kubeadm and kubelet systemd service"
+    local kubernetes_release_version=${KUBERNETES_RELEASE_VERSION:?}
+    curl -sSL "https://raw.githubusercontent.com/kubernetes/release/${kubernetes_release_version}/cmd/krel/templates/latest/kubelet/kubelet.service" | sed "s:/usr/bin:${DOWNLOAD_DIR}:g" | tee /usr/lib/systemd/system/kubelet.service
     mkdir -p /usr/lib/systemd/system/kubelet.service.d
-    curl -sSL "https://raw.githubusercontent.com/kubernetes/release/${RELEASE_VERSION}/cmd/krel/templates/latest/kubeadm/10-kubeadm.conf" | sed "s:/usr/bin:${DOWNLOAD_DIR}:g" | tee /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf
+    curl -sSL "https://raw.githubusercontent.com/kubernetes/release/${kubernetes_release_version}/cmd/krel/templates/latest/kubeadm/10-kubeadm.conf" | sed "s:/usr/bin:${DOWNLOAD_DIR}:g" | tee /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf
 
     systemctl enable --now kubelet
 }
@@ -319,7 +321,7 @@ install_kubeadm_kubelet_as_systemd_service() {
 #######################################
 setup_kubelet_and_kubeadm() {
     log "setting up kubeadm and kubelet"
-    install_cni_plugins "amd64" "v1.3.0"
+    install_cni_plugins "${ARCH}" "v1.3.0"
     install_crictl
     install_kubeadm_kubelet_as_systemd_service
 }
