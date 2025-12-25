@@ -177,8 +177,10 @@ Use your own server
           - More infomarmation on their [Jellyfin's page for Hardware Acceleration](https://jellyfin.org/docs/general/administration/hardware-acceleration.html)
     - Setup Know Proxies to have valid `X-Forwarded-For` config as per the [documentation](https://jellyfin.org/docs/general/post-install/networking/#known-proxies)
       - Go to `Admin > Dashboard > Networking`
-      - Input the range `10.233.64.0/18` (which is what Kubespray uses by default) for the pod range (where the ingress controller will start as well)
+      - Input the range `10.233.64.0/18` into `Known Proxies` (which is what Kubespray uses by default) for the pod range (where the ingress controller will start as well)
         - You can use a less restrictive range if you wish as well, eg. `10.0.0.0/8`
+      - Go to `Admin > Dashboard`
+        - Restart Jellyfin (Shutdown server from the `Dashboard` and k8s will restart, or delete the pod)
     - Add any plugins you may want
       - [Intro skipper](https://github.com/intro-skipper/intro-skipper)
         - To skip intros
