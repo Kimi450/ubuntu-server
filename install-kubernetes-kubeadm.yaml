@@ -19,23 +19,23 @@
             mode: '0777'
             backup: yes
 
-        - name: bootstrap control plane node
-          shell: >-
-            {{ basics.home_dir }}/kubeadm-cp.bash -v 
-            -t controlplane 
-            -c {{ kubeadm.controlplane.count }}
-            -h home-main
-            -u {{ ansible_user }}
-            -s {{ ansible_sudo_pass }}
-          become: true
+        # - name: bootstrap control plane node
+        #   shell: >-
+        #     {{ basics.home_dir }}/kubeadm-cp.bash -v 
+        #     -t controlplane 
+        #     -c {{ kubeadm.controlplane.count }}
+        #     -h home-main
+        #     -u {{ ansible_user }}
+        #     -s {{ ansible_sudo_pass }}
+        #   become: true
 
-
-        - name: bootstrap control plane node
-          shell: >-
-            {{ basics.home_dir }}/kubeadm-cp.bash -v 
-            -t worker 
-            -c {{ kubeadm.worker.count }}
-            -h home-main
-            -u {{ ansible_user }}
-            -s {{ ansible_sudo_pass }}
-          become: true
+        # - name: bootstrap worker node
+        #   shell: >-
+        #     {{ basics.home_dir }}/kubeadm-cp.bash -v 
+        #     -t worker 
+        #     -c {{ kubeadm.worker.count }}
+        #     -h home-main
+        #     -u {{ ansible_user }}
+        #     -s {{ ansible_sudo_pass }}
+        #   become: true
+        #   when: "{{ kubeadm.worker.count }}"

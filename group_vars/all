@@ -98,7 +98,7 @@ kubeadm:
     
     # Version of kubernetes to use
     # https://dl.k8s.io/release/stable.txt
-    kubernetes: v1.35.0
+    kubernetes: v1.34.0
     
     # Version of kubernetes release artifacts to use
     # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
@@ -113,9 +113,9 @@ kubeadm:
     # Number of control plane nodes
     count: 1
 
-  worker:
-    # Number of worker nodes
-    count: 0
+  # worker:
+  #   # Number of worker nodes
+  #   count: -1
 
 # =================== Select what charts you wish to install ===================
 charts:
