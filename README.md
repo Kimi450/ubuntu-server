@@ -83,6 +83,14 @@ Use your own server
       - Put this token/key in the `group_vars/all` file
     - If not needed, remove the line below line from `setup.yaml`
     `- import_playbook: install-and-configure-cloudflare-dns-updater-service.yaml`
+    - Using DNS01 challenge instead of HTTP01 challenge for certificates  
+      - If you wish to use a DSN01 challenge instead of HTTP challenge (common if youre running services on non-standard ports), you will want to set `charts.services.cert_manager.dns01_challenge` to `true` in `group_vars/all` file.
+      - Go to the `DNS` page 
+        - Put in the following records (**REQUIRED**)
+
+          | Type | Name                   | Content                  | Proxy Status | TTL    |
+          |------|------------------------|--------------------------|--------------|--------|
+          | `TXT`  | `_acme-challenge`   | `"content doesnt matter"` | `DNS only`   | `Auto` |
 
 - #### Update the `hosts.yaml` file to fill out the template
 
