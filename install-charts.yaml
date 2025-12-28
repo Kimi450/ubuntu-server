@@ -21,7 +21,7 @@
       operator.verify.enabled=false,\
       workload.main.type=StatefulSet,\
       podOptions.dnsConfig.nameservers={8.8.8.8,8.8.4.4}"
-    
+
     helm_common_ingress: "\
       ingress.main.enabled=true,\
       ingress.main.primary=true,\
@@ -32,12 +32,10 @@
       ingress.main.integrations.traefik.enabled=false,\
       ingress.main.hosts[0].paths[0].path='/',\
       ingress.main.hosts[0].paths[0].pathType='Prefix'"
-    
+
     helm_common_resources: "\
       resources.requests.cpu={{ charts.resources.requests.cpu }},\
-      resources.requests.memory={{ charts.resources.requests.memory }},\
-      resources.limits.cpu={{ charts.resources.limits.cpu }},\
-      resources.limits.memory={{ charts.resources.limits.memory }}"
+      resources.requests.memory={{ charts.resources.requests.memory }}"
 
     # persistence.config.hostPathType=DirectoryOrCreate doesnt work
     # because it creates the dir with root ownership and no write permissions
@@ -225,7 +223,7 @@
           version: "{{ charts.services.ingress_nginx.version }}"
           # setting proxy-body-size=0 disables size checks for uploads and sets
           # it as the default for all ingresses handled by this controller
-          #   https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#custom-max-body-size   
+          #   https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#custom-max-body-size
           #   https://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size
           #   https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/configmap.md#proxy-body-size
           set_options: "--set \
@@ -234,7 +232,7 @@
             controller.service.nodePorts.http=30080,\
             controller.service.nodePorts.https=30443,\
             controller.service.externalTrafficPolicy=Local"
-    
+
     - name: Install cert-manager
       # https://cert-manager.io/docs/installation/helm/
       # https://cert-manager.io/docs/tutorials/acme/nginx-ingress/
@@ -463,8 +461,10 @@
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.immich.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.immich.resources.limits.memory }},\
             immich.enable_ml={{ charts.services.immich.enable_ml }},\
             persistence.mlcache.enabled=true,\
             persistence.mlcache.type=hostPath,\
@@ -524,8 +524,10 @@
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_downloads }}\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.guacamole.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.guacamole.resources.limits.memory }},\
             ingress.main.hosts[0].host='guacamole.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=guacamole,\
             ingress.main.hosts[0].paths[0].service.port=10123"
@@ -552,8 +554,10 @@
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_downloads }}\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.home_assistant.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.home_assistant.resources.limits.memory }},\
             homeassistant.trusted_proxies[0]='10.0.0.0/8',\
             ingress.main.hosts[0].host='home-assistant.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=home-assistant,\
@@ -592,9 +596,11 @@
             {{ helm_common_persistence_movies }}\
             {{ helm_common_persistence_music }}\
             {{ helm_common_persistence_books }}\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.jellyfin.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.jellyfin.resources.limits.memory }},\
             persistence.config.hostPath={{ charts.services.configs_dir }}/jellyfin,\
             securityContext.container.runAsUser=0,\
             securityContext.container.privileged=true,\
@@ -638,8 +644,10 @@
           # - securityContext.container.allowPrivilegeEscalation=true
           set_options: "--set \
             {{ helm_common_general }},\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.jellystat.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.jellystat.resources.limits.memory }},\
             ingress.main.hosts[0].host='jellystat.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=jellystat"
 
@@ -672,9 +680,11 @@
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_downloads }}\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.qbittorent.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.qbittorent.resources.limits.memory }},\
             persistence.config.hostPath={{ charts.services.configs_dir }}/qbittorrent,\
             ingress.main.hosts[0].host='qbittorrent.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=qbittorrent,\
@@ -719,7 +729,9 @@
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
-            {{ helm_common_resources }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.flaresolverr.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.flaresolverr.resources.limits.memory }},\
             persistence.config.enabled=false"
 
       - debug:
@@ -750,9 +762,11 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.prowlarr.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.prowlarr.resources.limits.memory }},\
             persistence.config.hostPath={{ charts.services.configs_dir }}/prowlarr,\
             ingress.main.hosts[0].host='prowlarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=prowlarr,\
@@ -789,9 +803,11 @@
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_movies }}\
             {{ helm_common_persistence_downloads }}\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.radarr.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.radarr.resources.limits.memory }},\
             persistence.config.hostPath={{ charts.services.configs_dir }}/radarr,\
             ingress.main.hosts[0].host='radarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=radarr,\
@@ -830,9 +846,11 @@
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_shows }}\
             {{ helm_common_persistence_downloads }}\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.sonarr.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.sonarr.resources.limits.memory }},\
             persistence.config.hostPath={{ charts.services.configs_dir }}/sonarr,\
             ingress.main.hosts[0].host='sonarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=sonarr,\
@@ -877,8 +895,10 @@
             {{ helm_common_persistence_shows }}\
             {{ helm_common_persistence_movies }}\
             {{ helm_common_persistence_cache }}\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.tdarr.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.tdarr.resources.limits.memory }},\
             securityContext.container.PUID=\"{{ uid }}\",\
             securityContext.container.PGID=\"568\",\
             workload.main.podSpec.containers.main.env.auth=true,\
@@ -923,9 +943,11 @@
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_shows }}\
             {{ helm_common_persistence_movies }}\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.bazarr.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.bazarr.resources.limits.memory }},\
             persistence.config.hostPath={{ charts.services.configs_dir }}/bazarr,\
             metrics.main.enabled=false,\
             ingress.main.hosts[0].host='bazarr.{{ domain_name }}',\
@@ -964,9 +986,11 @@
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_books }}\
             {{ helm_common_persistence_downloads }}}\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.readarr.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.readarr.resources.limits.memory }},\
             persistence.config.hostPath={{ charts.services.configs_dir }}/readarr,\
             ingress.main.hosts[0].host='readarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=readarr,\
@@ -1004,9 +1028,11 @@
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_music }}\
             {{ helm_common_persistence_downloads }}}\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.lidarr.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.lidarr.resources.limits.memory }},\
             persistence.config.hostPath={{ charts.services.configs_dir }}/lidarr,\
             ingress.main.hosts[0].host='lidarr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=lidarr,\
@@ -1042,9 +1068,11 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.ombi.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.ombi.resources.limits.memory }},\
             persistence.config.hostPath={{ charts.services.configs_dir }}/ombi,\
             ingress.main.hosts[0].host='ombi.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=ombi,\
@@ -1080,9 +1108,11 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.jellyseerr.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.jellyseerr.resources.limits.memory }},\
             persistence.config.hostPath={{ charts.services.configs_dir }}/jellyseerr,\
             ingress.main.hosts[0].host='jellyseerr.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=jellyseerr,\
@@ -1112,9 +1142,11 @@
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.librespeed.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.librespeed.resources.limits.memory }},\
             persistence.config.hostPath={{ charts.services.configs_dir }}/librespeed,\
             securityContext.container.PUID=\"{{ uid }}\",\
             securityContext.container.PGID=\"568\",\
@@ -1146,8 +1178,10 @@
             {{ helm_common_persistence }},\
             {{ helm_common_persistence_books }}\
             {{ helm_common_persistence_downloads }}}\
-            {{ helm_common_resources }},\
             {{ helm_common_ingress }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.calibre_web.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.calibre_web.resources.limits.memory }},\
             securityContext.container.PUID=\"{{ uid }}\",\
             securityContext.container.PGID=\"568\",\
             ingress.main.hosts[0].host='calibre-web.{{ domain_name }}',\
@@ -1182,7 +1216,9 @@
             {{ helm_common_persistence }},\
             {{ helm_common_persistence_books }}\
             {{ helm_common_persistence_downloads }}}\
-            {{ helm_common_resources }},\
+            {{ helm_common_resources}},\
+            resources.limits.cpu={{ charts.services.calibre.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.calibre.resources.limits.memory }},\
             securityContext.container.PUID=\"{{ uid }}\",\
             securityContext.container.PGID=\"568\",\
             securityContext.container.seccompProfile.type=Unconfined,\

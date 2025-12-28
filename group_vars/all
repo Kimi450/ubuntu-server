@@ -63,7 +63,7 @@ cloudflare:
 # =================== k8s settings ===================
 kubespray:
   enabled: false
-  
+
   # Use reset.yml to reset cluster
   playbook: "cluster.yml"
   # extra args for playbook
@@ -79,7 +79,7 @@ kubespray:
   # - cert_manager_enabled
   # - metallb_enabled
   # - local_path_provisioner_enabled
-  
+
   # enable cluster yml config
   k8s_cluster: []
   # - kube_proxy_strict_arp
@@ -95,11 +95,11 @@ kubeadm:
     # Version of conatinerd to use
     # https://github.com/containerd/containerd/releases
     containerd: "https://github.com/containerd/containerd/releases/download/v2.2.1/containerd-static-2.2.1-linux-amd64.tar.gz"
-    
+
     # Version of kubernetes to use
     # https://dl.k8s.io/release/stable.txt
     kubernetes: v1.34.0
-    
+
     # Version of kubernetes release artifacts to use
     # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
     kubernetes_release: "v0.16.2"
@@ -107,7 +107,7 @@ kubeadm:
     # Version of the crictl tooling
     # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
     crictl: "v1.31.0"
-  
+
   # Recommend to leave these as defaults, Ive not tested these extensively
   controlplane:
     # Number of control plane nodes
@@ -122,22 +122,16 @@ kubeadm:
 # =================== Select what charts you wish to install ===================
 charts:
   enabled: false
-  
+
   resources:
     # kubernetes resource requests for the pods
     requests:
       cpu: 10m
       memory: 50M
-  
-    # kubernetes resource limits for the pods
-    # leave some headroom for the OS to not lose server access in case of an issue
-    limits:
-      cpu: 2
-      memory: "6000M"
-  
+
   # timeout as helm expects it in --timeout for the charts
   timeout: 15m
-  
+
   services:
 
     # directory in which the apps will store their configs
@@ -147,12 +141,12 @@ charts:
     local_path_provisioner:
       enabled: false
       version: "v0.0.31" # dont use "latest" here
-    
+
     # nginx ingress controller for reverse proxy
     ingress_nginx:
       enabled: false
       version: "latest" # specify a version to not install the latest version
-    
+
     # manager for tls certs
     cert_manager:
       enabled: false
@@ -160,7 +154,7 @@ charts:
       # email for the ACME account registration
       # FYI: you dont need to create any account for this, just use an email ID
       email: "" # FILL OUT
-    
+
       # Enable this if you are using non-standard ports for your services
       # and need to use the DNS challenge instead of default HTTP challenge
       # for certificates. Probably can leave this as it is.
@@ -170,7 +164,7 @@ charts:
     loki_stack:
       enabled: false
       version: "latest" # specify a version to not install the latest version
-    
+
     # metrics monitoring with Grafana and Prometheus
     kube_prometheus_stack:
       enabled: false
@@ -184,7 +178,7 @@ charts:
       grafana:
         admin_username: "admin" # FILL OUT
         admin_password: "admin" # FILL OUT
-    
+
     # cloud native instance of postgres DB
     cnpg:
       enabled: false
@@ -197,6 +191,13 @@ charts:
     immich:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
+
       # base dir for all immich info, including backups, cache, etc
       # look at `install-charts.yaml` for more information
       host_path: "/home/{{ ansible_user }}/data/immich"
@@ -211,26 +212,56 @@ charts:
     guacamole:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
 
     # home automation portal
     home_assistant:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
 
     # media client
     jellyfin:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
 
     # media client
     jellystat:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
 
     # torrents
     qbittorrent:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
 
       # dirs to download files
       # you can specify different mounts present on your server
@@ -242,21 +273,39 @@ charts:
           host_path: "/home/{{ ansible_user }}/data/downloads"
         # - name: spare-disk
         #   host_path: "/mnt/b/downloads"
-    
+
     # to bypass cloudflare protection
     flaresolverr:
       enabled: false
       version: "latest" # specify a version to not install the latest version
-    
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
+
     # to manage indexers
     prowlarr:
       enabled: false
       version: "latest" # specify a version to not install the latest version
-    
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
+
     # movie monitoring
     radarr:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
 
       # dirs to store and organise movies
       # you can specify different mounts present on your server
@@ -273,6 +322,12 @@ charts:
     sonarr:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
 
       # dirs to store and organise shows
       # you can specify different mounts present on your server
@@ -289,6 +344,12 @@ charts:
     tdarr:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
 
       # Generated API key used by nodes to authenticate against tdarr server
       # must start with 'tapi_', be at least 14 characters, and contain
@@ -316,21 +377,45 @@ charts:
     bazarr:
       enabled: false
       version: "latest" # specify a version to not install the latest version
-    
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
+
     # movie and show interface
     jellyseerr:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
 
     # speed test to server
     librespeed:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
 
     # book monitoring
     readarr:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
 
       # dirs to store and organise books
       # you can specify different mounts present on your server
@@ -347,6 +432,12 @@ charts:
     lidarr:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
 
       # dirs to store and organise music
       # you can specify different mounts present on your server
@@ -363,16 +454,34 @@ charts:
     calibre_web:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
 
     # book management
     calibre:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
 
     # movie, show and music interface
     ombi:
       enabled: false
       version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "6000M"
 
 # =================== Bluetooth setup ===================
 # to allow pinless bluetooth connections to the server
