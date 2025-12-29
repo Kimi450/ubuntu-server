@@ -83,9 +83,9 @@ Use your own server
       - Put this token/key in the `group_vars/all` file
     - If not needed, remove the line below line from `setup.yaml`
     `- import_playbook: install-and-configure-cloudflare-dns-updater-service.yaml`
-    - Using DNS01 challenge instead of HTTP01 challenge for certificates  
+    - Using DNS01 challenge instead of HTTP01 challenge for certificates
       - If you wish to use a DSN01 challenge instead of HTTP challenge (common if youre running services on non-standard ports), you will want to set `charts.services.cert_manager.dns01_challenge` to `true` in `group_vars/all` file.
-      - Go to the `DNS` page 
+      - Go to the `DNS` page
         - Put in the following records (**REQUIRED**)
 
           | Type | Name                   | Content                  | Proxy Status | TTL    |
@@ -106,11 +106,11 @@ Use your own server
   **REMEMBER**: You can add additional directories for services via the `group_vars` file as well under the `persistence` section.
 
   ```yaml
-  - name: spare-disk
+  - name: disk-2
     host_path: "/mnt/b/downloads"
   ```
 
-  The above section will mount `/mnt/b/downloads` onto the pod as `/data/spare-disk/downloads`
+  The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-2/downloads`
 
   - ##### [OPTIONAL] Setup Fishet
     - Consider setting up [fishnet](https://github.com/lichess-org/fishnet) to help [Lichess](https://lichess.org/) run game analysis!
@@ -158,10 +158,10 @@ Use your own server
     - Point Jellyfin to use the directories mentioned in the playbooks for shows, movies, music and books.
       - By default, on the Jellyfin pod, the directories it will be:
         ```
-        /data/root-disk/shows
-        /data/root-disk/movies
-        /data/root-disk/music
-        /data/root-disk/books
+        /data-mnt/disk-1/shows
+        /data-mnt/disk-1/movies
+        /data-mnt/disk-1/music
+        /data-mnt/disk-1/books
         ```
     - Add any other config required.
       - For Hardware acceleration go to `Admin > Dashboard > Playback`
@@ -207,7 +207,7 @@ Use your own server
       - Go to `Tools > Options > Web UI > Authentication`
     - Set default download location to one the mentioned directories (or make sure to put it in the right directory when downloading for ease)
       - Go to `Tools > Options > Downloads > Default Save Path`
-      - Recommend using `/data/root-disk/downloads`
+      - Recommend using `/data-mnt/disk-1/downloads`
     - Set seeding limits
       - Recommend seeding limits for when seeding ratio hits "1" to give back to the community. It is under `Tools > Options > BitTorrent > Seeding Limits`
     - Set torrent download/upload limits
@@ -215,7 +215,7 @@ Use your own server
 
   - ##### Setup Calibre
     - Do base setup
-      - Set folder to be `/data/root-disk/books` and select `Yes` for it to rebuild the library if asked.
+      - Set folder to be `/data-mnt/disk-1/books` and select `Yes` for it to rebuild the library if asked.
     - Go to `Preferences > Sharing over the net`
       - Check the box for `Require username and password to access the Content server`
       - Check the box for `Run the server automatically when calibre starts`
@@ -227,7 +227,7 @@ Use your own server
 
   - ##### Setup Calibre Web
     - Default login is `admin/admin123`
-    - Set folder to be `/data/root-disk/books`
+    - Set folder to be `/data-mnt/disk-1/books`
     - To enable web reading, click on `Admin` (case sensitive) on the top right
       - Click on the user, default is `admin`
       - Enable `Allow ebook viewer`
@@ -263,10 +263,10 @@ Use your own server
 
         | Service | Root Directory    |
         |---------|-------------------|
-        | Readarr | `/data/root-disk/books/`  |
-        | Sonarr  | `/data/root-disk/shows/`  |
-        | Radarr  | `/data/root-disk/movies/` |
-        | Lidarr  | `/data/root-disk/music/`  |
+        | Readarr | `/data-mnt/disk-1/books/`  |
+        | Sonarr  | `/data-mnt/disk-1/shows/`  |
+        | Radarr  | `/data-mnt/disk-1/movies/` |
+        | Lidarr  | `/data-mnt/disk-1/music/`  |
       - Enable renaming
     - Adjust quality definitions
       - Go to `Settings > Quality`
@@ -303,7 +303,7 @@ Use your own server
     - Readarr specific config
       - Go to `Settings > Media Management`
         - Add root folder (you cannot edit an existing one)
-          - Set the path to be `/data/root-disk/books/`
+          - Set the path to be `/data-mnt/disk-1/books/`
           - Enable `Use Calibre` options the the following defaults
             - Calibre host: `calibre-webserver`
             - Calibre port: `8081`
@@ -421,7 +421,7 @@ Use your own server
       - In the `Tdarr` tab, `Staging Section`, enable `Auto accept successful transcodes`
       - For the workers, start off with just 1 CPU worker and see how much that affects your server's stability before you add more.
       - Add all the libraries from all the disks that have been configured for radarr and sonarr with relevant caches
-        - Potentially use the cache dir that lives on the same disk (for example, libraries on `root-disk` to use the cache dir on `root-disk` under `/data/root-disk/cache`)
+        - Potentially use the cache dir that lives on the same disk (for example, libraries on `disk-1` to use the cache dir on `disk-1` under `/data-mnt/disk-1/cache`)
           - According to [documentation](https://docs.tdarr.io/docs/library-setup/transcode-cache), it is recommended to use an SSD as the cache (preferably, but not as a requirement, where the original data does not live)
         - Enable the `Folder Watch` toggle to make sure new files are auto picked up over time as well.
       - In the `Tools` tab, go to `API Keys`, generate an API Key and use that in the `group_vars/all` file `apiKey` for tdarr. Then redeploy to register any nodes (including internal node) with the server.

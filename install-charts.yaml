@@ -93,7 +93,7 @@
                   + 'persistence.cache-' + item.name + '.enabled=true,'
                   + 'persistence.cache-' + item.name + '.type=hostPath,'
                   + 'persistence.cache-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.cache-' + item.name + '.mountPath=/data/' + item.name + '/cache,'
+                  + 'persistence.cache-' + item.name + '.mountPath=/data-mnt/' + item.name + '/cache,'
               -}}
           loop: "{{ charts.services.tdarr.persistence }}"
 
@@ -113,7 +113,7 @@
                   + 'persistence.movies-' + item.name + '.enabled=true,'
                   + 'persistence.movies-' + item.name + '.type=hostPath,'
                   + 'persistence.movies-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.movies-' + item.name + '.mountPath=/data/' + item.name + '/movies,'
+                  + 'persistence.movies-' + item.name + '.mountPath=/data-mnt/' + item.name + '/movies,'
               -}}
           loop: "{{ charts.services.radarr.persistence }}"
 
@@ -133,7 +133,7 @@
                   + 'persistence.shows-' + item.name + '.enabled=true,'
                   + 'persistence.shows-' + item.name + '.type=hostPath,'
                   + 'persistence.shows-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.shows-' + item.name + '.mountPath=/data/' + item.name + '/shows,'
+                  + 'persistence.shows-' + item.name + '.mountPath=/data-mnt/' + item.name + '/shows,'
               -}}
           loop: "{{ charts.services.sonarr.persistence }}"
 
@@ -153,7 +153,7 @@
                   + 'persistence.books-' + item.name + '.enabled=true,'
                   + 'persistence.books-' + item.name + '.type=hostPath,'
                   + 'persistence.books-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.books-' + item.name + '.mountPath=/data/' + item.name + '/books,'
+                  + 'persistence.books-' + item.name + '.mountPath=/data-mnt/' + item.name + '/books,'
               -}}
           loop: "{{ charts.services.readarr.persistence }}"
 
@@ -173,7 +173,7 @@
                   + 'persistence.music-' + item.name + '.enabled=true,'
                   + 'persistence.music-' + item.name + '.type=hostPath,'
                   + 'persistence.music-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.music-' + item.name + '.mountPath=/data/' + item.name + '/music,'
+                  + 'persistence.music-' + item.name + '.mountPath=/data-mnt/' + item.name + '/music,'
               -}}
           loop: "{{ charts.services.lidarr.persistence }}"
 
@@ -193,7 +193,7 @@
                   + 'persistence.downloads-' + item.name + '.enabled=true,'
                   + 'persistence.downloads-' + item.name + '.type=hostPath,'
                   + 'persistence.downloads-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.downloads-' + item.name + '.mountPath=/data/' + item.name + '/downloads,'
+                  + 'persistence.downloads-' + item.name + '.mountPath=/data-mnt/' + item.name + '/downloads,'
               -}}
           loop: "{{ charts.services.qbittorrent.persistence }}"
 
@@ -620,7 +620,7 @@
       - debug:
           msg: >
             You can log into Jellyfin at 'jellyfin.{{ domain_name }}'.
-            Data directories are available under '/data' and can be used by
+            Data directories are available under '/mnt-data' and can be used by
             Jellyfin. If need be, delete any existing server and go to the
             URL mention above once again to setup a new server.
 
@@ -683,14 +683,14 @@
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.qbittorent.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.qbittorent.resources.limits.memory }},\
+            resources.limits.cpu={{ charts.services.qbittorrent.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.qbittorrent.resources.limits.memory }},\
             persistence.config.hostPath={{ charts.services.configs_dir }}/qbittorrent,\
             ingress.main.hosts[0].host='qbittorrent.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=qbittorrent,\
             ingress.main.hosts[0].paths[0].service.port=10095"
 
-      - name: Search for qbittorent pod
+      - name: Search for qbittorrent pod
         vars:
           ansible_python_interpreter: "{{ venv_python }}"
         kubernetes.core.k8s_info:
@@ -709,7 +709,7 @@
             You can log into qBittorrent at 'qbittorrent.{{ domain_name }}' using
             "admin/{{ qbittorrent_random_password.stdout }}" as the default creds.
             Change this after deployment. Downloads directory from the host is
-            available under '/data' and can be used by the application to
+            available under '/mnt-data' and can be used by the application to
             download things. Downloads in that directory will be relevant
             processing apps (like Radarr, Sonarr, etc if applicable).
 
@@ -816,7 +816,7 @@
       - debug:
           msg: >
             You can log into radarr at 'radarr.{{ domain_name }}'.
-            Data directories from the host are available under '/data' and
+            Data directories from the host are available under '/mnt-data' and
             can be used by the application to download things. Downloads in
             that directory will be picked up by Jellyfin.
 
@@ -859,7 +859,7 @@
       - debug:
           msg: >
             You can log into sonarr at 'sonarr.{{ domain_name }}'.
-            Data directories from the host are available under '/data' and
+            Data directories from the host are available under '/mnt-data' and
             can be used by the application to download things. Downloads in
             that directory will be picked up by Jellyfin.
 
@@ -914,7 +914,7 @@
       - debug:
           msg: >
             You can log into tdarr at 'tdarr.{{ domain_name }}'.
-            Data directories are available under '/data' and can be used by
+            Data directories are available under '/mnt-data' and can be used by
             tdarr.
 
     - name: Install bazarr
@@ -957,7 +957,7 @@
       - debug:
           msg: >
             You can log into bazarr at 'bazarr.{{ domain_name }}'.
-            Data directories from the host are available under '/data' and
+            Data directories from the host are available under '/mnt-data' and
             can be used by the application.
 
     - name: Install readarr
@@ -999,7 +999,7 @@
       - debug:
           msg: >
             You can log into readarr at 'readarr.{{ domain_name }}'.
-            Data directories from the host are available under '/data' and
+            Data directories from the host are available under '/mnt-data' and
             can be used by the application.
 
     - name: Install lidarr
@@ -1041,7 +1041,7 @@
       - debug:
           msg: >
             You can log into lidarr at 'lidarr.{{ domain_name }}'.
-            Data directories from the host are available under '/data' and
+            Data directories from the host are available under '/mnt-data' and
             can be used by the application.
 
     - name: Install ombi
@@ -1080,7 +1080,7 @@
       - debug:
           msg: >
             You can log into ombi at 'ombi.{{ domain_name }}'.
-            Data directories are available under '/data' and can be used by
+            Data directories are available under '/mnt-data' and can be used by
             ombi. If need be, delete any existing server and go to the
             URL mention above once again to setup a new server.
 
@@ -1120,7 +1120,7 @@
       - debug:
           msg: >
             You can log into jellyseerr at 'jellyseerr.{{ domain_name }}'.
-            Data directories are available under '/data' and can be used by
+            Data directories are available under '/mnt-data' and can be used by
             jellyseerr. If need be, delete any existing server and go to the
             URL mention above once again to setup a new server.
 
@@ -1191,7 +1191,7 @@
       - debug:
           msg: >
             You can log into calibre-web at 'calibre-web.{{ domain_name }}'.
-            Data directories from the host are available under '/data' and
+            Data directories from the host are available under '/mnt-data' and
             can be used by the application.
 
     - name: Install calibre
@@ -1229,5 +1229,5 @@
       - debug:
           msg: >
             You can log into calibre at '{{ ip }}:30000'.
-            Data directories from the host are available under '/data' and
+            Data directories from the host are available under '/mnt-data' and
             can be used by the application.

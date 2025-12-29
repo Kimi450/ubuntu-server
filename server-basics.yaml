@@ -16,7 +16,7 @@
               HandleLidSwitch=ignore
               HandleLidSwitchExternalPower=ignore
               HandleLidSwitchDocked=ignore
- 
+
         - name: Restart service
           shell: systemctl restart systemd-logind
 
@@ -121,7 +121,7 @@
           command: "{{ useful_files_repo_dir }}/vimmer.sh"
       vars:
         useful_files_repo_dir: "{{ basics.repos_dir }}/useful_files"
-      
+
     # some services might need this increase
     - name: "Create /etc/sysctl.conf"
       become: true

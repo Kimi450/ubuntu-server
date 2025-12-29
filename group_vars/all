@@ -269,9 +269,9 @@ charts:
       #       If you dont know what that means, just use lower case characters
       #       and dashes to separate them or a mix of upper and lowercase characters
       persistence:
-        - name: root-disk
+        - name: disk-1
           host_path: "/home/{{ ansible_user }}/data/downloads"
-        # - name: spare-disk
+        # - name: disk-2
         #   host_path: "/mnt/b/downloads"
 
     # to bypass cloudflare protection
@@ -313,9 +313,9 @@ charts:
       #       If you dont know what that means, just use lower case characters
       #       and dashes to separate them or a mix of upper and lowercase characters
       persistence:
-        - name: root-disk
+        - name: disk-1
           host_path: "/home/{{ ansible_user }}/data/movies"
-        # - name: spare-disk
+        # - name: disk-2
         #   host_path: "/mnt/b/movies"
 
     # show monitoring
@@ -335,9 +335,9 @@ charts:
       #       If you dont know what that means, just use lower case characters
       #       and dashes to separate them or a mix of upper and lowercase characters
       persistence:
-        - name: root-disk
+        - name: disk-1
           host_path: "/home/{{ ansible_user }}/data/shows"
-        # - name: spare-disk
+        # - name: disk-2
         #   host_path: "/mnt/b/shows"
 
     # media transcoding
@@ -370,7 +370,7 @@ charts:
       #       If you dont know what that means, just use lower case characters
       #       and dashes to separate them or a mix of upper and lowercase characters
       persistence:
-        - name: root-disk
+        - name: disk-1
           host_path: "/home/{{ ansible_user }}/data/cache"
 
     # subtitle hunting
@@ -423,9 +423,9 @@ charts:
       #       If you dont know what that means, just use lower case characters
       #       and dashes to separate them or a mix of upper and lowercase characters
       persistence:
-        - name: root-disk
+        - name: disk-1
           host_path: "/home/{{ ansible_user }}/data/books"
-        # - name: spare-disk
+        # - name: disk-2
         #   host_path: "/mnt/b/books"
 
     # music monitoring
@@ -445,9 +445,9 @@ charts:
       #       If you dont know what that means, just use lower case characters
       #       and dashes to separate them or a mix of upper and lowercase characters
       persistence:
-        - name: root-disk
+        - name: disk-1
           host_path: "/home/{{ ansible_user }}/data/music"
-        # - name: spare-disk
+        # - name: disk-2
         #   host_path: "/mnt/b/music"
 
     # book client
