@@ -552,7 +552,6 @@
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
-            {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_downloads }}\
             {{ helm_common_ingress }},\
             {{ helm_common_resources}},\
