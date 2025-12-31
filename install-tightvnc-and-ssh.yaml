@@ -13,7 +13,7 @@
         pkg:
           - openssh-server
           - tightvncserver
-          - xfce4 
+          - xfce4
           - xfce4-goodies
 
     - name: Backup old config

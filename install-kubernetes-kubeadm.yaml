@@ -21,8 +21,8 @@
 
         # - name: bootstrap control plane node
         #   shell: >-
-        #     {{ basics.home_dir }}/kubeadm-cp.bash -v 
-        #     -t controlplane 
+        #     {{ basics.home_dir }}/kubeadm-cp.bash -v
+        #     -t controlplane
         #     -c {{ kubeadm.controlplane.count }}
         #     -h home-main
         #     -u {{ ansible_user }}
@@ -31,8 +31,8 @@
 
         # - name: bootstrap worker node
         #   shell: >-
-        #     {{ basics.home_dir }}/kubeadm-cp.bash -v 
-        #     -t worker 
+        #     {{ basics.home_dir }}/kubeadm-cp.bash -v
+        #     -t worker
         #     -c {{ kubeadm.worker.count }}
         #     -h home-main
         #     -u {{ ansible_user }}

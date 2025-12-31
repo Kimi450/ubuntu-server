@@ -54,7 +54,7 @@
 
           [Install]
           WantedBy=multi-user.target
-    
+
     - name: "Populate {{ timer_file_location }} file"
       become: True
       blockinfile:
@@ -68,7 +68,7 @@
 
           [Install]
           WantedBy=timers.target
- 
+
     - name: "Populate {{ service_script_location }} file"
       become: True
       blockinfile:

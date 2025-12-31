@@ -29,7 +29,7 @@
         regexp: '^host_port'
         replace: "http_port {{ squid.port }}"
 
-    - name: "Generate authentication information" 
+    - name: "Generate authentication information"
       shell: "echo {{ squid.username }}:$(openssl passwd -6 {{ squid.password }})\n"
       register: auth_output
 
@@ -83,6 +83,6 @@
     - debug:
         msg: >-
           You can now use this server as a proxy. The hostname is
-          "{{ hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2] }}" 
+          "{{ hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2] }}"
           and port is "{{ squid.port }}". Please expose this port on your router too for external access.
           Use the username and password as the auth details.

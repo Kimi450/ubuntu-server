@@ -12,7 +12,7 @@ err() {
 }
 
 ARCH=$(dpkg --print-architecture)
-log "Env variable set: ARCH=${ARCH}" 
+log "Env variable set: ARCH=${ARCH}"
 
 print_usage() {
   cat <<EOF
@@ -185,7 +185,7 @@ build_containerd_config() {
     # generate default toml
     mkdir -p /etc/containerd
     containerd config default > /etc/containerd/config.toml
-   
+
     sed -i "/SystemdCgroup/d" /etc/containerd/config.toml
     sed -i "/plugins.'io.containerd.cri.v1.runtime'.containerd.runtimes.runc.options/a SystemdCgroup = true" /etc/containerd/config.toml
     systemctl restart containerd
@@ -275,7 +275,7 @@ install_kubectl() {
 #######################################
 install_crictl() {
     log "installing crictl"
-    
+
     DOWNLOAD_DIR="/usr/local/bin"
     local crictl_version=${CRICTL_VERSION:?}
     curl -L "https://github.com/kubernetes-sigs/cri-tools/releases/download/${crictl_version}/crictl-${crictl_version}-linux-${ARCH}.tar.gz" | tar -C $DOWNLOAD_DIR -xz
@@ -298,7 +298,7 @@ install_kubeadm_kubelet_as_systemd_service() {
 
     log "installing kubeadm and kubelet"
     cd $DOWNLOAD_DIR
-    
+
     kubernetes_version=${KUBERNETES_VERSION:?}
     curl -L --remote-name-all https://dl.k8s.io/release/${kubernetes_version}/bin/linux/${ARCH}/{kubeadm,kubelet}
     chmod +x {kubeadm,kubelet}
@@ -483,7 +483,7 @@ kubeadm_worker_join() {
     local cp_node_password=${3}
 
     log "running kubeadm join on node"
-    
+
     cmd="$(kubeadm_cp_get_join_command ${cp_node_ip} ${cp_node_username} ${cp_node_password})"
     eval ${cmd}
 

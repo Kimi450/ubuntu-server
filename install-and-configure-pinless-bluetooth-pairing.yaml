@@ -19,7 +19,7 @@
         update_cache: yes
         pkg:
           - bluez
-          - bluez-tools 
+          - bluez-tools
           - pulseaudio-module-bluetooth
           - gnome-bluetooth
         state: latest
@@ -27,14 +27,14 @@
     - name: Enable bluetooth
       become: true
       shell: rfkill unblock bluetooth
-           
+
     - name: "Change bluetooth service to enable volume control"
       block:
         - name: "Service file edit: Disable avrcp plugin to control volume"
-          become: true  
-          lineinfile: 
+          become: true
+          lineinfile:
             path: "{{ bluetooth_service_location }}"
-            regexp: '^ExecStart=(.*)$' 
+            regexp: '^ExecStart=(.*)$'
             line: 'ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp'
             backrefs: yes
 
@@ -161,9 +161,9 @@
             remote_src: true
             src: /lib/systemd/system/alsa-restore.service
             dest: /etc/systemd/system/alsa-restore.service
-        
+
         - name: "Edit service file to run as {{ ansible_user }}"
-          lineinfile: 
+          lineinfile:
             path: "{{ loc_user_service }}"
             insertafter: '^\[Service\]$'
             line: "User={{ ansible_user }}"

@@ -9,7 +9,7 @@
 
     - name: Update helm repo
       shell: helm repo update
-    
+
     - name: "Set chart location to {{ repo_name }}/{{ chart_name }}"
       set_fact:
         chart_location: "{{ repo_name }}/{{ chart_name }}"
