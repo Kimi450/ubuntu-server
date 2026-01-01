@@ -555,6 +555,11 @@
             {{ helm_common_persistence_downloads }}\
             {{ helm_common_ingress }},\
             {{ helm_common_resources}},\
+            securityContext.container.privileged=true,\
+            persistence.dev.enabled=true,\
+            persistence.dev.type=hostPath,\
+            persistence.dev.mountPath=/dev,\
+            persistence.dev.hostPath=/dev,\
             resources.limits.cpu={{ charts.services.home_assistant.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.home_assistant.resources.limits.memory }},\
             homeassistant.trusted_proxies[0]='10.0.0.0/8',\
