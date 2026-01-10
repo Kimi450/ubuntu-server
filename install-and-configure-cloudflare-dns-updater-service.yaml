@@ -64,7 +64,7 @@
           Description=Timer to run Cloudflare DNS Record Updater service every 4 hours
 
           [Timer]
-          OnCalendar=00/4:00
+          OnCalendar={{ cloudflare.schedule }}
 
           [Install]
           WantedBy=timers.target
