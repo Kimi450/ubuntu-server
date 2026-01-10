@@ -424,8 +424,7 @@ Use your own server
         - Potentially use the cache dir that lives on the same disk (for example, libraries on `disk-1` to use the cache dir on `disk-1` under `/data-mnt/disk-1/cache`)
           - According to [documentation](https://docs.tdarr.io/docs/library-setup/transcode-cache), it is recommended to use an SSD as the cache (preferably, but not as a requirement, where the original data does not live)
         - Enable the `Folder Watch` toggle to make sure new files are auto picked up over time as well.
-      - In the `Tools` tab, go to `API Keys`, generate an API Key and use that in the `group_vars/all` file `apiKey` for tdarr. Then redeploy to register any nodes (including internal node) with the server.
-        - This is required till upstream changes are made. Tracked in: https://github.com/Kimi450/ubuntu_server/issues/32
+        - After adding the libraries, you can run a `Scan All (Fresh)` for it to find any existing media.
       - **NOTE:** GPU Transcoding is not tested as of 20250518
         - You probably want a dedicated GPU for this otherwise your CPU might get overloaded (if using integrated graphics)
         - To make it work, the first step would be to go to the `Tdarr` tab, go to the relevant nodes (like `Internal Node`) and enable `Allow GPU workers to do CPU tasks`. Then `Restart` the nodes at the top of that view.
