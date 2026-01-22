@@ -1,6 +1,55 @@
 # Ubuntu Server
 Highly opinionated server setup to cater to my needs
 
+- [Ubuntu Server](#ubuntu-server)
+  - [Server Setup](#server-setup)
+    - [Cloud](#cloud)
+    - [On-Prem](#on-prem)
+      - [Install Ubuntu](#install-ubuntu)
+      - [Enable ssh server (required for ansible to work)](#enable-ssh-server-required-for-ansible-to-work)
+      - [Disable sleep for the server](#disable-sleep-for-the-server)
+      - [Assign a static IP](#assign-a-static-ip)
+  - [Client Setup](#client-setup)
+      - [Enable passwordless ssh access from remote machine to server (required for ansible to work)](#enable-passwordless-ssh-access-from-remote-machine-to-server-required-for-ansible-to-work)
+      - [Install python and pip](#install-python-and-pip)
+      - [Update the `group_vars/all` file to fill out the required information there](#update-the-group_varsall-file-to-fill-out-the-required-information-there)
+        - [Get CloudFlare information](#get-cloudflare-information)
+      - [Update the `hosts.yaml` file to fill out the template](#update-the-hostsyaml-file-to-fill-out-the-template)
+      - [Expose required ports on your router](#expose-required-ports-on-your-router)
+      - [Run the ansible runner script](#run-the-ansible-runner-script)
+  - [After the installation](#after-the-installation)
+      - [Setup Fishet](#setup-fishet)
+      - [Setup Grafana](#setup-grafana)
+      - [Setup Home Assistant](#setup-home-assistant)
+      - [Setup Jellyfin](#setup-jellyfin)
+      - [Setup qBittorrent](#setup-qbittorrent)
+      - [Setup Calibre](#setup-calibre)
+      - [Setup Calibre Web](#setup-calibre-web)
+      - [Setup Radarr/Sonarr/Readarr/Lidarr](#setup-radarrsonarrreadarrlidarr)
+      - [Setup Prowlarr](#setup-prowlarr)
+      - [Setup Bazarr](#setup-bazarr)
+      - [Setup Tdarr](#setup-tdarr)
+      - [Setup Jellyseerr](#setup-jellyseerr)
+      - [Setup Jellystat](#setup-jellystat)
+      - [Setup Immich](#setup-immich)
+      - [Setup Guacamole](#setup-guacamole)
+      - [Setup Ombi](#setup-ombi)
+      - [Use Squid](#use-squid)
+      - [Use Sambashare](#use-sambashare)
+      - [Exposed Services](#exposed-services)
+- [Appendix](#appendix)
+  - [Kubernetes metrics server](#kubernetes-metrics-server)
+  - [Prometheus TSDB Backup Restore](#prometheus-tsdb-backup-restore)
+    - [Enable admin API](#enable-admin-api)
+    - [Verify admin API is enabled](#verify-admin-api-is-enabled)
+    - [Create TSDB snapshot](#create-tsdb-snapshot)
+    - [Download TSDB snapshot](#download-tsdb-snapshot)
+      - [Option 1: Download from pod to host](#option-1-download-from-pod-to-host)
+      - [Option 2: Find the PV on your host and make a backup of the contents \[RECOMMENDED\]](#option-2-find-the-pv-on-your-host-and-make-a-backup-of-the-contents-recommended)
+    - [Restore Backup](#restore-backup)
+  - [Network troubleshooting tools](#network-troubleshooting-tools)
+  - [Broken Kubernetes cluster after IP change](#broken-kubernetes-cluster-after-ip-change)
+
 ## Server Setup
 
 ***NOTE:*** If things dont work for some reason, try restarting and seeing if that fixes it.
@@ -11,607 +60,609 @@ Probably get a VM from [Oracle Always Free Tier](https://www.oracle.com/ie/cloud
 ### On-Prem
 Use your own server
 
-- #### Install Ubuntu
-  https://ubuntu.com/download/desktop
+#### Install Ubuntu
+https://ubuntu.com/download/desktop
 
-- #### Enable ssh server (required for ansible to work)
-  https://linuxize.com/post/how-to-enable-ssh-on-ubuntu-18-04/
-  ```
-  sudo apt update
-  sudo apt install openssh-server
-  sudo systemctl enable ssh
-  sudo systemctl start ssh
-  ```
+#### Enable ssh server (required for ansible to work)
+https://linuxize.com/post/how-to-enable-ssh-on-ubuntu-18-04/
+```bash
+sudo apt update
+sudo apt install openssh-server
+sudo systemctl enable ssh
+sudo systemctl start ssh
+```
 
-- #### Disable sleep for the server
-  This is to make sure it doesnt turn off mid install or when idle. If its a laptop, make sure power off when lid is closed is also turned off.
+#### Disable sleep for the server
+This is to make sure it doesnt turn off mid install or when idle. If its a laptop, make sure power off when lid is closed is also turned off.
 
-  You can do this via the UI or refer to this [stackoverflow post](https://askubuntu.com/questions/47311/how-do-i-disable-my-system-from-going-to-sleep).
+You can do this via the UI or refer to this [stackoverflow post](https://askubuntu.com/questions/47311/how-do-i-disable-my-system-from-going-to-sleep).
 
-- #### Assign a static IP
-  If using kubernetes, allocate a static IP to your machine on your router. If you do not do this, you can end up with an inaccessible cluster till you update the IPs again. Refer to [appendix](#broken-kubernetes-cluster-after-ip-change)
+#### Assign a static IP
+If using kubernetes, allocate a static IP to your machine on your router. If you do not do this, you can end up with an inaccessible cluster till you update the IPs again. Refer to [appendix](#broken-kubernetes-cluster-after-ip-change)
 
 ## Client Setup
 
-- #### Enable passwordless ssh access from remote machine to server (required for ansible to work)
-  ```
-  ssh-keygen -t ed25519 -C "primary-key"
-  file ~/.ssh/id_ed25519.pub
-  ssh-copy-id -p <ssh-port> <remote-user>@<server-ip>
-  ```
+#### Enable passwordless ssh access from remote machine to server (required for ansible to work)
+```bash
+ssh-keygen -t ed25519 -C "primary-key"
+file ~/.ssh/id_ed25519.pub
+ssh-copy-id -p <ssh-port> <remote-user>@<server-ip>
+```
 
-  If youre using a machine that only allows for publickey auth, then you can upload your key that you just generated with the following command
+If youre using a machine that only allows for publickey auth, then you can upload your key that you just generated with the following command
 
-  ```
-  ssh-copy-id -i ~/.ssh/id_ed25519.pub -o 'IdentityFile ~/.ssh/<your-existing-private-key-for-access>.key' -p <ssh-port> <remote-user>@<server-ip>
-  ```
+```bash
+ssh-copy-id -i ~/.ssh/id_ed25519.pub -o 'IdentityFile ~/.ssh/<your-existing-private-key-for-access>.key' -p <ssh-port> <remote-user>@<server-ip>
+```
 
-- #### Install python and pip
-  ```
-  sudo apt update
-  sudo apt install python3 pip
-  ```
+#### Install python and pip
+```bash
+sudo apt update
+sudo apt install python3 pip
+```
 
-- #### Update the `group_vars/all` file to fill out the required information there
-  At the very least, search for the items with tags `# FILL OUT`
+#### Update the `group_vars/all` file to fill out the required information there
+At the very least, search for the items with tags `# FILL OUT`
 
-  - ##### Get CloudFlare information [OPTIONAL]
-    - This is if you use CloudFlare for your domain name and want the public IP updated automatically every set amount of time incase it is changed on the server.
-    - **NOTE:** Make sure the services installed in this dont overlap with any existing implied DNS entries you may have (keep this in mind if you see any weird behaviour, im not an expert here and im too tired to think about this at the moment)
-    - Register your domain name on CloudFlare
-    - Go to the main CloudFlare page
-    - Then `Websites`
-    - Then select the relevant `Zone` (basically the website you used in the `group_vals/all` file)
-    - Go to the `Overview` page
-      - On the right side you can see the `Zone ID`
-      - Put this in the `group_vars/all` file
-      - Here you can also see the link to the API token page
-    - Go to the `DNS` page
-      - Put in the following records (**REQUIRED**)
+**NOTE**: You can add additional directories for services via the `group_vars` file as well under the `persistence` section.
 
-        | Type | Name                   | Content            | Proxy Status | TTL    |
-        |------|------------------------|--------------------|--------------|--------|
-        | `A`  | `<YOUR_DOMAIN_NAME>`   | `<YOUR_PUBLIC_IP>` | `DNS only`   | `Auto` |
-        | `A`  | `*.<YOUR_DOMAIN_NAME>` | `<YOUR_PUBLIC_IP>` | `DNS only`   | `Auto` |
+```yaml
+- name: disk-2
+host_path: "/mnt/b/downloads"
+```
 
-      - Now you can also use `<YOUR_DOMAIN_NAME>` in the `group_vars/all` file instead of the server's IP address
-    - Create a Custom API token from the [api-tokens](https://dash.cloudflare.com/profile/api-tokens) page with the following permissions and include the specific `Zone` (or website) from `Zone Resources` section
-      - To edit DNS entries
-        - `Zone:DNS:Edit`
-      - To read `Zone` information
-        - `Zone:Zone:Read`
-      - Put this token/key in the `group_vars/all` file
-    - If not needed, remove the line below line from `setup.yaml`
-    `- import_playbook: install-and-configure-cloudflare-dns-updater-service.yaml`
-    - Using DNS01 challenge instead of HTTP01 challenge for certificates
-      - If you wish to use a DSN01 challenge instead of HTTP challenge (common if youre running services on non-standard ports), you will want to set `charts.services.cert_manager.dns01_challenge` to `true` in `group_vars/all` file.
-      - Go to the `DNS` page
-        - Put in the following records (**REQUIRED**)
+The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-2/downloads`
 
-          | Type | Name                   | Content                  | Proxy Status | TTL    |
-          |------|------------------------|--------------------------|--------------|--------|
-          | `TXT`  | `_acme-challenge`   | `"content doesnt matter"` | `DNS only`   | `Auto` |
+##### Get CloudFlare information
+- This is an optional step
+- This is if you use CloudFlare for your domain name and want the public IP updated automatically every set amount of time incase it is changed on the server.
+- **NOTE:** Make sure the services installed in this dont overlap with any existing implied DNS entries you may have (keep this in mind if you see any weird behaviour, im not an expert here and im too tired to think about this at the moment)
+- Register your domain name on CloudFlare
+- Go to the main CloudFlare page
+- Then `Websites`
+- Then select the relevant `Zone` (basically the website you used in the `group_vals/all` file)
+- Go to the `Overview` page
+  - On the right side you can see the `Zone ID`
+  - Put this in the `group_vars/all` file
+  - Here you can also see the link to the API token page
+- Go to the `DNS` page
+  - Put in the following records (**REQUIRED**)
 
-- #### Update the `hosts.yaml` file to fill out the template
+    | Type | Name                   | Content            | Proxy Status | TTL    |
+    |------|------------------------|--------------------|--------------|--------|
+    | `A`  | `<YOUR_DOMAIN_NAME>`   | `<YOUR_PUBLIC_IP>` | `DNS only`   | `Auto` |
+    | `A`  | `*.<YOUR_DOMAIN_NAME>` | `<YOUR_PUBLIC_IP>` | `DNS only`   | `Auto` |
 
-- #### Expose required ports on your router
-  - Expose (port forward on your router) ports for the services you wish to have available externally based on the list [here](#exposed-services).
+  - Now you can also use `<YOUR_DOMAIN_NAME>` in the `group_vars/all` file instead of the server's IP address
+- Create a Custom API token from the [api-tokens](https://dash.cloudflare.com/profile/api-tokens) page with the following permissions and include the specific `Zone` (or website) from `Zone Resources` section
+  - To edit DNS entries
+    - `Zone:DNS:Edit`
+  - To read `Zone` information
+    - `Zone:Zone:Read`
+  - Put this token/key in the `group_vars/all` file
+- If not needed, remove the line below line from `setup.yaml`
+`- import_playbook: install-and-configure-cloudflare-dns-updater-service.yaml`
+- Using DNS01 challenge instead of HTTP01 challenge for certificates
+  - If you wish to use a DSN01 challenge instead of HTTP challenge (common if youre running services on non-standard ports), you will want to set `charts.services.cert_manager.dns01_challenge` to `true` in `group_vars/all` file.
+  - Go to the `DNS` page
+    - Put in the following records (**REQUIRED**)
 
-- #### Run the ansible runner script
-  - `./run.sh`
-  - You can add `-vvvv` to get more verbose output
+      | Type | Name                   | Content                  | Proxy Status | TTL    |
+      |------|------------------------|--------------------------|--------------|--------|
+      | `TXT`  | `_acme-challenge`   | `"content doesnt matter"` | `DNS only`   | `Auto` |
 
-- #### After the installation
+#### Update the `hosts.yaml` file to fill out the template
 
-  **REMEMBER**: You can add additional directories for services via the `group_vars` file as well under the `persistence` section.
+#### Expose required ports on your router
+- Expose (port forward on your router) ports for the services you wish to have available externally based on the list [here](#exposed-services).
 
-  ```yaml
-  - name: disk-2
-    host_path: "/mnt/b/downloads"
-  ```
+#### Run the ansible runner script
+- `./run.sh`
+- You can add `-vvvv` to get more verbose output
 
-  The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-2/downloads`
+## After the installation
 
-  - ##### [OPTIONAL] Setup Fishet
-    - Consider setting up [fishnet](https://github.com/lichess-org/fishnet) to help [Lichess](https://lichess.org/) run game analysis!
-      - Kubernetes installations are also supported and documented [here](https://github.com/lichess-org/fishnet/blob/master/doc/install.md#kubernetes)
+#### Setup Fishet
+- This is an optional step
+- Consider setting up [fishnet](https://github.com/lichess-org/fishnet) to help [Lichess](https://lichess.org/) run game analysis!
+  - Kubernetes installations are also supported and documented [here](https://github.com/lichess-org/fishnet/blob/master/doc/install.md#kubernetes)
 
-  - ##### Setup Grafana
-    - Add the recommended dashboards (Make sure you select the correct job in the variables section, you can default to `kubernetes-service-scraper`)
-      - [Node Exporter Full](https://grafana.com/grafana/dashboards/1860)
-      - [Loki Kubernetes Logs](https://grafana.com/grafana/dashboards/15141)
-      - [Container Log Dashboard](https://grafana.com/grafana/dashboards/16966)
-      - [Sonarr v3](https://grafana.com/grafana/dashboards/12530-sonarr-v3/)
-      - [Radarr v3](https://grafana.com/grafana/dashboards/12896-radarr-v3/)
-      - [Pods (Aggregated view)](https://grafana.com/grafana/dashboards/8860)
-      - [Monitor Pod CPU and Memory usage](https://grafana.com/grafana/dashboards/15055)
-      - [Node Exporter for Prometheus Dashboard EN v20201010](https://grafana.com/grafana/dashboards/11074)
-      - [Monitor Pod CPU and Memory usage](https://grafana.com/grafana/dashboards/15055-monitor-pod-cpu-and-memory-usage/)
-    - Would recommend adding a panel with the following query as it is useful to monitor pods as well
-      - For average CPU usage
-        ```
-        avg(irate(container_cpu_usage_seconds_total[2m])) by (pod,container)
-        ```
-      - For memory usage
-        ```
-        max(container_memory_working_set_bytes{} / (1024*1024)) by (pod)
-        ```
-      - For memory reservation
-        ```
-        max(kube_pod_container_resource_requests{resource="memory"}) by (pod) / (1024*1024)
-        ```
-      - For memory limit
-        ```
-        max(kube_pod_container_resource_limits{resource="memory"}) by (pod) / (1024*1024)
-        ```
-    - You can find information on how to use [Loki](https://grafana.com/oss/loki/) in Grafana [here](https://grafana.com/docs/loki/latest/operations/grafana/)
+#### Setup Grafana
+- Add the recommended dashboards (Make sure you select the correct job in the variables section, you can default to `kubernetes-service-scraper`)
+  - [Node Exporter Full](https://grafana.com/grafana/dashboards/1860)
+  - [Loki Kubernetes Logs](https://grafana.com/grafana/dashboards/15141)
+  - [Container Log Dashboard](https://grafana.com/grafana/dashboards/16966)
+  - [Sonarr v3](https://grafana.com/grafana/dashboards/12530-sonarr-v3/)
+  - [Radarr v3](https://grafana.com/grafana/dashboards/12896-radarr-v3/)
+  - [Pods (Aggregated view)](https://grafana.com/grafana/dashboards/8860)
+  - [Monitor Pod CPU and Memory usage](https://grafana.com/grafana/dashboards/15055)
+  - [Node Exporter for Prometheus Dashboard EN v20201010](https://grafana.com/grafana/dashboards/11074)
+  - [Monitor Pod CPU and Memory usage](https://grafana.com/grafana/dashboards/15055-monitor-pod-cpu-and-memory-usage/)
+- Would recommend adding a panel with the following query as it is useful to monitor pods as well
+  - For average CPU usage
+    ```
+    avg(irate(container_cpu_usage_seconds_total[2m])) by (pod,container)
+    ```
+  - For memory usage
+    ```
+    max(container_memory_working_set_bytes{} / (1024*1024)) by (pod)
+    ```
+  - For memory reservation
+    ```
+    max(kube_pod_container_resource_requests{resource="memory"}) by (pod) / (1024*1024)
+    ```
+  - For memory limit
+    ```
+    max(kube_pod_container_resource_limits{resource="memory"}) by (pod) / (1024*1024)
+    ```
+- You can find information on how to use [Loki](https://grafana.com/oss/loki/) in Grafana [here](https://grafana.com/docs/loki/latest/operations/grafana/)
 
-  - ##### Setup Home Assistant
-    - Portal for adding and monitoring home automation devices (like Zigbee or Thread devices)
-      - To add zigbee support to your home assistant backed server, you can buy the [Home Assistant Connect ZBT-1](https://www.home-assistant.io/connectzbt1/)
-    - Follow onscreen instruction to create an account
-    - Getting started information is present on the [home-assistant website](https://www.home-assistant.io/getting-started/)
+#### Setup Home Assistant
+- Portal for adding and monitoring home automation devices (like Zigbee or Thread devices)
+  - To add zigbee support to your home assistant backed server, you can buy the [Home Assistant Connect ZBT-1](https://www.home-assistant.io/connectzbt1/)
+- Follow onscreen instruction to create an account
+- Getting started information is present on the [home-assistant website](https://www.home-assistant.io/getting-started/)
 
-  - ##### Setup Jellyfin
-    - Initial setup is just following on-screen instructions.
-      - If asked to select server, delete it and refresh the page.
-    - Point Jellyfin to use the directories mentioned in the playbooks for shows, movies, music and books.
-      - By default, on the Jellyfin pod, the directories it will be:
-        ```
-        /data-mnt/disk-1/shows
-        /data-mnt/disk-1/movies
-        /data-mnt/disk-1/music
-        /data-mnt/disk-1/books
-        ```
-    - Add any other config required.
-      - For Hardware acceleration go to `Admin > Dashboard > Playback`
-          - Enable `Hardware acceleration`
-          - Select `Video Acceleration API (VAAPI)` which is setup already to use the **integrated Intel GPU**. Not tested with anything else (like a dedicated AMD/Nvidea GPU)
-            - You should see CPU usage drop and GPU usage go up, disable it if you dont or troubleshoot.
-            - You can use the `intel-gpu-tools` package to monitor (notice GPU usage when hardware encoding is enabled, and no GPU usage when it is disabled) at least the intel GPU by running the command below on the host:
-              `sudo intel_gpu_top`
-          - Select the formats for which hardware acceleration should be enabled
-            - Recommend not selecting `HEVC 10bit` because for some reason that breaks it
-          - Defaults to CPU/software encoding if hardware acceleration does not work for a file, I think.
-          - More information on their [Jellyfin's page for Hardware Acceleration](https://jellyfin.org/docs/general/administration/hardware-acceleration.html)
-    - Setup Know Proxies to have valid `X-Forwarded-For` config as per the [documentation](https://jellyfin.org/docs/general/post-install/networking/#known-proxies)
-      - Go to `Admin > Dashboard > Networking`
-      - Input the range `10.233.64.0/18` into `Known Proxies` (which is what Kubespray uses by default) for the pod range (where the ingress controller will start as well)
-        - You can use a less restrictive range if you wish as well, eg. `10.0.0.0/8`
-      - Go to `Admin > Dashboard`
-        - Restart Jellyfin (Shutdown server from the `Dashboard` and k8s will restart, or delete the pod)
-    - Add any plugins you may want
-      - Open Subtitles
-        - Requires creating an account on [their website](https://www.opensubtitles.com/)
-      - [Intro skipper](https://github.com/intro-skipper/intro-skipper)
-        - To skip intros
-        - Refer to the page above for installation
-      - [Trackt](https://trakt.tv/dashboard)
-        - To track the shows you watch
-        - Create a Trackt account
-        - Go to `Admin > Dashboard > Plugins > All`
-          - Enable Trackt
-          - Restart Jellyfin (Shutdown server from the `Dashboard` and k8s will restart, or delete the pod)
-        - Go to `Admin > Dashboard > Plugins > Trackt`
-          - Select the user
-          - `Authorize Device`
-          - Follow onscreen instructions
-        - Go to `Admin > Dashboard > Scheduled Tasks > Trackt`
-          - Create a daily scheduled task for importing data from and exporting data to tract.tv
+#### Setup Jellyfin
+- Initial setup is just following on-screen instructions.
+  - If asked to select server, delete it and refresh the page.
+- Point Jellyfin to use the directories mentioned in the playbooks for shows, movies, music and books.
+  - By default, on the Jellyfin pod, the directories it will be:
+    ```
+    /data-mnt/disk-1/shows
+    /data-mnt/disk-1/movies
+    /data-mnt/disk-1/music
+    /data-mnt/disk-1/books
+    ```
+- Add any other config required.
+  - For Hardware acceleration go to `Admin > Dashboard > Playback`
+      - Enable `Hardware acceleration`
+      - Select `Video Acceleration API (VAAPI)` which is setup already to use the **integrated Intel GPU**. Not tested with anything else (like a dedicated AMD/Nvidea GPU)
+        - You should see CPU usage drop and GPU usage go up, disable it if you dont or troubleshoot.
+        - You can use the `intel-gpu-tools` package to monitor (notice GPU usage when hardware encoding is enabled, and no GPU usage when it is disabled) at least the intel GPU by running the command below on the host:
+          `sudo intel_gpu_top`
+      - Select the formats for which hardware acceleration should be enabled
+        - Recommend not selecting `HEVC 10bit` because for some reason that breaks it
+      - Defaults to CPU/software encoding if hardware acceleration does not work for a file, I think.
+      - More information on their [Jellyfin's page for Hardware Acceleration](https://jellyfin.org/docs/general/administration/hardware-acceleration.html)
+- Setup Know Proxies to have valid `X-Forwarded-For` config as per the [documentation](https://jellyfin.org/docs/general/post-install/networking/#known-proxies)
+  - Go to `Admin > Dashboard > Networking`
+  - Input the range `10.233.64.0/18` into `Known Proxies` (which is what Kubespray uses by default) for the pod range (where the ingress controller will start as well)
+    - You can use a less restrictive range if you wish as well, eg. `10.0.0.0/8`
+  - Go to `Admin > Dashboard`
+    - Restart Jellyfin (Shutdown server from the `Dashboard` and k8s will restart, or delete the pod)
+- Add any plugins you may want
+  - Open Subtitles
+    - Requires creating an account on [their website](https://www.opensubtitles.com/)
+  - [Intro skipper](https://github.com/intro-skipper/intro-skipper)
+    - To skip intros
+    - Refer to the page above for installation
+  - [Trackt](https://trakt.tv/dashboard)
+    - To track the shows you watch
+    - Create a Trackt account
+    - Go to `Admin > Dashboard > Plugins > All`
+      - Enable Trackt
+      - Restart Jellyfin (Shutdown server from the `Dashboard` and k8s will restart, or delete the pod)
+    - Go to `Admin > Dashboard > Plugins > Trackt`
+      - Select the user
+      - `Authorize Device`
+      - Follow onscreen instructions
+    - Go to `Admin > Dashboard > Scheduled Tasks > Trackt`
+      - Create a daily scheduled task for importing data from and exporting data to tract.tv
 
-  - ##### Setup qBittorrent
-    - Default login credentials are randomly generated, you need to look at ansible logs to get the default login credentials.
-      - Look for the substring `You can log into qBittorrent` in the logs to find the creds in the form `admin/<RANDOM_PASSWORD>`
-        - If `<RANDOM_PASSWORD>` is not seen, that means that a password was found to be set already and that a randomly generated password was not used. Please try to remeber the password or reinstall to override configuration to use default passwords again.
-    - Change the default login details
-      - Go to `Tools > Options > Web UI > Authentication`
-    - Set default download location to one the mentioned directories (or make sure to put it in the right directory when downloading for ease)
-      - Go to `Tools > Options > Downloads > Default Save Path`
-      - Recommend using `/data-mnt/disk-1/downloads`
-    - Set seeding limits
-      - Recommend seeding limits for when seeding ratio hits "1" to give back to the community. It is under `Tools > Options > BitTorrent > Seeding Limits`
-    - Set torrent download/upload limits
-      - Recommended to keep 12 active torrents, 6 downloads and 6 uploads. It is under `Tools > Options > BitTorrent > Torrent Queueing`
+#### Setup qBittorrent
+- Default login credentials are randomly generated, you need to look at ansible logs to get the default login credentials.
+  - Look for the substring `You can log into qBittorrent` in the logs to find the creds in the form `admin/<RANDOM_PASSWORD>`
+    - If `<RANDOM_PASSWORD>` is not seen, that means that a password was found to be set already and that a randomly generated password was not used. Please try to remeber the password or reinstall to override configuration to use default passwords again.
+- Change the default login details
+  - Go to `Tools > Options > Web UI > Authentication`
+- Set default download location to one the mentioned directories (or make sure to put it in the right directory when downloading for ease)
+  - Go to `Tools > Options > Downloads > Default Save Path`
+  - Recommend using `/data-mnt/disk-1/downloads`
+- Set seeding limits
+  - Recommend seeding limits for when seeding ratio hits "1" to give back to the community. It is under `Tools > Options > BitTorrent > Seeding Limits`
+- Set torrent download/upload limits
+  - Recommended to keep 12 active torrents, 6 downloads and 6 uploads. It is under `Tools > Options > BitTorrent > Torrent Queueing`
 
-  - ##### Setup Calibre
-    - Do base setup
-      - Set folder to be `/data-mnt/disk-1/books` and select `Yes` for it to rebuild the library if asked.
-    - Go to `Preferences > Sharing over the net`
-      - Check the box for `Require username and password to access the Content server`
-      - Check the box for `Run the server automatically when calibre starts`
-      - Click on `Start server`
-      - Go to the `User accounts tab` and create a user
-        - Make a note of the credentials for use in `Readarr` setup
-      - Restart the app/pod
-        - You can do so by also pressing `CTRL + R` on the main screen
+#### Setup Calibre
+- Do base setup
+  - Set folder to be `/data-mnt/disk-1/books` and select `Yes` for it to rebuild the library if asked.
+- Go to `Preferences > Sharing over the net`
+  - Check the box for `Require username and password to access the Content server`
+  - Check the box for `Run the server automatically when calibre starts`
+  - Click on `Start server`
+  - Go to the `User accounts tab` and create a user
+    - Make a note of the credentials for use in `Readarr` setup
+  - Restart the app/pod
+    - You can do so by also pressing `CTRL + R` on the main screen
 
-  - ##### Setup Calibre Web
-    - Default login is `admin/admin123`
-    - Set folder to be `/data-mnt/disk-1/books`
-    - To enable web reading, click on `Admin` (case sensitive) on the top right
-      - Click on the user, default is `admin`
-      - Enable `Allow ebook viewer`
-      - Change password to something more secure
-      - Save settings
+#### Setup Calibre Web
+- Default login is `admin/admin123`
+- Set folder to be `/data-mnt/disk-1/books`
+- To enable web reading, click on `Admin` (case sensitive) on the top right
+  - Click on the user, default is `admin`
+  - Enable `Allow ebook viewer`
+  - Change password to something more secure
+  - Save settings
 
-  - ##### Setup Radarr/Sonarr/Readarr/Lidarr
-    - Service function
+#### Setup Radarr/Sonarr/Readarr/Lidarr
+- Service function
 
-      | Service | Purpose  |
-      |---------|----------|
-      | Readarr | Books    |
-      | Sonarr  | TV Shows |
-      | Radarr  | Movies   |
-      | Lidarr  | Music    |
+  | Service | Purpose  |
+  |---------|----------|
+  | Readarr | Books    |
+  | Sonarr  | TV Shows |
+  | Radarr  | Movies   |
+  | Lidarr  | Music    |
 
-    - Go to `Settings` and click on `Show Advanced`
-    - Enable authentication
-      - Set `Authentication` to `Forms (Login Page)`
-      - Set `Authentication Required` to `Enabled`
-      - Set username and password for access
-    - Add torrent client
-      - Go to `Settings > Download Clients > Add > qBittorent`
-      - Add the host: `qbittorrent`
-      - Add the port: `10095`
-      - Add the username: `<qBittorrent_username>`
-      - Add the password: `<qBittorrent_password>`
-      - Enable the `Remove Completed` option.
-        - This will copy the download from the downloads directory to the destination directory for the service. Once the seeding limits are reached, it will delete the torrent and its files from the downloads directory.
-        - More information on [sonarrs's wiki page](https://wiki.servarr.com/sonarr/settings#Torrent_Process) and [radarr's wiki page](https://wiki.servarr.com/radarr/settings#Torrent_Process) under `Remove Completed Downloads`. They should all have the same idea though.
-    - Set the root directories to be the following
-      - Go to `Settings > Media Management`
+- Go to `Settings` and click on `Show Advanced`
+- Enable authentication
+  - Set `Authentication` to `Forms (Login Page)`
+  - Set `Authentication Required` to `Enabled`
+  - Set username and password for access
+- Add torrent client
+  - Go to `Settings > Download Clients > Add > qBittorent`
+  - Add the host: `qbittorrent`
+  - Add the port: `10095`
+  - Add the username: `<qBittorrent_username>`
+  - Add the password: `<qBittorrent_password>`
+  - Enable the `Remove Completed` option.
+    - This will copy the download from the downloads directory to the destination directory for the service. Once the seeding limits are reached, it will delete the torrent and its files from the downloads directory.
+    - More information on [sonarrs's wiki page](https://wiki.servarr.com/sonarr/settings#Torrent_Process) and [radarr's wiki page](https://wiki.servarr.com/radarr/settings#Torrent_Process) under `Remove Completed Downloads`. They should all have the same idea though.
+- Set the root directories to be the following
+  - Go to `Settings > Media Management`
 
-        | Service | Root Directory    |
-        |---------|-------------------|
-        | Readarr | `/data-mnt/disk-1/books/`  |
-        | Sonarr  | `/data-mnt/disk-1/shows/`  |
-        | Radarr  | `/data-mnt/disk-1/movies/` |
-        | Lidarr  | `/data-mnt/disk-1/music/`  |
-      - Enable renaming
-    - Adjust quality definitions
-      - Go to `Settings > Quality`
-      - Set the `Size Limit` or `Megabytes Per Minute` (or equivalent) to appropriate numbers
-        - This will ensure your downloads are not "too big"
-      - For movies and shows, `2-3GiB/h` would usually be sufficient as the `Preferred` value, and you can leave the `Max` value a bit higher to ensure a better chance of download grabs
-        - Min: 0
-        - Preferred: 30
-        - Max: 70 (you can also use 2000 but you might get bigger files more often)
-    - Go to `Settings > Media Management`
-        - If present, make sure `Use Hardlinks instead of Copy` is enabled
-        - Enable the `Unmonitor Deleted Movies` or `Unmonitor Deleted Episodes` option if you want to unmonitor media (not redownload) when deleted from Jellyfin.
-    - Radarr/Sonarr specific config
-      - Go to `Settings > Profiles`
-        - If present, for all relevant profiles (or just all of them), set the `Language` for the profile to be `Original` (or whatever language you prefer it to be instead) to download the media in that specific language.
-        - Create a `Release Profile` with the following if you have a machine that is not very powerful and cannot transcode well (or at all, like in: https://github.com/Kimi450/ubuntu-server/issues/36)
-          - Allow list
-            - 264
-          - Block list
-            - hevc
-            - flac
-            - mkv
-            - 265
-          - Make it apply to `any` indexer
-      - **[EXPERIMENTAL]** Enforce downloads of original language media only
-        - Go to `Settings > Custom Formats`
-          - Add a new Custom Format with `Language` Condition
-            - Set `Language: Original`
-            - Set `Required: True`
-        - Go to `Settings > Profiles`
-          - Select all [relevant] profiles and set the following
-            - `Minimum Custom Format Score` to `0` (sum of the custom formats scores)
-            - Your new Custom Format's score to be `0` (if the value is lower than the minimum score then downloads will be blocked)
-    - Readarr specific config
-      - Go to `Settings > Media Management`
-        - Add root folder (you cannot edit an existing one)
-          - Set the path to be `/data-mnt/disk-1/books/`
-          - Enable `Use Calibre` options the the following defaults
-            - Calibre host: `calibre-webserver`
-            - Calibre port: `8081`
-            - Calibre Username: `<calibre_username>`
-            - Calibre Password: `<calibre_password>`
-        - Enabled `Rename Books` and use the defaults
+    | Service | Root Directory    |
+    |---------|-------------------|
+    | Readarr | `/data-mnt/disk-1/books/`  |
+    | Sonarr  | `/data-mnt/disk-1/shows/`  |
+    | Radarr  | `/data-mnt/disk-1/movies/` |
+    | Lidarr  | `/data-mnt/disk-1/music/`  |
+  - Enable renaming
+- Adjust quality definitions
+  - Go to `Settings > Quality`
+  - Set the `Size Limit` or `Megabytes Per Minute` (or equivalent) to appropriate numbers
+    - This will ensure your downloads are not "too big"
+  - For movies and shows, `2-3GiB/h` would usually be sufficient as the `Preferred` value, and you can leave the `Max` value a bit higher to ensure a better chance of download grabs
+    - Min: 0
+    - Preferred: 30
+    - Max: 70 (you can also use 2000 but you might get bigger files more often)
+- Go to `Settings > Media Management`
+    - If present, make sure `Use Hardlinks instead of Copy` is enabled
+    - Enable the `Unmonitor Deleted Movies` or `Unmonitor Deleted Episodes` option if you want to unmonitor media (not redownload) when deleted from Jellyfin.
+- Radarr/Sonarr specific config
+  - Go to `Settings > Profiles`
+    - If present, for all relevant profiles (or just all of them), set the `Language` for the profile to be `Original` (or whatever language you prefer it to be instead) to download the media in that specific language.
+    - Create a `Release Profile` with the following if you have a machine that is not very powerful and cannot transcode well (or at all, like in: https://github.com/Kimi450/ubuntu-server/issues/36)
+      - Allow list
+        - 264
+      - Block list
+        - hevc
+        - flac
+        - mkv
+        - 265
+      - Make it apply to `any` indexer
+  - **[EXPERIMENTAL]** Enforce downloads of original language media only
+    - Go to `Settings > Custom Formats`
+      - Add a new Custom Format with `Language` Condition
+        - Set `Language: Original`
+        - Set `Required: True`
+    - Go to `Settings > Profiles`
+      - Select all [relevant] profiles and set the following
+        - `Minimum Custom Format Score` to `0` (sum of the custom formats scores)
+        - Your new Custom Format's score to be `0` (if the value is lower than the minimum score then downloads will be blocked)
+- Readarr specific config
+  - Go to `Settings > Media Management`
+    - Add root folder (you cannot edit an existing one)
+      - Set the path to be `/data-mnt/disk-1/books/`
+      - Enable `Use Calibre` options the the following defaults
+        - Calibre host: `calibre-webserver`
+        - Calibre port: `8081`
+        - Calibre Username: `<calibre_username>`
+        - Calibre Password: `<calibre_password>`
+    - Enabled `Rename Books` and use the defaults
 
-  - ##### Setup Prowlarr
-    - Enable authentication
-      - Set `Authentication` to `Forms (Login Page)`
-      - Set `Authentication Required` to `Enabled`
-      - Set username and password for access
-    - Add `FlareSolverr` service as a proxy, refer to [this](https://trash-guides.info/Prowlarr/prowlarr-setup-flaresolverr/) guide for help
-      - Go to `Settings > Indexers`
-      - Add a new proxy for `FlareSolverr`
-        - Add a tag to it, for example `flaresolverr`
-          - **NOTE:** This tag needs to be used for any indexer that needs to bypass CloudFlare and DDoS-Gaurd protection
-        - The default host will be `http://flaresolverr:8191/`
-    - Follow the [official Quick Start Guide](https://wiki.servarr.com/prowlarr/quick-start-guide)
-      - Add all the indexers you wish to use, some good ones listed below. Find more indexers on [Prowlarr's Supported Indexers page](https://wiki.servarr.com/prowlarr/supported-indexers).
-        - Standard
-          ```
-          1337x
-            Add "flaresolverr" tag
-          LimeTorrents
-          The Pirate Bay
-          EZTV
-          ```
-        - Anime
-          ```
-          Anidex
-            Add with higher priority, example "1", since it has good english subtitled content
-            Add "flaresolverr" tag
-          Bangumi Moe
-          Nyaa.si
-          Tokyo Toshokan
-          ```
-        - It is recommended to use private indexers for books and music as they are harder to find otherwise
-    - Add Sonarr, Radarr, Lidarr and Readarr to the `Settings > Apps > Application` section using the correct API token and kubernetes service names
-      - By default prowlarr server will be:
-        ```
-        http://prowlarr:9696
-        ```
-      - By default the services will be:
-        ```
-        http://sonarr:8989
-        http://radarr:7878
-        http://lidarr:8686
-        http://readarr:8787
-        ```
-      - Select extra `Sync Catagories` for each application if required
-        - I would recommend keeping the default categories for the most part
-        - For the apps `Sonarr` and `Radarr`, it might be worthwhile using both `TV` and `Movies` categories
-        - **NOTE:** If you dont know what to do, add all of them for every app (comes at the cost of slower searches). But this may also result in some weird behaviour which would need troubleshooting.
-
-  - ##### Setup Bazarr
-    - Enable authentication
-      - Go to `Settings > General`
-      - Under `Security` select `Form` as the form of `Authentication`
-      - Set username and password for access
-    - Follow the official [Setup Guide](https://wiki.bazarr.media/Getting-Started/Setup-Guide/)
-      - Go to `Settings > Radarr` and `Settings > Sonarr`
-        - Click on `Enable`
-        - Fill out the details and save
-          - Use the API tokens from the respective services, found under `Settings > General > Security > API Key`
-          - Use the kubernetes service name and port
-
-            | Service Name | Port |
-            |--------------|------|
-            | radarr       | 7878 |
-            | sonarr       | 8989 |
-
-          - Set a suitable minimum score, probabl `70` is fine
-        - Fill out the path mappings if the directories in which data is stored is different for both services (by default both services will use the same directory to access data, so you dont need to change anything for a default install)
-      - Go to `Settings > Languages`
-        - Add a language profile and set defaults for movies and series'
-        - You may need to set language filters first before being able to create a profile with the languages in them
-        - Add both, for hearing impaired and regular ones, to increase your chances
-      - Go to `Settings > Provider` and add providers for subtitles
-        - Decent options are:
-          - Opensubtitles.com
-          - TVSubtitles
-          - YIFY Subtitles
-          - Supersubtitles
-          - Anime Tosho (needs AniDB Integration)
-            - Thanks to this [reddit post](https://www.reddit.com/r/bazarr/comments/1gaudgp/setup_animetosho_provider/) for instructions.
-            - Go to [AniDB](https://anidb.net/user/register) and sign up for an account
-            - Login to your account
-            - Go to [AniDB](http://anidb.net/perl-bin/animedb.pl?show=client) client registration page.
-            - Add a new Project on the `Add New Project` tab
-            - Fill out the form
-              - Type: `Media Center`
-              - State: `Working`
-              - Public Project: `No, private only`
-              - Target OS: `Web`
-              - Language: `Python`
-              - Contact info as required
-              - Server URL
-            - Once the project is created, go back to the `Projects` tab and then click on the project you just created
-            - On the Project Details Page, click over `Add Client` button, so we will be creating a client for your Project now
-            - Fill the Form for the Client, Make sure you don't forget the `Client Name` and the `Version` because we will be needing it for Bazarr! Also make sure the API is changed to `HTTP API`.
-            - On the bottom part of the `Integrations` click over the `+` button, and setup the AniDB Client. Make sure you fill up exactly how it was configure on AniDB. Click `Save`
-            - Next, you are still on Bazarr settings page, and now you should click over `+` on the top part to add a new Provider, and select `Anime Tosho`.
-      - Go to `Settings > Subtitles` and make changes if needed
-      - Manually add the language profile to all the scanned media after first installation
-    - NOTE:
-      - If it doesnt work, manually restart the pod few times. It just works, not sure why. If that doesnt work, try reinstalling.
-
-  - ##### Setup Tdarr
-    - Used for transcoding media to help reduce storage requirements
-    - NOTE: This will use a lot of your resources
-    - It will get the same mounts as the ones defined in Radarr and Sonarr
-    - Follow setup instructions shown after logging into it
-      - For the most part, the default plugins they have are fine, feel free to tweak/experiment more (and contribute back if you find something useful!)
-      - In the `Tdarr` tab, `Staging Section`, enable `Auto accept successful transcodes`
-      - For the workers, start off with just 1 CPU worker and see how much that affects your server's stability before you add more.
-      - Add all the libraries from all the disks that have been configured for radarr and sonarr with relevant caches
-        - Potentially use the cache dir that lives on the same disk (for example, libraries on `disk-1` to use the cache dir on `disk-1` under `/data-mnt/disk-1/cache`)
-          - According to [documentation](https://docs.tdarr.io/docs/library-setup/transcode-cache), it is recommended to use an SSD as the cache (preferably, but not as a requirement, where the original data does not live)
-        - Enable the `Folder Watch` toggle to make sure new files are auto picked up over time as well.
-          - If this does not automatically pick up new files, you may need to enable the `Scanner settings` -> `Run an hourly scan (Find New)` option for each library
-        - After adding the libraries, you can run a `Scan All (Fresh)` for it to find any existing media.
-      - **NOTE:** GPU Transcoding is not tested as of 20250518
-        - You probably want a dedicated GPU for this otherwise your CPU might get overloaded (if using integrated graphics)
-        - To make it work, the first step would be to go to the `Tdarr` tab, go to the relevant nodes (like `Internal Node`) and enable `Allow GPU workers to do CPU tasks`. Then `Restart` the nodes at the top of that view.
-        - TBD (figure out GPU passthrough for Tdarr)
-
-  - ##### Setup Jellyseerr
-    - One stop shop for Sonarr/Radarr requests
-    - Run the first time setup for Jellyfin
-      - `Choose Server Type`
-        - Select `Jellyfin`
-      - `Account sign in`
-        - Jellyfin URL: `http://jellyfin:8096`
-        - Email Address: `<YOUR_EMAIL>`
-        - Username: `<JELLYFIN_USERNAME>`
-        - Password: `<JELLYFIN_PASSWORD>`
-        - You can then login using your Jellyfin credentials
-          - If you do not wish to do so, set a local user password by editing your account under `Users` to login with your email ID instead
-      - `Configure Media Server`
-        - Click on `Sync Libraries`
-          - Enable all Libraries that get listed
-        - Also run a manual scan
-      - `Configure Services`
-        - Setup all the services
-          - Use the correct API keys, hostnames and ports for the services
-              | Service Name | Port |
-              |--------------|------|
-              | jellyfin     | 8096 |
-              | sonarr       | 8989 |
-              | radarr       | 7878 |
-          - Quality profile can be `HD-1080p` or `HD - 720/1080p`
-          - Select the applicable root folders
-          - Check relevant options that suit your needs
-            - General
-              - Enable `Tag Requests`
-              - Enable `Scan`
-              - Enable `Default Server`
-            - Sonarr specific
-              - Enable `Season Folders`
-    - Go to `Users` and either add new users or import from Jellyfin directly
-      - This is not required by default
-      - Give them `Manage Requests` and other permissions for ease where applicable
-    - Go to `Settings -> Users` and give them all `Auto-Approve` and `Auto-Request` Permissions by default for ease.
-
-  - ##### Setup Jellystat
-    - Setup login credentials
-    - Link to Jellyfin
-      - Jellyfin URL: `http://jellyfin:8096`
-      - Generate an API key from Jellyfin and use it here
-        - It will be in Jellyfin under `Dashboard -> API Key`
-
-  - ##### Setup Immich
-    - Just follow onscreen instructions to create an account
-    - Setup the config as you please from there!
-    - Sample command for importing a google photos takeout archive using [immich-go](github.com/simulot/immich-go)
-      ```bash
-      immich-go upload from-google-photos \
-          --server=<IMMICH_URL>:30443 \
-          --api-key=<IMMICH_API_KEY> \
-          --log-file=$HOME/immich-go.logs.$(date +'%Y%m%d.%H%M%S') \
-          --session-tag=true \
-          --include-trashed=true \
-          --include-untitled-albums=true \
-          --manage-burst=Stack \
-          --people-tag=true \
-          --sync-albums \
-          --on-server-errors=stop \
-          --concurrent-uploads 2 \
-          <PATH_TO_TAKEOUT>/takeout*.zip
+#### Setup Prowlarr
+- Enable authentication
+  - Set `Authentication` to `Forms (Login Page)`
+  - Set `Authentication Required` to `Enabled`
+  - Set username and password for access
+- Add `FlareSolverr` service as a proxy, refer to [this](https://trash-guides.info/Prowlarr/prowlarr-setup-flaresolverr/) guide for help
+  - Go to `Settings > Indexers`
+  - Add a new proxy for `FlareSolverr`
+    - Add a tag to it, for example `flaresolverr`
+      - **NOTE:** This tag needs to be used for any indexer that needs to bypass CloudFlare and DDoS-Gaurd protection
+    - The default host will be `http://flaresolverr:8191/`
+- Follow the [official Quick Start Guide](https://wiki.servarr.com/prowlarr/quick-start-guide)
+  - Add all the indexers you wish to use, some good ones listed below. Find more indexers on [Prowlarr's Supported Indexers page](https://wiki.servarr.com/prowlarr/supported-indexers).
+    - Standard
       ```
+      1337x
+        Add "flaresolverr" tag
+      LimeTorrents
+      The Pirate Bay
+      EZTV
+      ```
+    - Anime
+      ```
+      Anidex
+        Add with higher priority, example "1", since it has good english subtitled content
+        Add "flaresolverr" tag
+      Bangumi Moe
+      Nyaa.si
+      Tokyo Toshokan
+      ```
+    - It is recommended to use private indexers for books and music as they are harder to find otherwise
+- Add Sonarr, Radarr, Lidarr and Readarr to the `Settings > Apps > Application` section using the correct API token and kubernetes service names
+  - By default prowlarr server will be:
+    ```
+    http://prowlarr:9696
+    ```
+  - By default the services will be:
+    ```
+    http://sonarr:8989
+    http://radarr:7878
+    http://lidarr:8686
+    http://readarr:8787
+    ```
+  - Select extra `Sync Catagories` for each application if required
+    - I would recommend keeping the default categories for the most part
+    - For the apps `Sonarr` and `Radarr`, it might be worthwhile using both `TV` and `Movies` categories
+    - **NOTE:** If you dont know what to do, add all of them for every app (comes at the cost of slower searches). But this may also result in some weird behaviour which would need troubleshooting.
 
-  - ##### Setup Guacamole
-    - Clientless remote desktop gateway supporting protocols like ssh, vnc and RDP.
-    - Login using default credentials `guacadmin`/`guacadmin` and change them
-      - Click on top right to go to `Settings`
-      - Go to `Preferences`
-      - Update your password in the `Change Password` section
-    - Add connections by going to top right and clicking on `Settings`
-      - Go to `Connections -> New Connection`
-      - Fill out the details of the connection type with relevant and options
-        - Main part is to full out the `Parameters` Section
-        - Good option to setup here is the SSH config for your server maybe
-      - To access these, click on top right and go to `Home` and click on the connection
+#### Setup Bazarr
+- Enable authentication
+  - Go to `Settings > General`
+  - Under `Security` select `Form` as the form of `Authentication`
+  - Set username and password for access
+- Follow the official [Setup Guide](https://wiki.bazarr.media/Getting-Started/Setup-Guide/)
+  - Go to `Settings > Radarr` and `Settings > Sonarr`
+    - Click on `Enable`
+    - Fill out the details and save
+      - Use the API tokens from the respective services, found under `Settings > General > Security > API Key`
+      - Use the kubernetes service name and port
 
-  - ##### Setup Ombi
-    - One stop shop for Sonarr/Radarr/Lidarr requests
-    - Get the API keys for Jellyfin, Sonarr and Radarr
-      - Jellyfin
-        - Go to `Admin > Dashboard > API Keys`
-        - Generate a new API key with an appropriate name
-      - Sonarr/Radarr/Lidarr
-        - Use the API tokens from the respective services, found under `Settings > General > Security > API Key`
-    - Set credentials for login
-    - Go to `Settings`
+        | Service Name | Port |
+        |--------------|------|
+        | radarr       | 7878 |
+        | sonarr       | 8989 |
+
+      - Set a suitable minimum score, probabl `70` is fine
+    - Fill out the path mappings if the directories in which data is stored is different for both services (by default both services will use the same directory to access data, so you dont need to change anything for a default install)
+  - Go to `Settings > Languages`
+    - Add a language profile and set defaults for movies and series'
+    - You may need to set language filters first before being able to create a profile with the languages in them
+    - Add both, for hearing impaired and regular ones, to increase your chances
+  - Go to `Settings > Provider` and add providers for subtitles
+    - Decent options are:
+      - Opensubtitles.com
+      - TVSubtitles
+      - YIFY Subtitles
+      - Supersubtitles
+      - Anime Tosho (needs AniDB Integration)
+        - Thanks to this [reddit post](https://www.reddit.com/r/bazarr/comments/1gaudgp/setup_animetosho_provider/) for instructions.
+        - Go to [AniDB](https://anidb.net/user/register) and sign up for an account
+        - Login to your account
+        - Go to [AniDB](http://anidb.net/perl-bin/animedb.pl?show=client) client registration page.
+        - Add a new Project on the `Add New Project` tab
+        - Fill out the form
+          - Type: `Media Center`
+          - State: `Working`
+          - Public Project: `No, private only`
+          - Target OS: `Web`
+          - Language: `Python`
+          - Contact info as required
+          - Server URL
+        - Once the project is created, go back to the `Projects` tab and then click on the project you just created
+        - On the Project Details Page, click over `Add Client` button, so we will be creating a client for your Project now
+        - Fill the Form for the Client, Make sure you don't forget the `Client Name` and the `Version` because we will be needing it for Bazarr! Also make sure the API is changed to `HTTP API`.
+        - On the bottom part of the `Integrations` click over the `+` button, and setup the AniDB Client. Make sure you fill up exactly how it was configure on AniDB. Click `Save`
+        - Next, you are still on Bazarr settings page, and now you should click over `+` on the top part to add a new Provider, and select `Anime Tosho`.
+  - Go to `Settings > Subtitles` and make changes if needed
+  - Manually add the language profile to all the scanned media after first installation
+- NOTE:
+  - If it doesnt work, manually restart the pod few times. It just works, not sure why. If that doesnt work, try reinstalling.
+
+#### Setup Tdarr
+- Used for transcoding media to help reduce storage requirements
+- NOTE: This will use a lot of your resources
+- It will get the same mounts as the ones defined in Radarr and Sonarr
+- Follow setup instructions shown after logging into it
+  - For the most part, the default plugins they have are fine, feel free to tweak/experiment more (and contribute back if you find something useful!)
+  - In the `Tdarr` tab, `Staging Section`, enable `Auto accept successful transcodes`
+  - For the workers, start off with just 1 CPU worker and see how much that affects your server's stability before you add more.
+  - Add all the libraries from all the disks that have been configured for radarr and sonarr with relevant caches
+    - Potentially use the cache dir that lives on the same disk (for example, libraries on `disk-1` to use the cache dir on `disk-1` under `/data-mnt/disk-1/cache`)
+      - According to [documentation](https://docs.tdarr.io/docs/library-setup/transcode-cache), it is recommended to use an SSD as the cache (preferably, but not as a requirement, where the original data does not live)
+    - Enable the `Folder Watch` toggle to make sure new files are auto picked up over time as well.
+      - If this does not automatically pick up new files, you may need to enable the `Scanner settings` -> `Run an hourly scan (Find New)` option for each library
+    - After adding the libraries, you can run a `Scan All (Fresh)` for it to find any existing media.
+  - **NOTE:** GPU Transcoding is not tested as of 20250518
+    - You probably want a dedicated GPU for this otherwise your CPU might get overloaded (if using integrated graphics)
+    - To make it work, the first step would be to go to the `Tdarr` tab, go to the relevant nodes (like `Internal Node`) and enable `Allow GPU workers to do CPU tasks`. Then `Restart` the nodes at the top of that view.
+    - TBD (figure out GPU passthrough for Tdarr)
+
+#### Setup Jellyseerr
+- One stop shop for Sonarr/Radarr requests
+- Run the first time setup for Jellyfin
+  - `Choose Server Type`
+    - Select `Jellyfin`
+  - `Account sign in`
+    - Jellyfin URL: `http://jellyfin:8096`
+    - Email Address: `<YOUR_EMAIL>`
+    - Username: `<JELLYFIN_USERNAME>`
+    - Password: `<JELLYFIN_PASSWORD>`
+    - You can then login using your Jellyfin credentials
+      - If you do not wish to do so, set a local user password by editing your account under `Users` to login with your email ID instead
+  - `Configure Media Server`
+    - Click on `Sync Libraries`
+      - Enable all Libraries that get listed
+    - Also run a manual scan
+  - `Configure Services`
+    - Setup all the services
       - Use the correct API keys, hostnames and ports for the services
           | Service Name | Port |
           |--------------|------|
           | jellyfin     | 8096 |
           | sonarr       | 8989 |
           | radarr       | 7878 |
-          | lidarr       | 8686 |
-      - Click on the `Load Profiles` and `Load Root Folders` buttons and use the appropriate defaults as used in the services seen [here](#setup-radarrsonarrreadarrlidarr).
-      - Setup `Movies` using `Radarr`
-      - Setup `TV` using `Sonarr`
-        - Enable the `Enable season folders` option
-        - Enable the `V3` option
-      - Setup `Music` using `Lidarr`
-      - Setup `Media Server` using `Jellyfin`
-      - **Dont forget to click on `Enable` for each of those setups as well**
-    - Go to `Users`
-      - Setup additional users
-      - Give the following roles to *trusted* users for convinience
-        ```
-        Request Tv
-        Request Movie
-        Request Music
-        Auto Approve Tv
-        Auto Approve Movie
-        Auto Approve Music
-        ```
+      - Quality profile can be `HD-1080p` or `HD - 720/1080p`
+      - Select the applicable root folders
+      - Check relevant options that suit your needs
+        - General
+          - Enable `Tag Requests`
+          - Enable `Scan`
+          - Enable `Default Server`
+        - Sonarr specific
+          - Enable `Season Folders`
+- Go to `Users` and either add new users or import from Jellyfin directly
+  - This is not required by default
+  - Give them `Manage Requests` and other permissions for ease where applicable
+- Go to `Settings -> Users` and give them all `Auto-Approve` and `Auto-Request` Permissions by default for ease.
 
-  - ##### Use Squid
-    - Use the username and password from the `group_vars/all` file to use this as a proxy server
-    - The address would be `<PUBLIC_IP>:<GROUP_VARS_PORT>` or `<DOMAIN_NAME>:<GROUP_VARS_PORT>` or `<LAN_IP>:<GROUP_VARS_PORT>`
+#### Setup Jellystat
+- Setup login credentials
+- Link to Jellyfin
+  - Jellyfin URL: `http://jellyfin:8096`
+  - Generate an API key from Jellyfin and use it here
+    - It will be in Jellyfin under `Dashboard -> API Key`
 
-  - ##### Use Sambashare
-    - For external access:
-    - To authenticate
-      - Thee username will be the `<ANSIBLE_USER>` you used in the `hosts.yaml` file
-      - The password will be in the `group_vars/all` file (`smb.password` section).
-    - In Windows, connect to it using `\\<LAN_IP>\<SHARE_NAME_FROM_GROUP_VARS_ALL>`
-    - More information [here](https://ubuntu.com/tutorials/install-and-configure-samba#4-setting-up-user-accounts-and-connecting-to-share)
+#### Setup Immich
+- Just follow onscreen instructions to create an account
+- Setup the config as you please from there!
+- Sample command for importing a google photos takeout archive using [immich-go](github.com/simulot/immich-go)
+  ```bash
+  immich-go upload from-google-photos \
+      --server=<IMMICH_URL>:30443 \
+      --api-key=<IMMICH_API_KEY> \
+      --log-file=$HOME/immich-go.logs.$(date +'%Y%m%d.%H%M%S') \
+      --session-tag=true \
+      --include-trashed=true \
+      --include-untitled-albums=true \
+      --manage-burst=Stack \
+      --people-tag=true \
+      --sync-albums \
+      --on-server-errors=stop \
+      --concurrent-uploads 2 \
+      <PATH_TO_TAKEOUT>/takeout*.zip
+  ```
 
-  - ##### Exposed Services
-    - You need to create DNS entries to access the Ingress services. The following entries are recommended:
-      - `*.<DOMAIN_NAME>`
-      - `<DOMAIN_NAME>`
-    - Setup NAT-ing for the the following ports on your router to gain external access. On your router:
-      - Set a static IP for your server (if applicable) so the router doesnt assign a different IP to the machine breaking your port-forwarding setup
-      - Following are some sample rules based on the `all` file defaults for port forwarding, feel free to tweak to your needs.
+#### Setup Guacamole
+- Clientless remote desktop gateway supporting protocols like ssh, vnc and RDP.
+- Login using default credentials `guacadmin`/`guacadmin` and change them
+  - Click on top right to go to `Settings`
+  - Go to `Preferences`
+  - Update your password in the `Change Password` section
+- Add connections by going to top right and clicking on `Settings`
+  - Go to `Connections -> New Connection`
+  - Fill out the details of the connection type with relevant and options
+    - Main part is to full out the `Parameters` Section
+    - Good option to setup here is the SSH config for your server maybe
+  - To access these, click on top right and go to `Home` and click on the connection
 
-      | Service     | Default access | Where                                                             | Server port                      |                Public facing port |
-      |-------------|----------------|-------------------------------------------------------------------|----------------------------------|-----------------------------------|
-      | ssh         | ssh            | `<LAN_IP>` or `<DOMAIN_NAME>`                                     |                               22 | `<IN_LINE_WITH_HOSTS_FILE_OR_22>` |
-      | samba       | proxy          | `\\<LAN_IP>\<SHARE_NAME>` or `\\<DOMAIN_NAME>\<SHARE_NAME>`       |   TCP: `139,445`, UDP: `137,138` |       `<BEST_NOT_TO_EXPOSE_THIS>` |
-      | squid       | proxy          | `<LAN_IP>:<GROUP_VARS_PORT>` or `<DOMAIN_NAME>:<GROUP_VARS_PORT>` |        `<IN_LINE_WITH_ALL_FILE>` |                    `<YOU_DECIDE>` |
-      | grafana     | Ingress        | `grafana.<DOMAIN_NAME>`                                           |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
-      | jellyfin    | Ingress        | `jellyfin.<DOMAIN_NAME>`                                          |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
-      | jellyseerr  | Ingress        | `jellyseerr.<DOMAIN_NAME>`                                        |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
-      | ombi        | Ingress        | `ombi.<DOMAIN_NAME>`                                              |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
-      | prowlarr    | Ingress        | `prowlarr.<DOMAIN_NAME>`                                          |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
-      | bazarr      | Ingress        | `bazarr.<DOMAIN_NAME>`                                            |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
-      | radarr      | Ingress        | `radarr.<DOMAIN_NAME>`                                            |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
-      | sonarr      | Ingress        | `sonarr.<DOMAIN_NAME>`                                            |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
-      | readarr     | Ingress        | `readarr.<DOMAIN_NAME>`                                           |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
-      | lidarr      | Ingress        | `lidarr.<DOMAIN_NAME>`                                            |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
-      | immich      | Ingress        | `immich.<DOMAIN_NAME>`                                            |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
-      | librespeed  | Ingress        | `librespeed.<DOMAIN_NAME>`                                        |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
-      | calibre-web | Ingress        | `calibre-web.<DOMAIN_NAME>`                                       |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
-      | calibre     | LAN            | `<LAN_IP>:30000` (No ingress rules defined)                       |                            30100 |       `<BEST_NOT_TO_EXPOSE_THIS>` |
+#### Setup Ombi
+- One stop shop for Sonarr/Radarr/Lidarr requests
+- Get the API keys for Jellyfin, Sonarr and Radarr
+  - Jellyfin
+    - Go to `Admin > Dashboard > API Keys`
+    - Generate a new API key with an appropriate name
+  - Sonarr/Radarr/Lidarr
+    - Use the API tokens from the respective services, found under `Settings > General > Security > API Key`
+- Set credentials for login
+- Go to `Settings`
+  - Use the correct API keys, hostnames and ports for the services
+      | Service Name | Port |
+      |--------------|------|
+      | jellyfin     | 8096 |
+      | sonarr       | 8989 |
+      | radarr       | 7878 |
+      | lidarr       | 8686 |
+  - Click on the `Load Profiles` and `Load Root Folders` buttons and use the appropriate defaults as used in the services seen [here](#setup-radarrsonarrreadarrlidarr).
+  - Setup `Movies` using `Radarr`
+  - Setup `TV` using `Sonarr`
+    - Enable the `Enable season folders` option
+    - Enable the `V3` option
+  - Setup `Music` using `Lidarr`
+  - Setup `Media Server` using `Jellyfin`
+  - **Dont forget to click on `Enable` for each of those setups as well**
+- Go to `Users`
+  - Setup additional users
+  - Give the following roles to *trusted* users for convinience
+    ```
+    Request Tv
+    Request Movie
+    Request Music
+    Auto Approve Tv
+    Auto Approve Movie
+    Auto Approve Music
+    ```
 
-      NOTE: Security is an unkown when exposing a service to the internet.
-    - If you cannot do NAT setup on your router and need the server to run ingress on 80 and 443, you can use this [post's answer](https://stackoverflow.com/questions/55907537/how-to-expose-kubernetes-service-on-prem-using-443-80) to run the ingress controller on host network
-      ```yaml
-        kind: ...
-        apiVersion: apps/v1
-        metadata:
-          name: nginx-ingress-controller
+#### Use Squid
+- Use the username and password from the `group_vars/all` file to use this as a proxy server
+- The address would be `<PUBLIC_IP>:<GROUP_VARS_PORT>` or `<DOMAIN_NAME>:<GROUP_VARS_PORT>` or `<LAN_IP>:<GROUP_VARS_PORT>`
+
+#### Use Sambashare
+- For external access:
+- To authenticate
+  - Thee username will be the `<ANSIBLE_USER>` you used in the `hosts.yaml` file
+  - The password will be in the `group_vars/all` file (`smb.password` section).
+- In Windows, connect to it using `\\<LAN_IP>\<SHARE_NAME_FROM_GROUP_VARS_ALL>`
+- More information [here](https://ubuntu.com/tutorials/install-and-configure-samba#4-setting-up-user-accounts-and-connecting-to-share)
+
+#### Exposed Services
+- You need to create DNS entries to access the Ingress services. The following entries are recommended:
+  - `*.<DOMAIN_NAME>`
+  - `<DOMAIN_NAME>`
+- Setup NAT-ing for the the following ports on your router to gain external access. On your router:
+  - Set a static IP for your server (if applicable) so the router doesnt assign a different IP to the machine breaking your port-forwarding setup
+  - Following are some sample rules based on the `all` file defaults for port forwarding, feel free to tweak to your needs.
+
+    | Service     | Default access | Where                                                             | Server port                      |                Public facing port |
+    |-------------|----------------|-------------------------------------------------------------------|----------------------------------|-----------------------------------|
+    | ssh         | ssh            | `<LAN_IP>` or `<DOMAIN_NAME>`                                     |                               22 | `<IN_LINE_WITH_HOSTS_FILE_OR_22>` |
+    | samba       | proxy          | `\\<LAN_IP>\<SHARE_NAME>` or `\\<DOMAIN_NAME>\<SHARE_NAME>`       |   TCP: `139,445`, UDP: `137,138` |       `<BEST_NOT_TO_EXPOSE_THIS>` |
+    | squid       | proxy          | `<LAN_IP>:<GROUP_VARS_PORT>` or `<DOMAIN_NAME>:<GROUP_VARS_PORT>` |        `<IN_LINE_WITH_ALL_FILE>` |                    `<YOU_DECIDE>` |
+    | grafana     | Ingress        | `grafana.<DOMAIN_NAME>`                                           |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
+    | jellyfin    | Ingress        | `jellyfin.<DOMAIN_NAME>`                                          |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
+    | jellyseerr  | Ingress        | `jellyseerr.<DOMAIN_NAME>`                                        |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
+    | ombi        | Ingress        | `ombi.<DOMAIN_NAME>`                                              |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
+    | prowlarr    | Ingress        | `prowlarr.<DOMAIN_NAME>`                                          |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
+    | bazarr      | Ingress        | `bazarr.<DOMAIN_NAME>`                                            |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
+    | radarr      | Ingress        | `radarr.<DOMAIN_NAME>`                                            |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
+    | sonarr      | Ingress        | `sonarr.<DOMAIN_NAME>`                                            |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
+    | readarr     | Ingress        | `readarr.<DOMAIN_NAME>`                                           |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
+    | lidarr      | Ingress        | `lidarr.<DOMAIN_NAME>`                                            |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
+    | immich      | Ingress        | `immich.<DOMAIN_NAME>`                                            |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
+    | librespeed  | Ingress        | `librespeed.<DOMAIN_NAME>`                                        |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
+    | calibre-web | Ingress        | `calibre-web.<DOMAIN_NAME>`                                       |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
+    | calibre     | LAN            | `<LAN_IP>:30000` (No ingress rules defined)                       |                            30100 |       `<BEST_NOT_TO_EXPOSE_THIS>` |
+
+    NOTE: Security is an unkown when exposing a service to the internet.
+- If you cannot do NAT setup on your router and need the server to run ingress on 80 and 443, you can use this [post's answer](https://stackoverflow.com/questions/55907537/how-to-expose-kubernetes-service-on-prem-using-443-80) to run the ingress controller on host network
+```yaml
+    kind: ...
+    apiVersion: apps/v1
+    metadata:
+    name: nginx-ingress-controller
+    spec:
+    ...
+    template:
         spec:
-          ...
-          template:
-            spec:
-              hostNetwork: true <---------- Add this
-              containers:
-                - name: nginx-ingress-lb
-                  image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.21.0
-                  ports:
-                    - name: http
-                      hostPort: 80 <---------- Add this
-                      containerPort: 80
-                      protocol: TCP
-                    - name: https
-                      hostPort: 443 <---------- Add this
-                      containerPort: 443
-                      protocol: TCP
-                ...
-      ```
+        hostNetwork: true <---------- Add this
+        containers:
+            - name: nginx-ingress-lb
+            image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.21.0
+            ports:
+                - name: http
+                hostPort: 80 <---------- Add this
+                containerPort: 80
+                protocol: TCP
+                - name: https
+                hostPort: 443 <---------- Add this
+                containerPort: 443
+                protocol: TCP
+            ...
+```
 # Appendix
 
 ## Kubernetes metrics server
