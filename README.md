@@ -232,6 +232,8 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   - Go to `Admin > Dashboard`
     - Restart Jellyfin (Shutdown server from the `Dashboard` and k8s will restart, or delete the pod)
 - Add any plugins you may want
+  - Visit [awesome-jellyfin](https://github.com/awesome-jellyfin/awesome-jellyfin) for ideas
+    - For example, for different UI themes go to the [themes page](https://github.com/awesome-jellyfin/awesome-jellyfin/blob/main/THEMES.md)
   - Open Subtitles
     - Requires creating an account on [their website](https://www.opensubtitles.com/)
   - [Intro skipper](https://github.com/intro-skipper/intro-skipper)
