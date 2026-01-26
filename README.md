@@ -251,6 +251,8 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
       - Follow onscreen instructions
     - Go to `Admin > Dashboard > Scheduled Tasks > Trackt`
       - Create a daily scheduled task for importing data from and exporting data to tract.tv
+  - [MyAnimeSync](https://github.com/iankiller77/MyAnimeSync)
+    - To sync anime with [MyAnimeList](https://myanimelist.net/)
 
 #### Setup qBittorrent
 - Default login credentials are randomly generated, you need to look at ansible logs to get the default login credentials.
