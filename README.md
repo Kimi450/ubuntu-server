@@ -348,7 +348,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
       - Block list
         - Copy paste the following
           ```
-          *.lnk, *.zipx, *sample.mkv, *sample.avi, *sample.mp4, *.py, * vbs, * htm, *.hm, *.php, *.torrent, *exe, * bat, *.cmd, *.com, *.cpl, *.dIl, *.js, *.jse, *.msi, *.msp, *.pif, * .scr, *.vbs, * vbe, *.wsf, *.wsh, *.hta, *.reg, * inf, *.ps1, *.ps2, *.psm1, *.psd1, *.sh, *.apk, *.app, *.iso, * imd, *.jar, *.bin, *.tmp, *.vb, *.vxd, *.OCx, * drv, *.sVS, *.scf, *.ade, *.adp, *.bas, *.chm, *.crt, *.hlp, *.ins, * isp, *.key, *.mda, *.mdb, *.mdt, * mdw, *.mdz, *.potm, *.potx, *.ppam, *.ppSx, *.pptm, *.sldm, *.sldx, *xlam, *.xlsb, * xlsm, * xtm, *.nsh, *.mht, *.mhtml, *.Zip, *.rar, *.Src, * 1Tami, *.1tami 
+          .lnk, .zipx, sample.mkv, sample.avi, sample.mp4, .py, vbs, htm, .hm, .php, .torrent, exe, bat, .cmd, .com, .cpl, .dIl, .js, .jse, .msi, .msp, .pif, .scr, .vbs, vbe, .wsf, .wsh, .hta, .reg, inf, .ps1, .ps2, .psm1, .psd1, .sh, .apk, .app, .iso, imd, .jar, .bin, .tmp, .vb, .vxd, .OCx, drv, .sVS, .scf, .ade, .adp, .bas, .chm, .crt, .hlp, .ins, isp, .key, .mda, .mdb, .mdt, mdw, .mdz, .potm, .potx, .ppam, .ppSx, .pptm, .sldm, .sldx, xlam, .xlsb, xlsm, xtm, .nsh, .mht, .mhtml, .Zip, .rar, .Src, 1Tami, .1tami 
           ```
   - **[EXPERIMENTAL]** Enforce downloads of original language media only
     - Go to `Settings > Custom Formats`
