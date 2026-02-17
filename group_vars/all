@@ -389,7 +389,7 @@ charts:
           memory: "6000M"
 
     # movie and show interface
-    jellyseerr:
+    seerr:
       enabled: false
       version: "latest" # specify a version to not install the latest version
       resources:

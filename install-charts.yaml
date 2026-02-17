@@ -1088,26 +1088,26 @@
             ombi. If need be, delete any existing server and go to the
             URL mention above once again to setup a new server.
 
-    - name: Install jellyseerr
-      when: charts.services.jellyseerr.enabled
+    - name: Install seerr
+      when: charts.services.seerr.enabled
       block:
-      - name: Create config directory on hostpath for jellyseerr
+      - name: Create config directory on hostpath for seerr
         file:
-          path: "{{ charts.services.configs_dir }}/jellyseerr"
+          path: "{{ charts.services.configs_dir }}/seerr"
           state: directory
           mode: '0777'
         become: true
 
-      - name: Install/Upgrade the jellyseerr chart
+      - name: Install/Upgrade the seerr chart
         include_tasks: tasks-install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
           timeout: "{{ charts.timeout }}"
-          release_name: jellyseerr
-          chart_name: jellyseerr
-          version: "{{ charts.services.jellyseerr.version }}"
+          release_name: seerr
+          chart_name: seerr
+          version: "{{ charts.services.seerr.version }}"
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
@@ -1115,17 +1115,17 @@
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.jellyseerr.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.jellyseerr.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/jellyseerr,\
-            ingress.main.hosts[0].host='jellyseerr.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=jellyseerr,\
+            resources.limits.cpu={{ charts.services.seerr.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.seerr.resources.limits.memory }},\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/seerr,\
+            ingress.main.hosts[0].host='seerr.{{ domain_name }}',\
+            ingress.main.hosts[0].paths[0].service.name=seerr,\
             ingress.main.hosts[0].paths[0].service.port=5055"
       - debug:
           msg: >
-            You can log into jellyseerr at 'jellyseerr.{{ domain_name }}'.
+            You can log into seerr at 'seerr.{{ domain_name }}'.
             Data directories are available under '/mnt-data' and can be used by
-            jellyseerr. If need be, delete any existing server and go to the
+            seerr. If need be, delete any existing server and go to the
             URL mention above once again to setup a new server.
 
     - name: Install librespeed

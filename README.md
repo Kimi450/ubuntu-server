@@ -29,7 +29,7 @@ Highly opinionated server setup to cater to my needs
       - [Setup Prowlarr](#setup-prowlarr)
       - [Setup Bazarr](#setup-bazarr)
       - [Setup Tdarr](#setup-tdarr)
-      - [Setup Jellyseerr](#setup-jellyseerr)
+      - [Setup Seerr](#setup-seerr)
       - [Setup Jellystat](#setup-jellystat)
       - [Setup Immich](#setup-immich)
       - [Setup Guacamole](#setup-guacamole)
@@ -490,7 +490,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     - To make it work, the first step would be to go to the `Tdarr` tab, go to the relevant nodes (like `Internal Node`) and enable `Allow GPU workers to do CPU tasks`. Then `Restart` the nodes at the top of that view.
     - TBD (figure out GPU passthrough for Tdarr)
 
-#### Setup Jellyseerr
+#### Setup Seerr
 - One stop shop for Sonarr/Radarr requests
 - Run the first time setup for Jellyfin
   - `Choose Server Type`
@@ -632,7 +632,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     | squid       | proxy          | `<LAN_IP>:<GROUP_VARS_PORT>` or `<DOMAIN_NAME>:<GROUP_VARS_PORT>` |        `<IN_LINE_WITH_ALL_FILE>` |                    `<YOU_DECIDE>` |
     | grafana     | Ingress        | `grafana.<DOMAIN_NAME>`                                           |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
     | jellyfin    | Ingress        | `jellyfin.<DOMAIN_NAME>`                                          |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
-    | jellyseerr  | Ingress        | `jellyseerr.<DOMAIN_NAME>`                                        |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
+    | seerr  | Ingress        | `seerr.<DOMAIN_NAME>`                                        |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
     | ombi        | Ingress        | `ombi.<DOMAIN_NAME>`                                              |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
     | prowlarr    | Ingress        | `prowlarr.<DOMAIN_NAME>`                                          |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
     | bazarr      | Ingress        | `bazarr.<DOMAIN_NAME>`                                            |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
