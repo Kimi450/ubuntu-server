@@ -791,9 +791,9 @@ sudo rm /etc/kubernetes/pki/apiserver.*
 
 # regenerate certs
 sudo kubeadm init phase certs apiserver \
-  --apiserver-advertise-address=192.168.0.8 \
-  --apiserver-cert-extra-sans=192.168.0.8,pedroops,PedroOps \
-  --control-plane-endpoint=192.168.0.8
+  --apiserver-advertise-address=<NEW_IP> \
+  --apiserver-cert-extra-sans=<NEW_IP>,<HOSTNAMES_AS_CSV> \
+  --control-plane-endpoint=<NEW_IP>
 
 # restart pods
 sudo systemctl restart kubelet
