@@ -798,6 +798,9 @@ sudo kubeadm init phase certs apiserver \
 # restart pods
 sudo systemctl restart kubelet
 
+# copy over kubeconfig
+sudo cp /etc/kubernetes/admin.conf  ~/.kube/config
+
 # test
 sudo kubectl cluster-info
 sudo kubectl get nodes
