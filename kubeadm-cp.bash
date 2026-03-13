@@ -350,14 +350,14 @@ setup_kubeconfig() {
 # ==================== Setup Container networking Interface ========================
 
 #######################################
-# Install cillium CLI tool
+# Install cilium CLI tool
 # Arguments:
 #   None
 # Returns:
 #   None
 #######################################
 install_cilium_cli() {
-    log "installing cilliumcli"
+    log "installing ciliumcli"
 
     CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
     if [ "$(uname -m)" = "aarch64" ]; then ARCH=arm64; fi
@@ -368,32 +368,32 @@ install_cilium_cli() {
 }
 
 #######################################
-# Install cillium
+# Install cilium
 # Arguments:
 #   None
 # Returns:
 #   None
 #######################################
 install_cilium() {
-    log "installing cillium"
-    cilium install --version 1.18.2
+    log "installing cilium"
+    cilium install --version 1.18.2  --set k8sServiceHost=$(hostname -I | awk '{print $1}'),k8sServicePort=6443
 }
 
 #######################################
-# Setup cillium
+# Setup cilium
 # Arguments:
 #   None
 # Returns:
 #   None
 #######################################
 setup_cilium() {
-    log "setting up cillium"
+    log "setting up cilium"
     install_cilium_cli
     install_cilium
 }
 
 #######################################
-# Setup cillium
+# Setup cilium
 # Arguments:
 #   None
 # Returns:
@@ -446,7 +446,7 @@ kubeadm_setup_cp() {
     kubeadm_init
     install_kubectl
     setup_kubeconfig
-    setup_cilium
+    setup_cni
 
     untaint_control_plane
 }
