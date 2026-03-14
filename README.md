@@ -202,7 +202,9 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   - To add zigbee support to your home assistant backed server, you can buy the [Home Assistant Connect ZBT-1](https://www.home-assistant.io/connectzbt1/)
 - Follow onscreen instruction to create an account
 - Getting started information is present on the [home-assistant website](https://www.home-assistant.io/getting-started/)
-
+  - https://www.home-assistant.io/integrations/thread/#about-thread-border-routers
+  - https://www.home-assistant.io/integrations/thread/#turning-home-assistant-into-a-thread-border-router
+  - https://www.home-assistant.io/integrations/matter/#adding-a-matter-device-to-home-assistant
 #### Setup Jellyfin
 - Initial setup is just following on-screen instructions.
   - If asked to select server, delete it and refresh the page.
@@ -348,7 +350,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
       - Block list
         - Copy paste the following
           ```
-          .lnk, .zipx, sample.mkv, sample.avi, sample.mp4, .py, vbs, htm, .hm, .php, .torrent, exe, bat, .cmd, .com, .cpl, .dIl, .js, .jse, .msi, .msp, .pif, .scr, .vbs, vbe, .wsf, .wsh, .hta, .reg, inf, .ps1, .ps2, .psm1, .psd1, .sh, .apk, .app, .iso, imd, .jar, .bin, .tmp, .vb, .vxd, .OCx, drv, .sVS, .scf, .ade, .adp, .bas, .chm, .crt, .hlp, .ins, isp, .key, .mda, .mdb, .mdt, mdw, .mdz, .potm, .potx, .ppam, .ppSx, .pptm, .sldm, .sldx, xlam, .xlsb, xlsm, xtm, .nsh, .mht, .mhtml, .Zip, .rar, .Src, 1Tami, .1tami 
+          .lnk, .zipx, sample.mkv, sample.avi, sample.mp4, .py, vbs, htm, .hm, .php, .torrent, exe, bat, .cmd, .com, .cpl, .dIl, .js, .jse, .msi, .msp, .pif, .scr, .vbs, vbe, .wsf, .wsh, .hta, .reg, inf, .ps1, .ps2, .psm1, .psd1, .sh, .apk, .app, .iso, imd, .jar, .bin, .tmp, .vb, .vxd, .OCx, drv, .sVS, .scf, .ade, .adp, .bas, .chm, .crt, .hlp, .ins, isp, .key, .mda, .mdb, .mdt, mdw, .mdz, .potm, .potx, .ppam, .ppSx, .pptm, .sldm, .sldx, xlam, .xlsb, xlsm, xtm, .nsh, .mht, .mhtml, .Zip, .rar, .Src, 1Tami, .1tami
           ```
   - **[EXPERIMENTAL]** Enforce downloads of original language media only
     - Go to `Settings > Custom Formats`
@@ -774,6 +776,8 @@ sudo grep -R "192.168" /etc/kubernetes/*.conf
 
 sudo sed -i 's/<OLD_IP>/<NEW_IP>/g' /etc/kubernetes/manifests/etcd.yaml
 sudo grep -E 'listen-|advertise|initial-cluster|initial-advertise' /etc/kubernetes/manifests/etcd.yaml
+sudo sed -i 's/<OLD_IP>/<NEW_IP>/g' /etc/kubernetes/manifests/kube-apiserver.yaml
+sudo grep -E 'listen-|advertise|initial-cluster|initial-advertise' /etc/kubernetes/manifests/kube-apiserver.yaml
 ```
 
 ```bash
@@ -792,7 +796,7 @@ sudo rm /etc/kubernetes/pki/apiserver.*
 # regenerate certs
 sudo kubeadm init phase certs apiserver \
   --apiserver-advertise-address=<NEW_IP> \
-  --apiserver-cert-extra-sans=<NEW_IP>,<HOSTNAMES_AS_CSV> \
+  --apiserver-cert-extra-sans=<NEW_IP>,home-main,<OTHER_HOSTNAMES_IN_CSV_FORM> \
   --control-plane-endpoint=<NEW_IP>
 
 # restart pods
