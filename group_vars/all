@@ -151,6 +151,11 @@ charts:
       enabled: false
       version: "latest" # specify a version to not install the latest version
 
+      # Nodeports to setup on your machine which you need to forward
+      # on your router
+      http_nodeport: 30080
+      https_nodeport: 30443
+
     # manager for tls certs
     cert_manager:
       enabled: false

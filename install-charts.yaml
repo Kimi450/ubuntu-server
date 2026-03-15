@@ -229,8 +229,8 @@
           set_options: "--set \
             controller.config.proxy-body-size=0,\
             controller.service.type=NodePort,\
-            controller.service.nodePorts.http=30080,\
-            controller.service.nodePorts.https=30443,\
+            controller.service.nodePorts.http={{ charts.services.ingress_nginx.http_nodeport }},\
+            controller.service.nodePorts.https={{ charts.services.ingress_nginx.https_nodeport }},\
             controller.service.externalTrafficPolicy=Local"
 
     - name: Install cert-manager
