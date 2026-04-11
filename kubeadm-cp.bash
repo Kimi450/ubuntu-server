@@ -376,7 +376,7 @@ install_cilium_cli() {
 #######################################
 install_cilium() {
     log "installing cilium"
-    cilium install --version 1.18.2  --set k8sServiceHost=$(hostname -I | awk '{print $1}'),k8sServicePort=6443,nodePort.enabled=true
+    cilium install --version 1.18.2
 }
 
 #######################################

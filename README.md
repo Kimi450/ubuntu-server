@@ -819,12 +819,19 @@ kubectl get endpoints -A
 If not, you may need to reinstall the CNI (like cilium) too. Example:
 ```bash
 cilium uninstall
+kubectl delete namespace cilium-secrets --force
 kubectl get namespace cilium-secrets -o json |   jq '.spec.finalizers = []' |   kubectl replace --raw "/api/v1/namespaces/cilium-secrets/finalize" -f -
-cilium install --version 1.18.2  --set k8sServiceHost=$(hostname -I | awk '{print $1}'),k8sServicePort=6443,nodePort.enabled=true
+cilium install --version 1.18.2 # check kubeadm-cp.bash
 ```
 
 Verify that all the endpoints are set correctly to the new IP.
 
 ```bash
 kubectl get endpoints -A
+```
+
+You may need to update kube-proxy to point to the new IP.
+```bash
+kubectl get cm -n kube-system kube-proxy -o yaml | sed 's|https://<OLD_IP>:6443|https://<NEW_IP>:6443|g' | kubectl apply -f -
+kubectl delete pod -n kube-system -l k8s-app=kube-proxy
 ```
