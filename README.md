@@ -199,12 +199,26 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
 
 #### Setup Home Assistant
 - Portal for adding and monitoring home automation devices (like Zigbee or Thread devices)
-  - To add zigbee support to your home assistant backed server, you can buy the [Home Assistant Connect ZBT-1](https://www.home-assistant.io/connectzbt1/)
-- Follow onscreen instruction to create an account
+  - To add zigbee/thread support to your home assistant backed server, you can buy the [Home Assistant Connect ZBT-1](https://www.home-assistant.io/connectzbt1/)
+- Follow onscreen instructions to create an account
 - Getting started information is present on the [home-assistant website](https://www.home-assistant.io/getting-started/)
   - https://www.home-assistant.io/integrations/thread/#about-thread-border-routers
   - https://www.home-assistant.io/integrations/thread/#turning-home-assistant-into-a-thread-border-router
   - https://www.home-assistant.io/integrations/matter/#adding-a-matter-device-to-home-assistant
+
+##### Basic guide to setup Matter over Thread
+- Make sure the thread enabled radio device is connected to the server
+- Run the automation with `otbr.*` config set correctly
+- Log into home-assistant and perform on-screen setup
+- Add relevant compatible devices from `Settings -> Devices & Services`
+  - Home Assitant Connect ZBT-1
+    - Select `Use as Thread Adapter`
+  - Thread
+    - Go to Config and verify that a Thread Network is available
+  - Matter
+    - Submit the default URL you see there `ws://localhost:5580/ws`
+    - Add devices as needed (you will need to use your phone to do so)
+
 #### Setup Jellyfin
 - Initial setup is just following on-screen instructions.
   - If asked to select server, delete it and refresh the page.

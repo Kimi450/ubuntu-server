@@ -563,6 +563,8 @@
             resources.limits.cpu={{ charts.services.home_assistant.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.home_assistant.resources.limits.memory }},\
             homeassistant.trusted_proxies[0]='10.0.0.0/8',\
+            podOptions.hostNetwork=true,\
+            podOptions.dnsPolicy=ClusterFirstWithHostNet,\
             ingress.main.hosts[0].host='home-assistant.{{ domain_name }}',\
             ingress.main.hosts[0].paths[0].service.name=home-assistant,\
             ingress.main.hosts[0].paths[0].service.port=8123"

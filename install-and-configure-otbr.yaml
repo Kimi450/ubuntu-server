@@ -1,0 +1,94 @@
+---
+- name: Install and configure OpenThread Border Router
+  hosts: all
+  gather_facts: True
+  tasks:
+  - name: Native install
+    # https://openthread.io/guides/border-router/build-native
+    block:
+    - name: install dependencies
+      become: true
+      apt:
+        pkg: "{{ item }}"
+        state: latest
+      ignore_errors: yes
+      loop:
+        - git
+        - tee
+
+    - name: Setup Open Thread Border Router
+      block:
+        - name: Create device link
+          become: true
+          # OTBR looks at this path so
+          # create a symlink to it with the relevant device
+          shell: |
+            ln -fs {{ otbr.device_location }} /dev/ttyACM0
+
+        - name: Clone OTBR
+          # https://openthread.io/guides/border-router/build-native
+          shell: |
+            rm -rf  {{ otbr_repo_dir }}
+            git clone --depth=1 https://github.com/openthread/ot-br-posix {{ otbr_repo_dir }}
+        - name: Setup OTBR
+          # https://openthread.io/guides/border-router/build-native
+          become: true
+          shell: |
+            cd {{ otbr_repo_dir }}
+            ./script/bootstrap | tee {{ otbr_repo_dir }}/bootstrap-logs
+            INFRA_IF_NAME={{ otbr.infra_if_name }} ./script/setup | tee {{ otbr_repo_dir }}/setup-logs
+
+        - name: Setup OTBR web port to 8080
+          become: true
+          shell: |
+            echo 'OTBR_WEB_OPTS="-I 0.0.0.0 -p 8080"' > /etc/default/otbr-web
+
+        - name: Start OTBR services
+          become: true
+          shell: |
+            {{ otbr_repo_dir }}/script/server | tee {{ otbr_repo_dir }}/server-logs
+
+        - name: create network if one doesnt exist
+          # https://openthread.io/guides/border-router/form-network
+          become: true
+          shell: |
+            EC=$(ot-ctl dataset | grep -q Network && echo 0 || echo 1)
+            if [[ ${EC} -eq 0 ]]; then echo Dataset exists; exit 0; fi
+
+            ot-ctl dataset init new
+            ot-ctl dataset
+            ot-ctl dataset commit active
+
+        - name: check ifconfig
+          shell: |
+            ifconfig wpan0
+
+        - name: run matter server as a stateful set
+          # hostNetwork is true because HA and OTBR are on host network too
+          shell: |
+            kubectl apply -f - <<EOF
+              apiVersion: apps/v1
+              kind: StatefulSet
+              metadata:
+                name: matter-server
+              spec:
+                replicas: 1
+                selector:
+                  matchLabels:
+                    app: matter-server
+                template:
+                  metadata:
+                    labels:
+                      app: matter-server
+                  spec:
+                    hostNetwork: true
+                    containers:
+                      - name: matter-server
+                        image: ghcr.io/home-assistant-libs/python-matter-server:stable
+                        ports:
+                          - containerPort: 5580
+            EOF
+
+    vars:
+      otbr_repo_dir: "{{ basics.repos_dir }}/otbr"
+
