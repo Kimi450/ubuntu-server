@@ -131,9 +131,8 @@ otbr:
   # Run ifconfig on the server and see which interface has the IP you care about
   infra_if_name: enp6s0
 
-  # the location at which your radio device is located
-  device_location: /dev/ttyUSB0
-
+  # the location at which your radio co-processor (rcp) device is located
+  rcp_location: /dev/ttyUSB0
 
 # =================== Select what charts you wish to install ===================
 charts:

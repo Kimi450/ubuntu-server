@@ -18,13 +18,6 @@
 
     - name: Setup Open Thread Border Router
       block:
-        - name: Create device link
-          become: true
-          # OTBR looks at this path so
-          # create a symlink to it with the relevant device
-          shell: |
-            ln -fs {{ otbr.device_location }} /dev/ttyACM0
-
         - name: Clone OTBR
           # https://openthread.io/guides/border-router/build-native
           shell: |
@@ -42,6 +35,11 @@
           become: true
           shell: |
             echo 'OTBR_WEB_OPTS="-I 0.0.0.0 -p 8080"' > /etc/default/otbr-web
+
+        - name: "Patch config to use correct Radio Co-Processor (RCP) device from the default {{ default_rcp_location }}"
+          become: true
+          shell: |
+            sed -i s:{{ default_rcp_location }}:{{ otbr.rcp_location }}:g /etc/default/otbr-agent
 
         - name: Start OTBR services
           become: true
@@ -91,4 +89,5 @@
 
     vars:
       otbr_repo_dir: "{{ basics.repos_dir }}/otbr"
+      default_rcp_location: "/dev/ttyACM0"
 
