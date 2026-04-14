@@ -39,7 +39,17 @@
         - name: "Patch config to use correct Radio Co-Processor (RCP) device from the default {{ default_rcp_location }}"
           become: true
           shell: |
-            sed -i s:{{ default_rcp_location }}:{{ otbr.rcp_location }}:g /etc/default/otbr-agent
+            # create a rule to have the relevant device always created as /dev/ttyRCP
+            ID_VENDOR=$(udevadm info -n {{ otbr.rcp_location }} | egrep -e 'ID_VENDOR_ID' | head | cut -d = -f 2)
+            ID_MODEL=$(udevadm info -n {{ otbr.rcp_location }} | egrep -e 'ID_MODEL_ID' | head | cut -d = -f 2)
+            ID_SERIAL=$(udevadm info -n {{ otbr.rcp_location }} | egrep -e 'ID_SERIAL_SHORT' | head | cut -d = -f 2)
+            echo SUBSYSTEM==\"tty\", ATTRS{idVendor}==\"${ID_VENDOR}\", ATTRS{idProduct}==\"${ID_MODEL}\", ATTRS{serial}==\"${ID_SERIAL}\", SYMLINK+=\"ttyRCP\" > /etc/udev/rules.d/99-rcp.rules
+
+            udevadm control --reload-rules
+            udevadm trigger
+
+            # make OTBR use /dev/ttyRCP
+            sed -i s:{{ default_rcp_location }}:/dev/ttyRCP:g /etc/default/otbr-agent
 
         - name: Start OTBR services
           become: true
@@ -48,6 +58,7 @@
 
         - name: create network if one doesnt exist
           # https://openthread.io/guides/border-router/form-network
+          # https://github.com/Kimi450/ubuntu-server/issues/44
           become: true
           shell: |
             EC=$(ot-ctl dataset | grep -q Network && echo 0 || echo 1)
@@ -60,6 +71,13 @@
         - name: check ifconfig
           shell: |
             ifconfig wpan0
+
+        - name: Create config directory on hostpath for python-matter-server
+          file:
+            path: "{{ charts.services.configs_dir }}/matter-server"
+            state: directory
+            mode: '0777'
+          become: true
 
         - name: run matter server as a stateful set
           # hostNetwork is true because HA and OTBR are on host network too
@@ -80,11 +98,20 @@
                       app: matter-server
                   spec:
                     hostNetwork: true
+                    dnsPolicy: ClusterFirstWithHostNet
                     containers:
                       - name: matter-server
                         image: ghcr.io/home-assistant-libs/python-matter-server:stable
                         ports:
                           - containerPort: 5580
+                        volumeMounts:
+                          - mountPath: /data
+                            name: data
+                    volumes:
+                      - hostPath:
+                          path: {{ charts.services.configs_dir }}/matter-server
+                          type: ""
+                        name: data
             EOF
 
     vars:
