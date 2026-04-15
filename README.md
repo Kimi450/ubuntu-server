@@ -205,6 +205,15 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   - https://www.home-assistant.io/integrations/thread/#about-thread-border-routers
   - https://www.home-assistant.io/integrations/thread/#turning-home-assistant-into-a-thread-border-router
   - https://www.home-assistant.io/integrations/matter/#adding-a-matter-device-to-home-assistant
+- Some good integrations
+  - [HACS](https://hacs.xyz/)
+  - SmartThings
+  - Speedtest.net
+  - Matter
+  - Radarr
+  - Sonarr
+  - Jellyfin
+  - Thread
 
 ##### Basic guide to setup Matter over Thread
 - Make sure the thread enabled radio device is connected to the server
