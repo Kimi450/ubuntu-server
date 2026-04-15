@@ -15,13 +15,13 @@
   when:
     - basics.enabled
 
-- import_playbook: install-and-configure-otbr.yaml
-  when:
-    - otbr.enabled
-
 - import_playbook: install-kubernetes.yaml
   when:
     - kubespray.enabled or kubeadm.enabled
+
+- import_playbook: install-and-configure-otbr.yaml
+  when:
+    - otbr.enabled
 
 - import_playbook: install-charts.yaml
   vars:
