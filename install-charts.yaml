@@ -535,6 +535,13 @@
     - name: Install home-assistant
       when: charts.services.home_assistant.enabled
       block:
+      - name: Create config directory on hostpath for home-assistant
+        file:
+          path: "{{ charts.services.configs_dir }}/home-assistant"
+          state: directory
+          mode: '0777'
+        become: true
+
       - name: Install/Upgrade the home-assistant chart
         include_tasks: tasks-install-chart.yaml
         vars:
@@ -552,10 +559,11 @@
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
-            {{ helm_common_persistence_downloads }}\
+            {{ helm_common_persistence_config }},\
             {{ helm_common_ingress }},\
             {{ helm_common_resources}},\
             securityContext.container.privileged=true,\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/home-assistant,\
             persistence.dev.enabled=true,\
             persistence.dev.type=hostPath,\
             persistence.dev.mountPath=/dev,\
