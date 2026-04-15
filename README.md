@@ -207,6 +207,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   - https://www.home-assistant.io/integrations/matter/#adding-a-matter-device-to-home-assistant
 - Some good integrations
   - [HACS](https://hacs.xyz/)
+    - [Places](https://github.com/custom-components/places)
   - SmartThings
   - Speedtest.net
   - Matter
