@@ -16,7 +16,6 @@
       ignore_errors: yes
       loop:
         - git
-        - tee
 
     - name: Setup Open Thread Border Router
       block:
