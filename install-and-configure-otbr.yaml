@@ -21,6 +21,7 @@
       block:
         - name: Clone OTBR
           # https://openthread.io/guides/border-router/build-native
+          become: true
           shell: |
             rm -rf  {{ otbr_repo_dir }}
             git clone --depth=1 https://github.com/openthread/ot-br-posix {{ otbr_repo_dir }}
