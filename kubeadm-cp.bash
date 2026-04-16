@@ -416,8 +416,8 @@ setup_cni() {
 #######################################
 untaint_control_plane() {
     log "removing taint from control plane node"
-    local hostname=$(hostname)
-    kubectl taint nodes $(hostname) node-role.kubernetes.io/control-plane-
+    local local_hostname=$(hostname | tr '[:upper:]' '[:lower:]')
+    kubectl taint nodes ${local_hostname} node-role.kubernetes.io/control-plane-
 }
 
 # ==================== Setup kubeadm commands ========================
@@ -488,7 +488,7 @@ kubeadm_worker_join() {
     eval ${cmd}
 
     log "add taint back to control plane node"
-    local remote_hostname=$(sshpass -p ${cp_node_password} ssh -o stricthostkeychecking=no ${cp_node_username}@${cp_node_ip} hostname)
+    local remote_hostname=$(sshpass -p ${cp_node_password} ssh -o stricthostkeychecking=no ${cp_node_username}@${cp_node_ip} hostname | tr '[:upper:]' '[:lower:]')
     sshpass -p ${cp_node_password} ssh -o stricthostkeychecking=no ${cp_node_username}@${cp_node_ip} kubectl taint nodes ${remote_hostname} node-role.kubernetes.io/control-plane:NoSchedule --overwrite
 }
 
@@ -507,11 +507,11 @@ remove_node() {
     local cp_node_ip=${1}
     local cp_node_username=${2}
     local cp_node_password=${3}
-    local host=$(hostname)
+    local host=$(hostname | tr '[:upper:]' '[:lower:]')
 
     sshpass -p ${cp_node_password} ssh -o stricthostkeychecking=no ${cp_node_username}@${cp_node_ip} kubectl delete node --ignore-not-found ${host}
 
-    local remote_hostname=$(sshpass -p ${cp_node_password} ssh -o stricthostkeychecking=no ${cp_node_username}@${cp_node_ip} hostname)
+    local remote_hostname=$(sshpass -p ${cp_node_password} ssh -o stricthostkeychecking=no ${cp_node_username}@${cp_node_ip} hostname | tr '[:upper:]' '[:lower:]') 
     sshpass -p ${cp_node_password} ssh -o stricthostkeychecking=no ${cp_node_username}@${cp_node_ip} kubectl taint nodes ${remote_hostname} node-role.kubernetes.io/control-plane-
 }
 
