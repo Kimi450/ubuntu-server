@@ -205,6 +205,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   - https://www.home-assistant.io/integrations/thread/#about-thread-border-routers
   - https://www.home-assistant.io/integrations/thread/#turning-home-assistant-into-a-thread-border-router
   - https://www.home-assistant.io/integrations/matter/#adding-a-matter-device-to-home-assistant
+  - https://support.nabucasa.com/hc/en-us/articles/30589636469533-Forming-a-new-Thread-network-with-Home-Assistant-Connect-ZBT-1
 - Some good integrations
   - [HACS](https://hacs.xyz/)
     - [Places](https://github.com/custom-components/places)
@@ -223,11 +224,18 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
 - Add relevant compatible devices from `Settings -> Devices & Services`
   - Home Assitant Connect ZBT-1
     - Select `Use as Thread Adapter`
+  - Install the  `OpenThread Border Router` [integration](https://www.home-assistant.io/integrations/otbr/)
+    - Use `http://<MACHINE_IP>:8081` as the URL
   - Thread
     - Go to Config and verify that a Thread Network is available
   - Matter
     - Submit the default URL you see there `ws://localhost:5580/ws`
     - Add devices as needed (you will need to use your phone to do so)
+  - If you keep connecting to a network that is not the OpenThread Border Router you configured, it is because of probably Google Play Services storing information and redirecting it and you need to clear the data for this app (or just accept and use those devices as the border router). Refer to these threads
+    - https://github.com/Kimi450/ubuntu-server/issues/46
+    - https://community.home-assistant.io/t/solved-how-to-change-the-preferred-network-on-my-android-phone/876923/14
+    - https://community.home-assistant.io/t/new-never-paired-thread-device-tries-to-commission-to-non-existent-nest-pan-network-instead-of-ha-thread-network/988578
+    - https://github.com/home-assistant/android/issues/4146
 
 #### Setup Jellyfin
 - Initial setup is just following on-screen instructions.

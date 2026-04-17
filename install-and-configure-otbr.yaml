@@ -33,6 +33,11 @@
             ./script/bootstrap | tee {{ otbr_repo_dir }}/bootstrap-logs
             INFRA_IF_NAME={{ otbr.infra_if_name }} ./script/setup | tee {{ otbr_repo_dir }}/setup-logs
 
+        - name: Setup OTBR agent to listen on 0.0.0.0
+          become: true
+          shell: |
+            grep -q "\-\-rest\-listen\-address" /etc/default/otbr-agent || sudo sed -i 's/OTBR_AGENT_OPTS="/&--rest-listen-address 0.0.0.0 /' /etc/default/otbr-agent
+
         - name: Setup OTBR web port to 8080
           become: true
           shell: |
