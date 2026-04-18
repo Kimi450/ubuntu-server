@@ -236,18 +236,21 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     - Submit the default URL you see there `ws://localhost:5580/ws`
   - On your phone in the home assistant app, go to `Settings > Companion App > Troubleshooting` and run `Sync Thread Credential`
   - Add devices as needed (you will need to use your phone to do so)
-  - If the radio device (ZBT-1) keeps showing up as a new device after every restart, you can `Ignore` it. It should be working fine
-  - If you keep connecting to a network that is not the OpenThread Border Router you configured, it is because of probably Google Play Services storing information and redirecting it and you need to clear the data for this app (or just accept and use those devices as the border router). Refer to these threads
-    - https://github.com/Kimi450/ubuntu-server/issues/46
-    - https://community.home-assistant.io/t/solved-how-to-change-the-preferred-network-on-my-android-phone/876923/14
-    - https://community.home-assistant.io/t/new-never-paired-thread-device-tries-to-commission-to-non-existent-nest-pan-network-instead-of-ha-thread-network/988578
-    - https://github.com/home-assistant/android/issues/4146
-    - The desired outcome on an Andorid device is that you go to `Settings > Google > All Services > Thread Networks` and see your network as an `Available Network` there.
-  - If you see a `Something went wrong` Error when trying to add matter devices via the Home Assistant app, you may need to try to add the device by just scanning the QR code via the camera or from the `Settings > Google > All Service > Matter Devices` workflow which will then hand over the device to Home Assistant.
-    - https://www.reddit.com/r/homeassistant/comments/1pkx1kv/something_went_wrong/
-    - https://github.com/matter-js/python-matter-server/issues/463
-
-  - Good troubleshooting commands
+  - **Troubleshooting**:
+    - If you need to create a new network, provide a different networkkey, extpandid and name.
+      - I am not sure how to save/recover one but the dataset is persisted in `<CONFIG_DIR>/otbr-agent`
+      - check `install-and-configure-otbr.yaml`
+    - If the radio device (ZBT-1) keeps showing up as a new device after every restart, you can `Ignore` it. It should be working fine
+    - If you keep connecting to a network that is not the OpenThread Border Router you configured, it is because of probably Google Play Services storing information and redirecting it and you need to clear the data for this app (or just accept and use those devices as the border router). Refer to these threads
+      - https://github.com/Kimi450/ubuntu-server/issues/46
+      - https://community.home-assistant.io/t/solved-how-to-change-the-preferred-network-on-my-android-phone/876923/14
+      - https://community.home-assistant.io/t/new-never-paired-thread-device-tries-to-commission-to-non-existent-nest-pan-network-instead-of-ha-thread-network/988578
+      - https://github.com/home-assistant/android/issues/4146
+      - The desired outcome on an Andorid device is that you go to `Settings > Google > All Services > Thread Networks` and see your network as an `Available Network` there.
+    - If you see a `Something went wrong` Error when trying to add matter devices via the Home Assistant app, you may need to try to add the device by just scanning the QR code via the camera or from the `Settings > Google > All Service > Matter Devices` workflow which will then hand over the device to Home Assistant.
+      - https://www.reddit.com/r/homeassistant/comments/1pkx1kv/something_went_wrong/
+      - https://github.com/matter-js/python-matter-server/issues/463
+  - **Useful troubleshooting tricks**
     - Try to see if the border router has the device's MAC ID in any of these (lookup semantics online)
       ```bash
       sudo ot-ctl child table

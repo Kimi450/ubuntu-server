@@ -135,6 +135,8 @@ otbr:
   rcp_location: /dev/ttyUSB0
 
   # openthread border router network settings
+  # provide a different networkkey, extpandid and name to create a
+  # new network (all 3)
   networkname: "HomeNetwork"
   networkkey: "c0dedda7ac0dedda7ac0dedda7a00001" # 32 characters of a-e and 0-9
   extpanid: "c0dedda7a1d00001" # 16 characters of a-e and 0-9

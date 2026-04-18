@@ -38,6 +38,11 @@
           shell: |
             grep -q "\-\-rest\-listen\-address" /etc/default/otbr-agent || sudo sed -i 's/OTBR_AGENT_OPTS="/&--rest-listen-address 0.0.0.0 /' /etc/default/otbr-agent
 
+        - name: Setup OTBR agent to have persistent data storage in {{ config_path }}
+          become: true
+          shell: |
+            grep -q "\-\-data\-path" /etc/default/otbr-agent || sudo sed -i 's/OTBR_AGENT_OPTS="/&--data-path {{ config_path }} /' /etc/default/otbr-agent
+
         - name: Setup OTBR web port to 8080
           become: true
           shell: |
@@ -167,4 +172,4 @@
     vars:
       otbr_repo_dir: "{{ basics.repos_dir }}/otbr"
       default_rcp_location: "/dev/ttyACM0"
-
+      config_path: "{{ charts.services.configs_dir }}/otbr-agent"
