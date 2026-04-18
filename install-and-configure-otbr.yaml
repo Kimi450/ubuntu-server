@@ -68,12 +68,54 @@
           # https://github.com/Kimi450/ubuntu-server/issues/44
           become: true
           shell: |
-            EC=$(ot-ctl dataset | grep -q Network && echo 0 || echo 1)
+            set -ex
+            EC=$(ot-ctl dataset active | grep -q Network && echo 0 || echo 1)
             if [[ ${EC} -eq 0 ]]; then echo Dataset exists; exit 0; fi
 
             ot-ctl dataset init new
+
+            # It is the symmetric key used for all encryption.
+            # 32 characters of a-e and 0-9
+            ot-ctl dataset networkkey {{ otbr.networkkey }}
+
+            # Though less critical for encryption, the phone uses this for UI identification.
+            ot-ctl dataset networkname {{ otbr.networkname }}
+
+            # Used for mDNS discovery and identifying the mesh.
+            # 16 characters of a-e and 0-9
+            ot-ctl dataset extpanid {{ otbr.extpanid }}
+
+            # The 16-bit ID used in the radio headers.
+            # generate panid from extpanid
+            EXT_PAN_ID={{ otbr.extpanid }}
+            val1=0x$(echo ${EXT_PAN_ID} | cut -c1-4)
+            val2=0x$(echo ${EXT_PAN_ID} | cut -c5-8)
+            val3=0x$(echo ${EXT_PAN_ID} | cut -c9-12)
+            val4=0x$(echo ${EXT_PAN_ID} | cut -c13-16)
+            PAN_ID=$(printf '0x%04x' "$(( val1 ^ val2 ^ val3 ^ val4 ))")
+            ot-ctl dataset panid ${PAN_ID}
+
+            # Ensure this stays the same so devices dont have to scan the whole 2.4GHz spectrum.
+            # between 11 and 24 inclusive
+            ot-ctl dataset channel {{ otbr.channel }}
+
+            # Keep the timestamp high (OpenThread prefers the dataset with the higher timestamp)
+            ot-ctl dataset activetimestamp {{ otbr.activetimestamp }}
+
+            # staged dataset
             ot-ctl dataset
+
+            # commit it
             ot-ctl dataset commit active
+
+            # see the active one
+            ot-ctl dataset active
+
+            ot-ctl ifconfig up
+            ot-ctl thread start
+
+            # you can reset the network using this
+            # ot-ctl factoryreset
 
         - name: check ifconfig
           shell: |

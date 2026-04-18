@@ -224,18 +224,25 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
 - Add relevant compatible devices from `Settings -> Devices & Services`
   - Home Assitant Connect ZBT-1
     - Select `Use as Thread Adapter`
+    - This will flash the device (if it fails, make sure nothing else is using this device - like https://github.com/Kimi450/ubuntu-server/issues/47)
   - Install the  `OpenThread Border Router` [integration](https://www.home-assistant.io/integrations/otbr/)
     - Use `http://<MACHINE_IP>:8081` as the URL
-  - Thread
+  - Install the `Thread` integration
     - Go to Config and verify that a Thread Network is available
-  - Matter
+    - Mark the Open Thread border router as the preferred network to use it. The name by default is `HomeNetwork`
+    - Select `Use for Android + iOS credentials`
+    - You may need to restart HA if it doesnt work by going to `Settings > System` and restart on the top right
+  - Install the `Matter` integration
     - Submit the default URL you see there `ws://localhost:5580/ws`
-    - Add devices as needed (you will need to use your phone to do so)
+  - On your phone in the home assistant app, go to `Settings > Companion App > Troubleshooting` and run `Sync Thread Credential`
+  - Add devices as needed (you will need to use your phone to do so)
+  - If the radio device (ZBT-1) keeps showing up as a new device after every restart, you can `Ignore` it. It should be working fine
   - If you keep connecting to a network that is not the OpenThread Border Router you configured, it is because of probably Google Play Services storing information and redirecting it and you need to clear the data for this app (or just accept and use those devices as the border router). Refer to these threads
     - https://github.com/Kimi450/ubuntu-server/issues/46
     - https://community.home-assistant.io/t/solved-how-to-change-the-preferred-network-on-my-android-phone/876923/14
     - https://community.home-assistant.io/t/new-never-paired-thread-device-tries-to-commission-to-non-existent-nest-pan-network-instead-of-ha-thread-network/988578
     - https://github.com/home-assistant/android/issues/4146
+    - The desired outcome on an Andorid device is that you go to `Settings > Google > All Services > Thread Networks` and see your network as an `Available Network` there.
 
 #### Setup Jellyfin
 - Initial setup is just following on-screen instructions.

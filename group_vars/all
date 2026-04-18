@@ -134,6 +134,13 @@ otbr:
   # the location at which your radio co-processor (rcp) device is located
   rcp_location: /dev/ttyUSB0
 
+  # openthread border router network settings
+  networkname: "HomeNetwork"
+  networkkey: "c0dedda7ac0dedda7ac0dedda7a00001" # 32 characters of a-e and 0-9
+  extpanid: "c0dedda7a1d00001" # 16 characters of a-e and 0-9
+  channel: 11 # between 11 and 24 inclusive
+  activetimestamp: 10
+
 # =================== Select what charts you wish to install ===================
 charts:
   enabled: false
