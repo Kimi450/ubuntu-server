@@ -244,6 +244,18 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     - https://github.com/home-assistant/android/issues/4146
     - The desired outcome on an Andorid device is that you go to `Settings > Google > All Services > Thread Networks` and see your network as an `Available Network` there.
 
+  - Good troubleshooting commands
+    - Try to see if the border router has the device's MAC ID in any of these (lookup semantics online)
+      ```bash
+      sudo ot-ctl child table
+      sudo ot-ctl router table
+      sudo ot-ctl neighbor table
+      ```
+    - Try to restart Home Assistant
+      - Go to `Settings > System` and restart on the top right
+    - Resync thread credentials
+      - On your phone in the home assistant app, go to `Settings > Companion App > Troubleshooting` and run `Sync Thread Credential`
+
 #### Setup Jellyfin
 - Initial setup is just following on-screen instructions.
   - If asked to select server, delete it and refresh the page.
