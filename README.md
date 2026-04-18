@@ -231,7 +231,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     - Go to Config and verify that a Thread Network is available
     - Mark the Open Thread border router as the preferred network to use it. The name by default is `HomeNetwork`
     - Select `Use for Android + iOS credentials`
-    - You may need to restart HA if it doesnt work by going to `Settings > System` and restart on the top right
+    - You may need to restart HA if it doesnt work by going to `Settings` and restart on the top right
   - Install the `Matter` integration
     - Submit the default URL you see there `ws://localhost:5580/ws`
   - On your phone in the home assistant app, go to `Settings > Companion App > Troubleshooting` and run `Sync Thread Credential`
@@ -243,6 +243,9 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     - https://community.home-assistant.io/t/new-never-paired-thread-device-tries-to-commission-to-non-existent-nest-pan-network-instead-of-ha-thread-network/988578
     - https://github.com/home-assistant/android/issues/4146
     - The desired outcome on an Andorid device is that you go to `Settings > Google > All Services > Thread Networks` and see your network as an `Available Network` there.
+  - If you see a `Something went wrong` Error when trying to add matter devices via the Home Assistant app, you may need to try to add the device by just scanning the QR code via the camera or from the `Settings > Google > All Service > Matter Devices` workflow which will then hand over the device to Home Assistant.
+    - https://www.reddit.com/r/homeassistant/comments/1pkx1kv/something_went_wrong/
+    - https://github.com/matter-js/python-matter-server/issues/463
 
   - Good troubleshooting commands
     - Try to see if the border router has the device's MAC ID in any of these (lookup semantics online)
@@ -252,7 +255,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
       sudo ot-ctl neighbor table
       ```
     - Try to restart Home Assistant
-      - Go to `Settings > System` and restart on the top right
+      - Go to `Settings` and restart on the top right
     - Resync thread credentials
       - On your phone in the home assistant app, go to `Settings > Companion App > Troubleshooting` and run `Sync Thread Credential`
 
