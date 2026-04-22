@@ -1,0 +1,32 @@
+---
+# Shared helper used by playbooks/charts.yaml to translate a list of
+# "persistence" entries for a given data type (movies, shows, music, ...)
+# into a comma-separated string of --set overrides for helm, and to
+# ensure the backing host_path directories exist.
+#
+# Required vars:
+#   persistence_list:  list of {name, host_path} dicts (typically
+#                      charts.services.<service>.persistence)
+#   persistence_label: short label used to prefix helm persistence keys
+#                      and the in-pod mount path (e.g. "movies", "shows",
+#                      "cache", "downloads", "books", "music")
+#   persistence_fact:  name of the fact to accumulate the --set string
+#                      into (e.g. "helm_common_persistence_movies")
+- name: "Ensure host_path dirs exist for {{ persistence_label }}"
+  become: true
+  ansible.builtin.file:
+    path: "{{ item.host_path }}"
+    state: directory
+    mode: '0777'
+  loop: "{{ persistence_list }}"
+
+- name: "Build helm --set overrides for {{ persistence_label }}"
+  ansible.builtin.set_fact:
+    "{{ persistence_fact }}": >-
+      {{- (vars[persistence_fact] | default(''))
+          + 'persistence.' + persistence_label + '-' + item.name + '.enabled=true,'
+          + 'persistence.' + persistence_label + '-' + item.name + '.type=hostPath,'
+          + 'persistence.' + persistence_label + '-' + item.name + '.hostPath=' + item.host_path + ','
+          + 'persistence.' + persistence_label + '-' + item.name + '.mountPath=/data-mnt/' + item.name + '/' + persistence_label + ','
+      -}}
+  loop: "{{ persistence_list }}"

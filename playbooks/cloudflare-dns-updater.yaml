@@ -131,7 +131,7 @@
           done
 
     - name: "Reload Systemd timer {{ timer_file_name }}"
-      include_tasks: tasks-reload-systemd-service.yaml
+      include_tasks: ../tasks/reload-systemd.yaml
       vars:
         become: True
         service_name: "{{ timer_file_name }}"

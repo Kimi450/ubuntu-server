@@ -30,14 +30,14 @@
 
     - name: Copy over the new config
       copy:
-        src: tightvnc_config/xstartup
+        src: ../files/tightvnc/xstartup
         dest: /home/{{ ansible_user }}/.vnc/xstartup
         mode: "755"
 
     - name: Copy over the service file for systemd
       become: true
       copy:
-        src: tightvnc_config/vncserver@.service
+        src: ../files/tightvnc/vncserver@.service
         dest: /etc/systemd/system/vncserver@.service
 
     - name: "Service file edit: Change User to be {{ ansible_user }}"
@@ -77,7 +77,7 @@
         backrefs: yes
 
     - name: Reload systemd service
-      include_tasks: tasks-reload-systemd-service.yaml
+      include_tasks: ../tasks/reload-systemd.yaml
       vars:
         service_name: "vncserver@{{ vnc.display }}.service"
         become: True

@@ -75,7 +75,7 @@
           http_access allow authenticated
 
     - name: Reload systemd service
-      include_tasks: tasks-reload-systemd-service.yaml
+      include_tasks: ../tasks/reload-systemd.yaml
       vars:
         service_name: "squid"
         become: True

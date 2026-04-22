@@ -12,7 +12,7 @@
       block:
         - name: copy over bootstrap script
           ansible.builtin.copy:
-            src: ./kubeadm-cp.bash
+            src: ../files/kubeadm-cp.bash
             dest: "{{ basics.home_dir }}"
             owner: "{{ uid }}"
             group: "{{ uid }}"

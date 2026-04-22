@@ -1,0 +1,12 @@
+---
+# Reload the systemd daemon and (re)start + enable a given unit.
+# Required vars:
+#   service_name: name of the unit (e.g. "squid" or "foo.service")
+#   become:       whether to escalate privileges (true for system units)
+- name: "Restart and enable systemd unit {{ service_name }} (become={{ become }})"
+  become: "{{ become }}"
+  ansible.builtin.systemd_service:
+    name: "{{ service_name }}"
+    state: restarted
+    enabled: true
+    daemon_reload: true
