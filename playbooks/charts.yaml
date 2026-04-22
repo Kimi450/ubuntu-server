@@ -77,125 +77,24 @@
         mode: '0777'
       become: true # incase the dirs are created at root level
 
-    - name: Process variable to add disks
-      block:
-        - name: "Create host path dir"
-          file:
-            path: "{{ item.host_path }}"
-            state: directory
-            mode: '0777'
-          become: true # incase the dirs are created at root level
-          loop: "{{ charts.services.tdarr.persistence }}"
-        - name: Set facts
-          set_fact:
-            helm_common_persistence_cache: >-
-              {{- helm_common_persistence_cache | default('')
-                  + 'persistence.cache-' + item.name + '.enabled=true,'
-                  + 'persistence.cache-' + item.name + '.type=hostPath,'
-                  + 'persistence.cache-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.cache-' + item.name + '.mountPath=/data-mnt/' + item.name + '/cache,'
-              -}}
-          loop: "{{ charts.services.tdarr.persistence }}"
-
-    - name: Process variable to add disks
-      block:
-        - name: "Create host path dir"
-          file:
-            path: "{{ item.host_path }}"
-            state: directory
-            mode: '0777'
-          become: true # incase the dirs are created at root level
-          loop: "{{ charts.services.radarr.persistence }}"
-        - name: Set facts
-          set_fact:
-            helm_common_persistence_movies: >-
-              {{- helm_common_persistence_movies | default('')
-                  + 'persistence.movies-' + item.name + '.enabled=true,'
-                  + 'persistence.movies-' + item.name + '.type=hostPath,'
-                  + 'persistence.movies-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.movies-' + item.name + '.mountPath=/data-mnt/' + item.name + '/movies,'
-              -}}
-          loop: "{{ charts.services.radarr.persistence }}"
-
-    - name: Process variable to add disks
-      block:
-        - name: "Create host path dir"
-          file:
-            path: "{{ item.host_path }}"
-            state: directory
-            mode: '0777'
-          become: true # incase the dirs are created at root level
-          loop: "{{ charts.services.sonarr.persistence }}"
-        - name: Set facts
-          set_fact:
-            helm_common_persistence_shows: >-
-              {{- helm_common_persistence_shows | default('')
-                  + 'persistence.shows-' + item.name + '.enabled=true,'
-                  + 'persistence.shows-' + item.name + '.type=hostPath,'
-                  + 'persistence.shows-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.shows-' + item.name + '.mountPath=/data-mnt/' + item.name + '/shows,'
-              -}}
-          loop: "{{ charts.services.sonarr.persistence }}"
-
-    - name: Process variable to add disks
-      block:
-        - name: "Create host path dir"
-          file:
-            path: "{{ item.host_path }}"
-            state: directory
-            mode: '0777'
-          become: true # incase the dirs are created at root level
-          loop: "{{ charts.services.readarr.persistence }}"
-        - name: Set facts
-          set_fact:
-            helm_common_persistence_books: >-
-              {{- helm_common_persistence_books | default('')
-                  + 'persistence.books-' + item.name + '.enabled=true,'
-                  + 'persistence.books-' + item.name + '.type=hostPath,'
-                  + 'persistence.books-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.books-' + item.name + '.mountPath=/data-mnt/' + item.name + '/books,'
-              -}}
-          loop: "{{ charts.services.readarr.persistence }}"
-
-    - name: Process variable to add disks
-      block:
-        - name: "Create host path dir"
-          file:
-            path: "{{ item.host_path }}"
-            state: directory
-            mode: '0777'
-          become: true # incase the dirs are created at root level
-          loop: "{{ charts.services.lidarr.persistence }}"
-        - name: Set facts
-          set_fact:
-            helm_common_persistence_music: >-
-              {{- helm_common_persistence_music | default('')
-                  + 'persistence.music-' + item.name + '.enabled=true,'
-                  + 'persistence.music-' + item.name + '.type=hostPath,'
-                  + 'persistence.music-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.music-' + item.name + '.mountPath=/data-mnt/' + item.name + '/music,'
-              -}}
-          loop: "{{ charts.services.lidarr.persistence }}"
-
-    - name: Process variable to add disks
-      block:
-        - name: "Create host path dir"
-          file:
-            path: "{{ item.host_path }}"
-            state: directory
-            mode: '0777'
-          become: true # incase the dirs are created at root level
-          loop: "{{ charts.services.qbittorrent.persistence }}"
-        - name: Set facts
-          set_fact:
-            helm_common_persistence_downloads: >-
-              {{- helm_common_persistence_downloads | default('')
-                  + 'persistence.downloads-' + item.name + '.enabled=true,'
-                  + 'persistence.downloads-' + item.name + '.type=hostPath,'
-                  + 'persistence.downloads-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.downloads-' + item.name + '.mountPath=/data-mnt/' + item.name + '/downloads,'
-              -}}
-          loop: "{{ charts.services.qbittorrent.persistence }}"
+    # Build helm --set strings for every data type. Each service that owns
+    # the source-of-truth for a data type (e.g. radarr -> movies) drives
+    # the loop; other services just reuse the resulting fact.
+    - name: "Build persistence helm --set overrides"
+      include_tasks: ../tasks/process-persistence-disks.yaml
+      vars:
+        persistence_list: "{{ item.list }}"
+        persistence_label: "{{ item.label }}"
+        persistence_fact: "{{ item.fact }}"
+      loop:
+        - { label: cache,     fact: helm_common_persistence_cache,     list: "{{ charts.services.tdarr.persistence }}" }
+        - { label: movies,    fact: helm_common_persistence_movies,    list: "{{ charts.services.radarr.persistence }}" }
+        - { label: shows,     fact: helm_common_persistence_shows,     list: "{{ charts.services.sonarr.persistence }}" }
+        - { label: books,     fact: helm_common_persistence_books,     list: "{{ charts.services.readarr.persistence }}" }
+        - { label: music,     fact: helm_common_persistence_music,     list: "{{ charts.services.lidarr.persistence }}" }
+        - { label: downloads, fact: helm_common_persistence_downloads, list: "{{ charts.services.qbittorrent.persistence }}" }
+      loop_control:
+        label: "{{ item.label }}"
 
     - name: Install rancher local-path-provisioner
       when: charts.services.local_path_provisioner.enabled
@@ -212,7 +111,7 @@
       when: charts.services.ingress_nginx.enabled
       block:
       - name: Install/Upgrade the ingress-nginx chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: nginx-ingress
           repo_link: https://kubernetes.github.io/ingress-nginx
@@ -239,7 +138,7 @@
       when: charts.services.cert_manager.enabled
       block:
       - name: Install/Upgrade the cert-manager chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: jetstack
           repo_link: https://charts.jetstack.io
@@ -326,7 +225,7 @@
       when: charts.services.loki_stack.enabled
       block:
       - name: Install/Upgrade the loki-stack chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         # https://artifacthub.io/packages/helm/grafana/loki-stack
         vars:
           repo_name: grafana
@@ -355,7 +254,7 @@
       when: charts.services.kube_prometheus_stack.enabled
       block:
       - name: Install/Upgrade the kube-prometheus-stack chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         # https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
         vars:
           repo_name: prometheus-community
@@ -417,7 +316,7 @@
         ignore_errors: True
 
       - name: Restart pods to pick up any config updates
-        include_tasks: tasks-kubernetes-delete-kind-instances.yaml
+        include_tasks: ../tasks/delete-k8s-instances.yaml
         vars:
           kind: pod
           namespace: "{{ namespace_monitoring }}"
@@ -433,7 +332,7 @@
       when: charts.services.cnpg.enabled
       block:
       - name: Install/Upgrade the cnpg chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: cnpg
           repo_link: https://cloudnative-pg.github.io/charts
@@ -449,7 +348,7 @@
       when: charts.services.immich.enabled
       block:
       - name: Install/Upgrade the immich chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -506,7 +405,7 @@
       when: charts.services.guacamole.enabled
       block:
       - name: Install/Upgrade the guacamole chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -543,7 +442,7 @@
         become: true
 
       - name: Install/Upgrade the home-assistant chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -588,7 +487,7 @@
         become: true
 
       - name: Install/Upgrade the jellyfin chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -642,7 +541,7 @@
       when: charts.services.jellystat.enabled
       block:
       - name: Install/Upgrade the jellystat chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -680,7 +579,7 @@
         become: true
 
       - name: Install/Upgrade the qbittorrent chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -731,7 +630,7 @@
       when: charts.services.flaresolverr.enabled
       block:
       - name: Install/Upgrade the flaresolverr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -763,7 +662,7 @@
         become: true
 
       - name: Install/Upgrade the prowlarr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -802,7 +701,7 @@
         become: true
 
       - name: Install/Upgrade the radarr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -845,7 +744,7 @@
         become: true
 
       - name: Install/Upgrade the sonarr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -888,7 +787,7 @@
         become: true
 
       - name: Install/Upgrade the tdarr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -942,7 +841,7 @@
         become: true
 
       - name: Install/Upgrade the bazarr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -985,7 +884,7 @@
         become: true
 
       - name: Install/Upgrade the readarr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -999,7 +898,7 @@
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_books }}\
-            {{ helm_common_persistence_downloads }}}\
+            {{ helm_common_persistence_downloads }}\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
@@ -1027,7 +926,7 @@
         become: true
 
       - name: Install/Upgrade the lidarr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -1041,7 +940,7 @@
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_music }}\
-            {{ helm_common_persistence_downloads }}}\
+            {{ helm_common_persistence_downloads }}\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
@@ -1069,7 +968,7 @@
         become: true
 
       - name: Install/Upgrade the ombi chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -1109,7 +1008,7 @@
         become: true
 
       - name: Install/Upgrade the seerr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -1142,7 +1041,7 @@
       when: charts.services.librespeed.enabled
       block:
       - name: Install/Upgrade the librespeed chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -1176,7 +1075,7 @@
       when: charts.services.calibre_web.enabled
       block:
       - name: Install/Upgrade the calibre-web chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -1191,7 +1090,7 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_persistence_books }}\
-            {{ helm_common_persistence_downloads }}}\
+            {{ helm_common_persistence_downloads }}\
             {{ helm_common_ingress }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.calibre_web.resources.limits.cpu }},\
@@ -1212,7 +1111,7 @@
       when: charts.services.calibre.enabled
       block:
       - name: Install/Upgrade the calibre chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
@@ -1229,7 +1128,7 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_persistence_books }}\
-            {{ helm_common_persistence_downloads }}}\
+            {{ helm_common_persistence_downloads }}\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.calibre.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.calibre.resources.limits.memory }},\

@@ -39,7 +39,7 @@
             backrefs: yes
 
         - name: Reload systemd service
-          include_tasks: tasks-reload-systemd-service.yaml
+          include_tasks: ../tasks/reload-systemd.yaml
           vars:
             service_name: "{{ bluetooth_service_name }}"
             become: True
@@ -83,7 +83,7 @@
               WantedBy=multi-user.target
 
         - name: Reload systemd service
-          include_tasks: tasks-reload-systemd-service.yaml
+          include_tasks: ../tasks/reload-systemd.yaml
           vars:
             service_name: "{{ pulseaudio_system_service_name }}"
             become: True
@@ -99,7 +99,7 @@
         - name: "Copy script to {{ bt_agent_service_script_location }}"
           become: true
           copy:
-            src: helpers/remove-paired-devices.sh
+            src: ../files/remove-paired-devices.sh
             dest: "{{ bt_agent_service_script_location }}"
             mode: "0755"
 
@@ -142,7 +142,7 @@
               WantedBy=bluetooth.target
 
         - name: Reload systemd service
-          include_tasks: tasks-reload-systemd-service.yaml
+          include_tasks: ../tasks/reload-systemd.yaml
           vars:
             service_name: "{{ bt_agent_service_name }}"
             become: True
@@ -169,7 +169,7 @@
             line: "User={{ ansible_user }}"
 
         - name: Reload systemd service
-          include_tasks: tasks-reload-systemd-service.yaml
+          include_tasks: ../tasks/reload-systemd.yaml
           vars:
             service_name: "{{ service_file_name }}"
             become: True

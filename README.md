@@ -1,7 +1,42 @@
 # Ubuntu Server
-Highly opinionated server setup to cater to my needs
+
+Highly opinionated, Ansible-driven setup for an Ubuntu home server (single
+control-plane Kubernetes cluster + a curated set of self-hosted services).
+
+## Repository Layout
+
+```text
+ubuntu-server/
+├── ansible.cfg                 # default inventory + sensible defaults
+├── requirements.yml            # Galaxy collections (installed by run.sh)
+├── run.sh                      # one-shot wrapper: venv + ansible + playbook
+├── site.yaml                   # entrypoint; imports everything below
+├── hosts.yaml                  # inventory (fill this in)
+├── group_vars/
+│   └── all.yaml                # all feature flags + tunables (fill this in)
+├── playbooks/
+│   ├── server-basics.yaml      # apt packages, bashrc/vimrc, sysctl
+│   ├── kubernetes.yaml         # dispatcher + kubectl/helm/metrics-server
+│   ├── kubernetes-kubeadm.yaml # kubeadm-based single-node install
+│   ├── kubernetes-kubespray.yaml
+│   ├── charts.yaml             # all helm charts / Kubernetes apps
+│   ├── samba.yaml, squid.yaml, tightvnc.yaml, otbr.yaml,
+│   ├── pinless-bluetooth.yaml, cloudflare-dns-updater.yaml
+│   └── deprecated/             # archived, opt-in only
+├── tasks/                      # shared task includes
+│   ├── clone-git-repo.yaml
+│   ├── install-chart.yaml
+│   ├── delete-k8s-instances.yaml
+│   ├── reload-systemd.yaml
+│   └── process-persistence-disks.yaml
+└── files/                      # static assets copied to hosts
+    ├── kubeadm-cp.bash
+    ├── remove-paired-devices.sh
+    └── tightvnc/{vncserver@.service,xstartup}
+```
 
 - [Ubuntu Server](#ubuntu-server)
+  - [Repository Layout](#repository-layout)
   - [Server Setup](#server-setup)
     - [Cloud](#cloud)
     - [On-Prem](#on-prem)
@@ -12,7 +47,7 @@ Highly opinionated server setup to cater to my needs
   - [Client Setup](#client-setup)
       - [Enable passwordless ssh access from remote machine to server (required for ansible to work)](#enable-passwordless-ssh-access-from-remote-machine-to-server-required-for-ansible-to-work)
       - [Install python and pip](#install-python-and-pip)
-      - [Update the `group_vars/all` file to fill out the required information there](#update-the-group_varsall-file-to-fill-out-the-required-information-there)
+      - [Update the `group_vars/all.yaml` file to fill out the required information there](#update-the-group_varsall-file-to-fill-out-the-required-information-there)
         - [Get CloudFlare information](#get-cloudflare-information)
       - [Update the `hosts.yaml` file to fill out the template](#update-the-hostsyaml-file-to-fill-out-the-template)
       - [Expose required ports on your router](#expose-required-ports-on-your-router)
@@ -101,7 +136,7 @@ sudo apt update
 sudo apt install python3 pip
 ```
 
-#### Update the `group_vars/all` file to fill out the required information there
+#### Update the `group_vars/all.yaml` file to fill out the required information there
 At the very least, search for the items with tags `# FILL OUT`
 
 **NOTE**: You can add additional directories for services via the `group_vars` file as well under the `persistence` section.
@@ -123,7 +158,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
 - Then select the relevant `Zone` (basically the website you used in the `group_vals/all` file)
 - Go to the `Overview` page
   - On the right side you can see the `Zone ID`
-  - Put this in the `group_vars/all` file
+  - Put this in the `group_vars/all.yaml` file
   - Here you can also see the link to the API token page
 - Go to the `DNS` page
   - Put in the following records (**REQUIRED**)
@@ -133,17 +168,17 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     | `A`  | `<YOUR_DOMAIN_NAME>`   | `<YOUR_PUBLIC_IP>` | `DNS only`   | `Auto` |
     | `A`  | `*.<YOUR_DOMAIN_NAME>` | `<YOUR_PUBLIC_IP>` | `DNS only`   | `Auto` |
 
-  - Now you can also use `<YOUR_DOMAIN_NAME>` in the `group_vars/all` file instead of the server's IP address
+  - Now you can also use `<YOUR_DOMAIN_NAME>` in the `group_vars/all.yaml` file instead of the server's IP address
 - Create a Custom API token from the [api-tokens](https://dash.cloudflare.com/profile/api-tokens) page with the following permissions and include the specific `Zone` (or website) from `Zone Resources` section
   - To edit DNS entries
     - `Zone:DNS:Edit`
   - To read `Zone` information
     - `Zone:Zone:Read`
-  - Put this token/key in the `group_vars/all` file
-- If not needed, remove the line below line from `setup.yaml`
-`- import_playbook: install-and-configure-cloudflare-dns-updater-service.yaml`
+  - Put this token/key in the `group_vars/all.yaml` file
+- If not needed, remove the line below from `site.yaml`
+`- import_playbook: playbooks/cloudflare-dns-updater.yaml`
 - Using DNS01 challenge instead of HTTP01 challenge for certificates
-  - If you wish to use a DSN01 challenge instead of HTTP challenge (common if youre running services on non-standard ports), you will want to set `charts.services.cert_manager.dns01_challenge` to `true` in `group_vars/all` file.
+  - If you wish to use a DSN01 challenge instead of HTTP challenge (common if youre running services on non-standard ports), you will want to set `charts.services.cert_manager.dns01_challenge` to `true` in `group_vars/all.yaml` file.
   - Go to the `DNS` page
     - Put in the following records (**REQUIRED**)
 
@@ -158,7 +193,13 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
 
 #### Run the ansible runner script
 - `./run.sh`
-- You can add `-vvvv` to get more verbose output
+  - Creates a local virtualenv (`.server-venv`), installs Ansible + the
+    Galaxy collections from `requirements.yml`, then runs `site.yaml`.
+  - Any extra args are forwarded to `ansible-playbook`, e.g.:
+    - `./run.sh -vvvv` for verbose output
+    - `./run.sh --check` for a dry run
+    - `./run.sh --tags ...` / `./run.sh --limit home-main`
+  - Env overrides: `PLAYBOOK=`, `INVENTORY=`, `VENV_DIR=`.
 
 ## After the installation
 
@@ -665,14 +706,14 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     ```
 
 #### Use Squid
-- Use the username and password from the `group_vars/all` file to use this as a proxy server
+- Use the username and password from the `group_vars/all.yaml` file to use this as a proxy server
 - The address would be `<PUBLIC_IP>:<GROUP_VARS_PORT>` or `<DOMAIN_NAME>:<GROUP_VARS_PORT>` or `<LAN_IP>:<GROUP_VARS_PORT>`
 
 #### Use Sambashare
 - For external access:
 - To authenticate
   - Thee username will be the `<ANSIBLE_USER>` you used in the `hosts.yaml` file
-  - The password will be in the `group_vars/all` file (`smb.password` section).
+  - The password will be in the `group_vars/all.yaml` file (`smb.password` section).
 - In Windows, connect to it using `\\<LAN_IP>\<SHARE_NAME_FROM_GROUP_VARS_ALL>`
 - More information [here](https://ubuntu.com/tutorials/install-and-configure-samba#4-setting-up-user-accounts-and-connecting-to-share)
 
@@ -878,7 +919,7 @@ If not, you may need to reinstall the CNI (like cilium) too. Example:
 cilium uninstall
 kubectl delete namespace cilium-secrets --force
 kubectl get namespace cilium-secrets -o json |   jq '.spec.finalizers = []' |   kubectl replace --raw "/api/v1/namespaces/cilium-secrets/finalize" -f -
-cilium install --version 1.18.2 # check kubeadm-cp.bash
+cilium install --version 1.18.2 # check files/kubeadm-cp.bash
 ```
 
 Verify that all the endpoints are set correctly to the new IP.
