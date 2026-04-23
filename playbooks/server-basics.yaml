@@ -90,7 +90,7 @@
     - name: Setup the bashrc file and the vimrc file
       block:
         - name: Clone useful_files from github
-          include_tasks: tasks-clone-git-repo.yaml
+          include_tasks: ../tasks/clone-git-repo.yaml
           vars:
             repo_dir:  "{{ useful_files_repo_dir }}"
             repo_link:  https://github.com/Kimi450/useful-files.git
