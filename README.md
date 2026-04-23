@@ -209,6 +209,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
 - Some good integrations
   - [HACS](https://hacs.xyz/)
     - [Places](https://github.com/custom-components/places)
+    - [Lovelace mushroom](https://github.com/piitaya/lovelace-mushroom)
   - SmartThings
   - Speedtest.net
   - Matter
