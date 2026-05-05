@@ -893,3 +893,29 @@ You may need to update kube-proxy to point to the new IP.
 kubectl get cm -n kube-system kube-proxy -o yaml | sed 's|https://<OLD_IP>:6443|https://<NEW_IP>:6443|g' | kubectl apply -f -
 kubectl delete pod -n kube-system -l k8s-app=kube-proxy
 ```
+
+## Stress testing pod
+
+You can use this manifest to test out memory (amend as needed to test CPU) usage on the cluster.
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: memory-demo
+  labels:
+    app: memory-test
+spec:
+  containers:
+  - name: memory-demo-ctr
+    image: polinux/stress
+    resources:
+      requests:
+        memory: "3Gi"
+      limits:
+        memory: "8Gi"
+    # This command simply tells the 'stress' tool to allocate 3GB
+    # so you can actually see the usage in your monitoring tools.
+    command: ["stress"]
+    args: ["--vm", "1", "--vm-bytes", "3G", "--vm-keep"]
+```
