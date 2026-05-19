@@ -217,6 +217,8 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   - Sonarr
   - Jellyfin
   - Thread
+  - ESB Smart meter usage
+    - https://github.com/badger707/esb-smart-meter-reading-automation
 
 ##### Basic guide to setup Matter over Thread
 - Make sure the thread enabled radio device is connected to the server
