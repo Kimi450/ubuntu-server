@@ -327,6 +327,20 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   - Recommend seeding limits for when seeding ratio hits "1" to give back to the community. It is under `Tools > Options > BitTorrent > Seeding Limits`
 - Set torrent download/upload limits
   - Recommended to keep 12 active torrents, 6 downloads and 6 uploads. It is under `Tools > Options > BitTorrent > Torrent Queueing`
+- Exclude certain file extensions
+  - Go to `Tools > Options > Downloads`
+  - Enable `Exclude file names` and add the below section to it (one per line) (from [reddit](https://www.reddit.com/r/Piracy/comments/1frfqqg/psahowto_avoid_fake_mkv_torrents_avoid_getting/))
+    ```
+    *.mp4.lnk  
+    *.mp3.lnk  
+    *.mkv.lnk
+    *.torrent.lnk 
+    *.zipx
+    *.scr
+    *.arj
+    *.lzh
+    *.uue
+    ```
 
 #### Setup Calibre
 - Do base setup
