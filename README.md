@@ -80,6 +80,17 @@ You can do this via the UI or refer to this [stackoverflow post](https://askubun
 #### Assign a static IP
 If using kubernetes, allocate a static IP to your machine on your router. If you do not do this, you can end up with an inaccessible cluster till you update the IPs again. Refer to [appendix](#broken-kubernetes-cluster-after-ip-change)
 
+#### Disable GUI
+**OPTIONAL**: Sometimes high memory usage can cause issues. Disabling the GUI can help with this sometimes, consider doing this.
+
+From [reddit](https://www.reddit.com/r/Ubuntu/comments/qy1lbj/is_there_any_way_to_disable_gui_from_even_loading/)
+```
+To disable the GUI on boot: sudo systemctl set-default multi-user.target
+To enable the GUI on boot: sudo systemctl set-default graphical.target
+To disable the GUI temporarily: sudo systemctl isolate multi-user.target
+To enable the GUI temporarily: sudo systemctl isolate graphical.target
+```
+
 ## Client Setup
 
 #### Enable passwordless ssh access from remote machine to server (required for ansible to work)
