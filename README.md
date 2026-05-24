@@ -275,6 +275,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
       - Go to `Settings` and restart on the top right
     - Resync thread credentials
       - On your phone in the home assistant app, go to `Settings > Companion App > Troubleshooting` and run `Sync Thread Credential`
+    - If you cannot connect your device, try to connect your phone to the same network as your server or try to use the 2.4GHz network instead.
 ###### Accessing the Matter server
 - On your local network, you can find it on `http://SERVER_IP:5580`
 
