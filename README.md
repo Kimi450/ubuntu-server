@@ -279,7 +279,38 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     - If you cannot connect your device, try to connect your phone to the same network as your server or try to use the 2.4GHz network instead.
 ###### Accessing the Matter server
 - On your local network, you can find it on `http://SERVER_IP:5580`
-
+###### Counter for matter devices being unavailable
+- Go to Settings > Devices & Services > Helpers.
+- Click the + Create Helper button in the bottom right corner.
+- Select Template from the list, and then choose Template a sensor.
+  - Name: Unavailable Matter Devices
+  - State template:
+    ```
+    {{ integration_entities('matter') | select('is_state', 'unavailable') | list | count }}
+    ```
+  - Unit of measurement: (Leave blank, or put devices)
+  - Device class: None
+  - State class: Measurement
+  - Icon: mdi:vector-polyline-minus 
+- Click the Save button to save the helper.
+- Use the mini-graph-card to display the helper.
+  ```yaml
+  type: custom:mini-graph-card
+  entities:
+    - entity: sensor.unavailable_matter_devices
+      name: Offline Matter Devices
+  name: Matter Stability History
+  line_color: '#e74c3c'
+  line_width: 3
+  hours_to_show: 24
+  points_per_hour: 4
+  show:
+    extrema: true
+    fill: fade
+  state_map:
+    - value: 0
+      label: All Clear
+  ```
 #### Setup Jellyfin
 - Initial setup is just following on-screen instructions.
   - If asked to select server, delete it and refresh the page.
