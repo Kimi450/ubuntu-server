@@ -286,7 +286,10 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   - Name: Unavailable Matter Devices
   - State template:
     ```
-    {{ integration_entities('matter') | select('is_state', 'unavailable') | list | count }}
+    {{ integration_entities('matter') 
+      | select('is_state', 'unavailable') 
+      | map('device_id') | reject('none') 
+      | unique | list | count }}
     ```
   - Unit of measurement: (Leave blank, or put devices)
   - Device class: None
