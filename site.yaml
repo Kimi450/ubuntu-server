@@ -1,0 +1,49 @@
+---
+# Main entrypoint. Orchestrates all playbooks based on the feature flags
+# in group_vars/all.yaml. Only the playbooks whose top-level `*.enabled`
+# flag is true will run.
+- name: Gather shared facts
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Get remote user's UID
+      ansible.builtin.command: id -u
+      register: uid_output
+      changed_when: false
+
+    - name: Publish shared facts
+      ansible.builtin.set_fact:
+        uid: "{{ uid_output.stdout }}"
+
+- import_playbook: playbooks/server-basics.yaml
+  when: basics.enabled
+
+- import_playbook: playbooks/kubernetes.yaml
+  when: kubespray.enabled or kubeadm.enabled
+
+- import_playbook: playbooks/otbr.yaml
+  when: otbr.enabled
+
+- import_playbook: playbooks/charts.yaml
+  vars:
+    ip: "{{ ansible_host }}"
+  when: charts.enabled
+
+- import_playbook: playbooks/tightvnc.yaml
+  when: vnc.enabled
+
+- import_playbook: playbooks/samba.yaml
+  when: smb.enabled
+
+- import_playbook: playbooks/squid.yaml
+  when: squid.enabled
+
+- import_playbook: playbooks/cloudflare-dns-updater.yaml
+  when: cloudflare.enabled
+
+- import_playbook: playbooks/pinless-bluetooth.yaml
+  when: bluetooth.pinless.enabled
+
+# Deprecated (kept for archival; opt-in via spotify.enabled)
+- import_playbook: playbooks/deprecated/spotify.yaml
+  when: spotify.enabled

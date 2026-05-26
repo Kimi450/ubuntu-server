@@ -32,7 +32,9 @@
 
     - name: Reload to see new unit file
       become: True
-      shell: service smbd restart
+      ansible.builtin.service:
+        name: smbd
+        state: restarted
 
     - name: Set password
       become: True

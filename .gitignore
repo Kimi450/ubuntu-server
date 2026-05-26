@@ -1,3 +1,15 @@
-***/kubespray/
+# Kubespray checkouts created on the control node
+**/kubespray/
 
-.server-venv
+# Python virtualenvs
+.server-venv/
+.venv/
+
+# Ansible retry / caching
+*.retry
+.ansible/
+
+# Editor noise
+.DS_Store
+.idea/
+.vscode/

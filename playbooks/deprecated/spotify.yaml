@@ -1,0 +1,70 @@
+---
+# DEPRECATED: preserved for archival. Opt in by setting `spotify.enabled: true`
+# in group_vars/all.yaml. Not actively maintained.
+- name: Install and configure spotifyd
+  hosts: all
+  gather_facts: false
+  vars:
+    repo_dir: "{{ basics.repos_dir }}/spotifyd"
+    systemd_dir: /etc/systemd/system
+  tasks:
+    # https://spotifyd.github.io/spotifyd/installation/Ubuntu.html#building-spotifyd
+    - name: Required dependencies
+      become: true
+      ansible.builtin.apt:
+        update_cache: yes
+        state: latest
+        pkg:
+          - rustc
+          - cargo
+          - libasound2-dev
+          - libssl-dev
+          - pkg-config
+
+    - name: Clone spotifyd from github
+      include_tasks: ../../tasks/clone-git-repo.yaml
+      vars:
+        repo_link: https://github.com/Spotifyd/spotifyd.git
+
+    - name: Build the project
+      ansible.builtin.command: cargo build --release
+      args:
+        chdir: "{{ repo_dir }}"
+
+    - name: Move the binary
+      become: true
+      ansible.builtin.command: "mv {{ repo_dir }}/target/release/spotifyd /usr/bin/spotifyd"
+      args:
+        creates: /usr/bin/spotifyd
+
+    - name: Install systemd unit file
+      become: true
+      ansible.builtin.copy:
+        remote_src: true
+        src: "{{ repo_dir }}/contrib/spotifyd.service"
+        dest: "{{ systemd_dir }}/spotifyd.service"
+
+    - name: Configure user credentials in unit file
+      become: true
+      ansible.builtin.lineinfile:
+        path: "{{ systemd_dir }}/spotifyd.service"
+        regexp: '^ExecStart=(.*)$'
+        line: >-
+          ExecStart=/usr/bin/spotifyd --no-daemon
+          -u {{ spotify.username }}
+          -p {{ spotify.password }}
+          --initial-volume {{ spotify.init_volume }}
+        backrefs: yes
+
+    - name: Reload, enable and start spotifyd
+      include_tasks: ../../tasks/reload-systemd.yaml
+      vars:
+        service_name: spotifyd.service
+        become: true
+
+    - name: Give user audio permissions
+      become: true
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: audio
+        append: yes
