@@ -268,8 +268,11 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   - **Useful troubleshooting tricks**
     - Try to see if the border router has the device's MAC ID in any of these (lookup semantics online)
       ```bash
+      # The Child Table is specific to Routers (and the Leader). It lists all the End Devices (SEDs/MEDs/FEDs) that have attached to this specific Router as their "parent."
       sudo ot-ctl child table
+      # The Router Table is a network-wide map kept by all Routers in the Thread mesh. It tracks all Routers present in the entire Thread Network, even if they are multiple hops away.
       sudo ot-ctl router table
+      # The Neighbor Table is the master list of all devices that are exactly one hop away (within direct radio range) and with which this device has established a secure link.
       sudo ot-ctl neighbor table
       ```
     - Try to restart Home Assistant
