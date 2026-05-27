@@ -47,8 +47,8 @@
           become: true
           shell: |
             echo 'OTBR_WEB_OPTS="-I 0.0.0.0 -p 8080"' > /etc/default/otbr-web
- 
-        - name: "Patch config to use correct Radio Co-Processor (RCP) device from the default and add configs for baudrate and flow control"
+
+        - name: "Patch config to use correct Radio Co-Processor (RCP) device from the default {{ default_rcp_location }}"
           become: true
           shell: |
             # create a rule to have the relevant device always created as /dev/ttyRCP
@@ -61,7 +61,7 @@
             udevadm trigger
 
             # make OTBR use /dev/ttyRCP and increase baudrate and introduce uart-flow-control to work when there is a storm of requests on reboots
-            sed -i -E 's|spinel+hdlc+uart://.*[^"]|spinel+hdlc+uart:///dev/ttyRCP?uart-baudrate={{ otbr.rcp_baudrate }}{{ "\&uart-flow-control" if otbr.rcp_flow_control else "" }}|g' /etc/default/otbr-agent
+            sed -i -E 's|{{ default_rcp_location }}|/dev/ttyRCP?uart-baudrate={{ otbr.rcp_baudrate }}{{ "\&uart-flow-control" if otbr.rcp_flow_control else "" }}|g' /etc/default/otbr-agent
 
         - name: Start OTBR services
           become: true
@@ -171,4 +171,5 @@
 
     vars:
       otbr_repo_dir: "{{ basics.repos_dir }}/otbr"
+      default_rcp_location: "/dev/ttyACM0"
       config_path: "{{ charts.services.configs_dir }}/otbr-agent"
