@@ -134,6 +134,12 @@ otbr:
   # the location at which your radio co-processor (rcp) device is located
   rcp_location: /dev/ttyUSB0
 
+  # baudrate for the rcp device
+  rcp_baudrate: 460800
+
+  # flow control for the rcp device, disable if device does not support it (ztb-1 does)
+  rcp_flow_control: true
+
   # openthread border router network settings
   # provide a different networkkey, extpandid and name to create a
   # new network (all 3)
