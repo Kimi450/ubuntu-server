@@ -60,8 +60,8 @@
             udevadm control --reload-rules
             udevadm trigger
 
-            # make OTBR use /dev/ttyRCP
-            sed -i s:{{ default_rcp_location }}:/dev/ttyRCP:g /etc/default/otbr-agent
+            # make OTBR use /dev/ttyRCP and increase baudrate and introduce uart-flow-control to work when there is a storm of requests on reboots
+            sed -i -E 's|{{ default_rcp_location }}|/dev/ttyRCP?uart-baudrate=4608000\&uart-flow-control|g' /etc/default/otbr-agent
 
         - name: Start OTBR services
           become: true
