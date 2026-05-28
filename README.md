@@ -291,7 +291,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     ```
     {{ integration_entities('matter') 
       | select('is_state', 'unavailable') 
-      | map('device_id') | reject('none') 
+      | map('device_id') 
       | unique | list | count }}
     ```
   - Unit of measurement: (Leave blank, or put devices)
