@@ -317,6 +317,35 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     - value: 0
       label: All Clear
   ```
+- For current info, add a card
+  ```yaml
+  type: markdown
+  title: Matter Status
+  content: >-
+    {% set devices = states 
+      | selectattr('entity_id', 'in', integration_entities('matter')) 
+      | selectattr('state', 'eq', 'unavailable') 
+      | map(attribute='entity_id') 
+      | map('device_attr', 'name') 
+      | unique 
+      | reject('in', [None, 'unknown']) 
+      | list %}
+    
+    {% set count = devices | length %}
+  
+    {% if count > 0 %}
+      ### <font color="#e74c3c">⚠️ {{ count }} Device{{ 's' if count > 1 else '' }} Offline</font>
+      
+      The following Matter devices are currently disconnected:
+      {% for device in devices %}
+        * **{{ device }}**
+      {% endfor %}
+    {% else %}
+      ### <font color="#2ecc71">✅ 0 Devices Offline</font>
+      
+      Everything looks great! All Matter devices are connected.
+    {% endif %}
+  ```
 #### Setup Jellyfin
 - Initial setup is just following on-screen instructions.
   - If asked to select server, delete it and refresh the page.
