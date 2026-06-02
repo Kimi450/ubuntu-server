@@ -321,18 +321,16 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   ```yaml
   type: markdown
   title: Matter Status
-  content: >-
+  content: |-
     {% set devices = states 
       | selectattr('entity_id', 'in', integration_entities('matter')) 
       | selectattr('state', 'eq', 'unavailable') 
       | map(attribute='entity_id') 
-      | map('device_attr', 'name') 
+      | map('device_attr', 'name_by_user') 
       | unique 
-      | reject('in', [None, 'unknown']) 
       | list %}
-    
-    {% set count = devices | length %}
   
+    {% set count = devices | length %}
     {% if count > 0 %}
       ### <font color="#e74c3c">⚠️ {{ count }} Device{{ 's' if count > 1 else '' }} Offline</font>
       
