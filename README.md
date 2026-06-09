@@ -222,6 +222,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     - [Places](https://github.com/custom-components/places)
     - [Lovelace mushroom](https://github.com/piitaya/lovelace-mushroom)
     - [mini-graph-card](https://github.com/kalkih/mini-graph-card)
+    - [helios](https://helios-lidar.org/)
   - SmartThings
   - Speedtest.net
   - Matter
