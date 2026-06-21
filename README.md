@@ -224,6 +224,8 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     - [mini-graph-card](https://github.com/kalkih/mini-graph-card)
     - [helios](https://helios-lidar.org/)
     - [battery-monitor](https://github.com/DomoticaFacile/battery_monitor)
+    - [card mod](https://github.com/thomasloven/lovelace-card-mod)
+    - [auto entities](https://github.com/thomasloven/lovelace-auto-entities)
   - SmartThings
   - Speedtest.net
   - Matter
@@ -284,6 +286,41 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     - If you cannot connect your device, try to connect your phone to the same network as your server or try to use the 2.4GHz network instead.
 ###### Accessing the Matter server
 - On your local network, you can find it on `http://SERVER_IP:5580`
+###### Summary of all battery entities
+- Needs card mod and auto entities
+- ```yaml
+  type: custom:auto-entities
+  card:
+    type: entities
+    title: 🔋 Battery Levels
+    show_header_toggle: false
+  filter:
+    include:
+      - entity_id: "*_battery"
+        attributes:
+          unit_of_measurement: "%"
+        options:
+          card_mod:
+            style: |
+              :host {
+                --paper-item-icon-color: 
+                  {% set lvl = states(config.entity) | int(100) %}
+                  {% if lvl <= 20 %} #ff4d4d
+                  {% elif lvl <= 50 %} #ffaa00
+                  {% else %} #4caf50
+                  {% endif %};
+                  
+                color: 
+                  {% set lvl = states(config.entity) | int(100) %}
+                  {% if lvl <= 20 %} #ff4d4d
+                  {% elif lvl <= 50 %} #ffaa00
+                  {% else %} #4caf50
+                  {% endif %};
+              }
+  sort:
+    method: state
+    numeric: true
+  ```
 ###### Counter for matter devices being unavailable
 - Go to Settings > Devices & Services > Helpers.
 - Click the + Create Helper button in the bottom right corner.
