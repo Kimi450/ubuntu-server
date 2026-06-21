@@ -318,8 +318,37 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
                   {% endif %};
               }
   sort:
-    method: state
+    method: name
     numeric: true
+  ```
+###### Summary of all door entities
+- Needs card mod and auto entities
+- ```yaml
+  type: custom:auto-entities
+  card:
+    type: entities
+    title: 🚪 Door Monitor
+    show_header_toggle: false
+  filter:
+    include:
+      - entity_id: "*_door"
+        domain: binary_sensor
+        options:
+          card_mod:
+            style: |
+              :host {
+                --paper-item-icon-color: 
+                  {{ '#ffaa00' if is_state(config.entity, 'on') else '#4caf50' }};
+                  
+                color: 
+                  {{ '#ffaa00' if is_state(config.entity, 'on') else '#4caf50' }};
+                
+                font-weight: 
+                  {{ 'bold' if is_state(config.entity, 'on') else 'normal' }};
+              }
+  sort:
+    method: name
+    reverse: false
   ```
 ###### Counter for matter devices being unavailable
 - Go to Settings > Devices & Services > Helpers.
