@@ -226,6 +226,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     - [battery-monitor](https://github.com/DomoticaFacile/battery_monitor)
     - [card mod](https://github.com/thomasloven/lovelace-card-mod)
     - [auto entities](https://github.com/thomasloven/lovelace-auto-entities)
+    - [home-assistant-esb-smart-meter-integration](https://github.com/antoine-voiry/home-assistant-esb-smart-meter-integration)
   - SmartThings
   - Speedtest.net
   - Matter
