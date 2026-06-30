@@ -236,7 +236,8 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   - Thread
   - ESB Smart meter usage
     - https://github.com/badger707/esb-smart-meter-reading-automation
-
+  - Blueprints
+    - [IKEA Bilresa](https://community.home-assistant.io/t/ikea-bilresa-dual-button-remote/965815)
 ##### Basic guide to setup Matter over Thread
 - Make sure the thread enabled radio device is connected to the server
 - Run the automation with `otbr.*` config set correctly
