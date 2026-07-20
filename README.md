@@ -227,6 +227,8 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     - [card mod](https://github.com/thomasloven/lovelace-card-mod)
     - [auto entities](https://github.com/thomasloven/lovelace-auto-entities)
     - [home-assistant-esb-smart-meter-integration](https://github.com/antoine-voiry/home-assistant-esb-smart-meter-integration)
+    - [Open Meteo](https://www.home-assistant.io/integrations/open_meteo/)
+    - [Forecast.Solar](https://www.home-assistant.io/integrations/forecast_solar/)
   - SmartThings
   - Speedtest.net
   - Matter
