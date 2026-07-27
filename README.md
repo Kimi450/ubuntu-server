@@ -230,6 +230,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     - [Open Meteo](https://www.home-assistant.io/integrations/open_meteo/)
     - [Open Meteo Solar Forecast](https://github.com/rany2/open-meteo-solar-forecast)
     - [Forecast.Solar](https://www.home-assistant.io/integrations/forecast_solar/)
+    - [Aquarea Smart Cloud](https://github.com/wpatrik14/home-assistant-aquarea)
   - SmartThings
   - Speedtest.net
   - Matter
