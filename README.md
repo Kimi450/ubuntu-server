@@ -222,6 +222,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     - [Places](https://github.com/custom-components/places)
     - [Lovelace mushroom](https://github.com/piitaya/lovelace-mushroom)
     - [mini-graph-card](https://github.com/kalkih/mini-graph-card)
+    - [ApexCharts](https://github.com/romrider/apexcharts-card)
     - [helios](https://helios-lidar.org/)
     - [battery-monitor](https://github.com/DomoticaFacile/battery_monitor)
     - [card mod](https://github.com/thomasloven/lovelace-card-mod)
