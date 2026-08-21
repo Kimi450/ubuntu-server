@@ -92,5 +92,3 @@
     kubespray_inventory_ini: "{{ kubespray_sample_dir }}/inventory.ini"
     kubespray_addons_yml: "{{ kubespray_sample_dir }}/group_vars/k8s_cluster/addons.yml"
     kubespray_k8s_cluster_yml: "{{ kubespray_sample_dir }}/group_vars/k8s_cluster/k8s-cluster.yml"
-
-
