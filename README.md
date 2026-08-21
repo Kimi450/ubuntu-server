@@ -249,6 +249,11 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     ```
 - You can find information on how to use [Loki](https://grafana.com/oss/loki/) in Grafana [here](https://grafana.com/docs/loki/latest/operations/grafana/)
 
+- Reset admin passwork by exec-ing into the pod and running
+  ```sh
+    grafana cli admin reset-admin-password mypass@123
+  ```
+
 #### Setup Home Assistant
 - Portal for adding and monitoring home automation devices (like Zigbee or Thread devices)
   - To add zigbee/thread support to your home assistant backed server, you can buy the [Home Assistant Connect ZBT-1](https://www.home-assistant.io/connectzbt1/)
@@ -352,14 +357,14 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
           card_mod:
             style: |
               :host {
-                --paper-item-icon-color: 
+                --paper-item-icon-color:
                   {% set lvl = states(config.entity) | int(100) %}
                   {% if lvl <= 20 %} #ff4d4d
                   {% elif lvl <= 50 %} #ffaa00
                   {% else %} #4caf50
                   {% endif %};
-                  
-                color: 
+
+                color:
                   {% set lvl = states(config.entity) | int(100) %}
                   {% if lvl <= 20 %} #ff4d4d
                   {% elif lvl <= 50 %} #ffaa00
@@ -386,13 +391,13 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
           card_mod:
             style: |
               :host {
-                --paper-item-icon-color: 
+                --paper-item-icon-color:
                   {{ '#ffaa00' if is_state(config.entity, 'on') else '#4caf50' }};
-                  
-                color: 
+
+                color:
                   {{ '#ffaa00' if is_state(config.entity, 'on') else '#4caf50' }};
-                
-                font-weight: 
+
+                font-weight:
                   {{ 'bold' if is_state(config.entity, 'on') else 'normal' }};
               }
   sort:
@@ -406,15 +411,15 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   - Name: Unavailable Matter Devices
   - State template:
     ```
-    {{ integration_entities('matter') 
-      | select('is_state', 'unavailable') 
-      | map('device_id') 
+    {{ integration_entities('matter')
+      | select('is_state', 'unavailable')
+      | map('device_id')
       | unique | list | count }}
     ```
   - Unit of measurement: (Leave blank, or put devices)
   - Device class: None
   - State class: Measurement
-  - Icon: mdi:vector-polyline-minus 
+  - Icon: mdi:vector-polyline-minus
 - Click the Save button to save the helper.
 - Use the mini-graph-card to display the helper.
   ```yaml
@@ -439,25 +444,25 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   type: markdown
   title: Matter Status
   content: |-
-    {% set devices = states 
-      | selectattr('entity_id', 'in', integration_entities('matter')) 
-      | selectattr('state', 'eq', 'unavailable') 
-      | map(attribute='entity_id') 
-      | map('device_attr', 'name_by_user') 
-      | unique 
+    {% set devices = states
+      | selectattr('entity_id', 'in', integration_entities('matter'))
+      | selectattr('state', 'eq', 'unavailable')
+      | map(attribute='entity_id')
+      | map('device_attr', 'name_by_user')
+      | unique
       | list %}
-  
+
     {% set count = devices | length %}
     {% if count > 0 %}
       ### <font color="#e74c3c">⚠️ {{ count }} Device{{ 's' if count > 1 else '' }} Offline</font>
-      
+
       The following Matter devices are currently disconnected:
       {% for device in devices %}
         * **{{ device }}**
       {% endfor %}
     {% else %}
       ### <font color="#2ecc71">✅ 0 Devices Offline</font>
-      
+
       Everything looks great! All Matter devices are connected.
     {% endif %}
   ```
@@ -529,10 +534,10 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   - Go to `Tools > Options > Downloads`
   - Enable `Exclude file names` and add the below section to it (one per line) (from [reddit](https://www.reddit.com/r/Piracy/comments/1frfqqg/psahowto_avoid_fake_mkv_torrents_avoid_getting/))
     ```
-    *.mp4.lnk  
-    *.mp3.lnk  
+    *.mp4.lnk
+    *.mp3.lnk
     *.mkv.lnk
-    *.torrent.lnk 
+    *.torrent.lnk
     *.zipx
     *.scr
     *.arj
