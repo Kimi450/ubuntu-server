@@ -74,11 +74,13 @@
         block: |
           http_access allow authenticated
 
-    - name: Reload systemd service
-      include_tasks: ../tasks/reload-systemd.yaml
-      vars:
-        service_name: "squid"
-        become: True
+    - name: "Restart and enable systemd unit squid"
+      become: true
+      ansible.builtin.systemd_service:
+        name: "squid"
+        state: restarted
+        enabled: true
+        daemon_reload: true
 
     - debug:
         msg: >-

@@ -24,6 +24,7 @@
     - name: Clone spotifyd from github
       include_tasks: ../../tasks/clone-git-repo.yaml
       vars:
+        repo_dir:  "{{ repo_dir }}"
         repo_link: https://github.com/Spotifyd/spotifyd.git
 
     - name: Build the project
@@ -56,11 +57,13 @@
           --initial-volume {{ spotify.init_volume }}
         backrefs: yes
 
-    - name: Reload, enable and start spotifyd
-      include_tasks: ../../tasks/reload-systemd.yaml
-      vars:
-        service_name: spotifyd.service
-        become: true
+    - name: "Restart and enable systemd unit spotifyd.service"
+      become: true
+      ansible.builtin.systemd_service:
+        name: "spotifyd.service"
+        state: restarted
+        enabled: true
+        daemon_reload: true
 
     - name: Give user audio permissions
       become: true

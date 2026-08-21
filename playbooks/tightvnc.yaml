@@ -76,8 +76,10 @@
         line: "PIDFile={{ vnc.working_dir }}/.vnc/%H:%i.pid"
         backrefs: yes
 
-    - name: Reload systemd service
-      include_tasks: ../tasks/reload-systemd.yaml
-      vars:
-        service_name: "vncserver@{{ vnc.display }}.service"
-        become: True
+    - name: "Restart and enable systemd unit vncserver@{{ vnc.display }}.service"
+      become: true
+      ansible.builtin.systemd_service:
+        name: "vncserver@{{ vnc.display }}.service"
+        state: restarted
+        enabled: true
+        daemon_reload: true

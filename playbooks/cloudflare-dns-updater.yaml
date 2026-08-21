@@ -130,8 +130,10 @@
                 --data '{"type":"'${dns_record_type}'","name":"'${dns_record_name}'","content":"'${ip}'","ttl":'${dns_record_ttl}',"proxied":'${dns_record_proxied}'}'
           done
 
-    - name: "Reload Systemd timer {{ timer_file_name }}"
-      include_tasks: ../tasks/reload-systemd.yaml
-      vars:
-        become: True
-        service_name: "{{ timer_file_name }}"
+    - name: "Restart and enable systemd unit {{ timer_file_name }}"
+      become: true
+      ansible.builtin.systemd_service:
+        name: "{{ timer_file_name }}"
+        state: restarted
+        enabled: true
+        daemon_reload: true
