@@ -20,7 +20,7 @@ echo "activating python virtual env"
 # shellcheck disable=SC1091
 source "${VENV_DIR}/bin/activate"
 
-if ! command -v ansible-playbook >/dev/null 2>&1; then
+if ! command -v "ansible-playbook --version" >/dev/null 2>&1; then
     echo "installing ansible..."
     pip install --upgrade pip
     pip install ansible
