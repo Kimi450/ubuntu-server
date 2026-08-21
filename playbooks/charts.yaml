@@ -77,24 +77,125 @@
         mode: '0777'
       become: true # incase the dirs are created at root level
 
-    # Build helm --set strings for every data type. Each service that owns
-    # the source-of-truth for a data type (e.g. radarr -> movies) drives
-    # the loop; other services just reuse the resulting fact.
-    - name: "Build persistence helm --set overrides"
-      include_tasks: ../tasks/process-persistence-disks.yaml
-      vars:
-        persistence_list: "{{ item.list }}"
-        persistence_label: "{{ item.label }}"
-        persistence_fact: "{{ item.fact }}"
-      loop:
-        - { label: cache,     fact: helm_common_persistence_cache,     list: "{{ charts.services.tdarr.persistence }}" }
-        - { label: movies,    fact: helm_common_persistence_movies,    list: "{{ charts.services.radarr.persistence }}" }
-        - { label: shows,     fact: helm_common_persistence_shows,     list: "{{ charts.services.sonarr.persistence }}" }
-        - { label: books,     fact: helm_common_persistence_books,     list: "{{ charts.services.readarr.persistence }}" }
-        - { label: music,     fact: helm_common_persistence_music,     list: "{{ charts.services.lidarr.persistence }}" }
-        - { label: downloads, fact: helm_common_persistence_downloads, list: "{{ charts.services.qbittorrent.persistence }}" }
-      loop_control:
-        label: "{{ item.label }}"
+    - name: Process variable to add disks
+      block:
+        - name: "Create host path dir"
+          file:
+            path: "{{ item.host_path }}"
+            state: directory
+            mode: '0777'
+          become: true # incase the dirs are created at root level
+          loop: "{{ charts.services.tdarr.persistence }}"
+        - name: Set facts
+          set_fact:
+            helm_common_persistence_cache: >-
+              {{- helm_common_persistence_cache | default('')
+                  + 'persistence.cache-' + item.name + '.enabled=true,'
+                  + 'persistence.cache-' + item.name + '.type=hostPath,'
+                  + 'persistence.cache-' + item.name + '.hostPath=' +  item.host_path + ','
+                  + 'persistence.cache-' + item.name + '.mountPath=/data-mnt/' + item.name + '/cache,'
+              -}}
+          loop: "{{ charts.services.tdarr.persistence }}"
+
+    - name: Process variable to add disks
+      block:
+        - name: "Create host path dir"
+          file:
+            path: "{{ item.host_path }}"
+            state: directory
+            mode: '0777'
+          become: true # incase the dirs are created at root level
+          loop: "{{ charts.services.radarr.persistence }}"
+        - name: Set facts
+          set_fact:
+            helm_common_persistence_movies: >-
+              {{- helm_common_persistence_movies | default('')
+                  + 'persistence.movies-' + item.name + '.enabled=true,'
+                  + 'persistence.movies-' + item.name + '.type=hostPath,'
+                  + 'persistence.movies-' + item.name + '.hostPath=' +  item.host_path + ','
+                  + 'persistence.movies-' + item.name + '.mountPath=/data-mnt/' + item.name + '/movies,'
+              -}}
+          loop: "{{ charts.services.radarr.persistence }}"
+
+    - name: Process variable to add disks
+      block:
+        - name: "Create host path dir"
+          file:
+            path: "{{ item.host_path }}"
+            state: directory
+            mode: '0777'
+          become: true # incase the dirs are created at root level
+          loop: "{{ charts.services.sonarr.persistence }}"
+        - name: Set facts
+          set_fact:
+            helm_common_persistence_shows: >-
+              {{- helm_common_persistence_shows | default('')
+                  + 'persistence.shows-' + item.name + '.enabled=true,'
+                  + 'persistence.shows-' + item.name + '.type=hostPath,'
+                  + 'persistence.shows-' + item.name + '.hostPath=' +  item.host_path + ','
+                  + 'persistence.shows-' + item.name + '.mountPath=/data-mnt/' + item.name + '/shows,'
+              -}}
+          loop: "{{ charts.services.sonarr.persistence }}"
+
+    - name: Process variable to add disks
+      block:
+        - name: "Create host path dir"
+          file:
+            path: "{{ item.host_path }}"
+            state: directory
+            mode: '0777'
+          become: true # incase the dirs are created at root level
+          loop: "{{ charts.services.readarr.persistence }}"
+        - name: Set facts
+          set_fact:
+            helm_common_persistence_books: >-
+              {{- helm_common_persistence_books | default('')
+                  + 'persistence.books-' + item.name + '.enabled=true,'
+                  + 'persistence.books-' + item.name + '.type=hostPath,'
+                  + 'persistence.books-' + item.name + '.hostPath=' +  item.host_path + ','
+                  + 'persistence.books-' + item.name + '.mountPath=/data-mnt/' + item.name + '/books,'
+              -}}
+          loop: "{{ charts.services.readarr.persistence }}"
+
+    - name: Process variable to add disks
+      block:
+        - name: "Create host path dir"
+          file:
+            path: "{{ item.host_path }}"
+            state: directory
+            mode: '0777'
+          become: true # incase the dirs are created at root level
+          loop: "{{ charts.services.lidarr.persistence }}"
+        - name: Set facts
+          set_fact:
+            helm_common_persistence_music: >-
+              {{- helm_common_persistence_music | default('')
+                  + 'persistence.music-' + item.name + '.enabled=true,'
+                  + 'persistence.music-' + item.name + '.type=hostPath,'
+                  + 'persistence.music-' + item.name + '.hostPath=' +  item.host_path + ','
+                  + 'persistence.music-' + item.name + '.mountPath=/data-mnt/' + item.name + '/music,'
+              -}}
+          loop: "{{ charts.services.lidarr.persistence }}"
+
+    - name: Process variable to add disks
+      block:
+        - name: "Create host path dir"
+          file:
+            path: "{{ item.host_path }}"
+            state: directory
+            mode: '0777'
+          become: true # incase the dirs are created at root level
+          loop: "{{ charts.services.qbittorrent.persistence }}"
+        - name: Set facts
+          set_fact:
+            helm_common_persistence_downloads: >-
+              {{- helm_common_persistence_downloads | default('')
+                  + 'persistence.downloads-' + item.name + '.enabled=true,'
+                  + 'persistence.downloads-' + item.name + '.type=hostPath,'
+                  + 'persistence.downloads-' + item.name + '.hostPath=' +  item.host_path + ','
+                  + 'persistence.downloads-' + item.name + '.mountPath=/data-mnt/' + item.name + '/downloads,'
+              -}}
+          loop: "{{ charts.services.qbittorrent.persistence }}"
 
     - name: Install rancher local-path-provisioner
       when: charts.services.local_path_provisioner.enabled
