@@ -22,4 +22,4 @@
         chart_location: "{{ repo_link }}/{{ chart_name }}"
 
   - name: Install chart {{ release_name }} {{ version }}
-    shell: "helm upgrade -i -n {{ install_namespace }} {{ release_name }} {{ chart_location }} {{ set_options }} --timeout {{ timeout }} {{ '--version ' + version if version != 'latest' }} --create-namespace --wait"
+    shell: "helm upgrade -i -n {{ install_namespace }} {{ release_name }} {{ chart_location }} {{ set_options }} --timeout {{ chart_timeout }} {{ '--version ' + version if version != 'latest' }} --create-namespace --wait"

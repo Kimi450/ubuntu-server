@@ -116,7 +116,7 @@
           repo_name: nginx-ingress
           repo_link: https://kubernetes.github.io/ingress-nginx
           install_namespace: "{{ namespace_ingress }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: ingress-nginx
           chart_name: ingress-nginx
           version: "{{ charts.services.ingress_nginx.version }}"
@@ -143,7 +143,7 @@
           repo_name: jetstack
           repo_link: https://charts.jetstack.io
           install_namespace: "{{ namespace_cert_manager }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: cert-manager
           chart_name: cert-manager
           version: "{{ charts.services.cert_manager.version }}"
@@ -231,7 +231,7 @@
           repo_name: grafana
           repo_link: https://grafana.github.io/helm-charts
           install_namespace: "{{ namespace_monitoring }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: loki-stack
           chart_name: loki-stack
           version: "{{ charts.services.loki_stack.version }}"
@@ -260,7 +260,7 @@
           repo_name: prometheus-community
           repo_link: https://prometheus-community.github.io/helm-charts
           install_namespace: "{{ namespace_monitoring }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: kube-prometheus-stack
           chart_name: kube-prometheus-stack
           version: "{{ charts.services.kube_prometheus_stack.version }}"
@@ -319,7 +319,7 @@
         include_tasks: ../tasks/delete-k8s-instances.yaml
         vars:
           kind: pod
-          namespace: "{{ namespace_monitoring }}"
+          delete_namespace: "{{ namespace_monitoring }}"
           contains: kube-prometheus-stack
 
       - debug:
@@ -337,7 +337,7 @@
           repo_name: cnpg
           repo_link: https://cloudnative-pg.github.io/charts
           install_namespace: "{{ namespace_cloudnative_postgres }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: cnpg
           chart_name: cloudnative-pg
           version: "{{ charts.services.cnpg.version }}"
@@ -353,7 +353,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: immich
           chart_name: immich
           version: "{{ charts.services.immich.version }}"
@@ -410,7 +410,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: guacamole
           chart_name: guacamole
           version: "{{ charts.services.guacamole.version }}"
@@ -447,7 +447,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: home-assistant
           chart_name: home-assistant
           version: "{{ charts.services.home_assistant.version }}"
@@ -492,7 +492,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: jellyfin
           chart_name: jellyfin
           version: "{{ charts.services.jellyfin.version }}"
@@ -546,7 +546,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: jellystat
           chart_name: jellystat
           version: "{{ charts.services.jellystat.version }}"
@@ -584,7 +584,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: qbittorrent
           chart_name: qbittorrent
           version: "{{ charts.services.qbittorrent.version }}"
@@ -635,7 +635,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: flaresolverr
           chart_name: flaresolverr
           version: "{{ charts.services.flaresolverr.version }}"
@@ -667,7 +667,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: prowlarr
           chart_name: prowlarr
           version: "{{ charts.services.prowlarr.version }}"
@@ -706,7 +706,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: radarr
           chart_name: radarr
           version: "{{ charts.services.radarr.version }}"
@@ -749,7 +749,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: sonarr
           chart_name: sonarr
           version: "{{ charts.services.sonarr.version }}"
@@ -792,7 +792,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: tdarr
           chart_name: tdarr
           version: "{{ charts.services.tdarr.version }}"
@@ -846,7 +846,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: bazarr
           chart_name: bazarr
           version: "{{ charts.services.bazarr.version }}"
@@ -889,7 +889,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: readarr
           chart_name: readarr
           version: "{{ charts.services.readarr.version }}"
@@ -931,7 +931,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: lidarr
           chart_name: lidarr
           version: "{{ charts.services.lidarr.version }}"
@@ -973,7 +973,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: ombi
           chart_name: ombi
           version: "{{ charts.services.ombi.version }}"
@@ -1013,7 +1013,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: seerr
           chart_name: seerr
           version: "{{ charts.services.seerr.version }}"
@@ -1046,7 +1046,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: librespeed
           chart_name: librespeed
           version: "{{ charts.services.librespeed.version }}"
@@ -1080,7 +1080,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: calibre-web
           chart_name: calibre-web
           version: "{{ charts.services.calibre_web.version }}"
@@ -1116,7 +1116,7 @@
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: calibre
           chart_name: calibre
           version: "{{ charts.services.calibre.version }}"
