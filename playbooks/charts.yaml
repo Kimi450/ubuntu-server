@@ -212,12 +212,12 @@
       when: charts.services.ingress_nginx.enabled
       block:
       - name: Install/Upgrade the ingress-nginx chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: nginx-ingress
           repo_link: https://kubernetes.github.io/ingress-nginx
           install_namespace: "{{ namespace_ingress }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: ingress-nginx
           chart_name: ingress-nginx
           version: "{{ charts.services.ingress_nginx.version }}"
@@ -239,12 +239,12 @@
       when: charts.services.cert_manager.enabled
       block:
       - name: Install/Upgrade the cert-manager chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: jetstack
           repo_link: https://charts.jetstack.io
           install_namespace: "{{ namespace_cert_manager }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: cert-manager
           chart_name: cert-manager
           version: "{{ charts.services.cert_manager.version }}"
@@ -326,13 +326,13 @@
       when: charts.services.loki_stack.enabled
       block:
       - name: Install/Upgrade the loki-stack chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         # https://artifacthub.io/packages/helm/grafana/loki-stack
         vars:
           repo_name: grafana
           repo_link: https://grafana.github.io/helm-charts
           install_namespace: "{{ namespace_monitoring }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: loki-stack
           chart_name: loki-stack
           version: "{{ charts.services.loki_stack.version }}"
@@ -355,13 +355,13 @@
       when: charts.services.kube_prometheus_stack.enabled
       block:
       - name: Install/Upgrade the kube-prometheus-stack chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         # https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
         vars:
           repo_name: prometheus-community
           repo_link: https://prometheus-community.github.io/helm-charts
           install_namespace: "{{ namespace_monitoring }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: kube-prometheus-stack
           chart_name: kube-prometheus-stack
           version: "{{ charts.services.kube_prometheus_stack.version }}"
@@ -417,10 +417,10 @@
         ignore_errors: True
 
       - name: Restart pods to pick up any config updates
-        include_tasks: tasks-kubernetes-delete-kind-instances.yaml
+        include_tasks: ../tasks/delete-k8s-instances.yaml
         vars:
           kind: pod
-          namespace: "{{ namespace_monitoring }}"
+          delete_namespace: "{{ namespace_monitoring }}"
           contains: kube-prometheus-stack
 
       - debug:
@@ -433,12 +433,12 @@
       when: charts.services.cnpg.enabled
       block:
       - name: Install/Upgrade the cnpg chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: cnpg
           repo_link: https://cloudnative-pg.github.io/charts
           install_namespace: "{{ namespace_cloudnative_postgres }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: cnpg
           chart_name: cloudnative-pg
           version: "{{ charts.services.cnpg.version }}"
@@ -449,12 +449,12 @@
       when: charts.services.immich.enabled
       block:
       - name: Install/Upgrade the immich chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: immich
           chart_name: immich
           version: "{{ charts.services.immich.version }}"
@@ -506,12 +506,12 @@
       when: charts.services.guacamole.enabled
       block:
       - name: Install/Upgrade the guacamole chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: guacamole
           chart_name: guacamole
           version: "{{ charts.services.guacamole.version }}"
@@ -543,12 +543,12 @@
         become: true
 
       - name: Install/Upgrade the home-assistant chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: home-assistant
           chart_name: home-assistant
           version: "{{ charts.services.home_assistant.version }}"
@@ -588,12 +588,12 @@
         become: true
 
       - name: Install/Upgrade the jellyfin chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: jellyfin
           chart_name: jellyfin
           version: "{{ charts.services.jellyfin.version }}"
@@ -642,12 +642,12 @@
       when: charts.services.jellystat.enabled
       block:
       - name: Install/Upgrade the jellystat chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: jellystat
           chart_name: jellystat
           version: "{{ charts.services.jellystat.version }}"
@@ -680,12 +680,12 @@
         become: true
 
       - name: Install/Upgrade the qbittorrent chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: qbittorrent
           chart_name: qbittorrent
           version: "{{ charts.services.qbittorrent.version }}"
@@ -731,12 +731,12 @@
       when: charts.services.flaresolverr.enabled
       block:
       - name: Install/Upgrade the flaresolverr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: flaresolverr
           chart_name: flaresolverr
           version: "{{ charts.services.flaresolverr.version }}"
@@ -763,12 +763,12 @@
         become: true
 
       - name: Install/Upgrade the prowlarr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: prowlarr
           chart_name: prowlarr
           version: "{{ charts.services.prowlarr.version }}"
@@ -802,12 +802,12 @@
         become: true
 
       - name: Install/Upgrade the radarr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: radarr
           chart_name: radarr
           version: "{{ charts.services.radarr.version }}"
@@ -845,12 +845,12 @@
         become: true
 
       - name: Install/Upgrade the sonarr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: sonarr
           chart_name: sonarr
           version: "{{ charts.services.sonarr.version }}"
@@ -888,12 +888,12 @@
         become: true
 
       - name: Install/Upgrade the tdarr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: tdarr
           chart_name: tdarr
           version: "{{ charts.services.tdarr.version }}"
@@ -942,12 +942,12 @@
         become: true
 
       - name: Install/Upgrade the bazarr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: bazarr
           chart_name: bazarr
           version: "{{ charts.services.bazarr.version }}"
@@ -985,12 +985,12 @@
         become: true
 
       - name: Install/Upgrade the readarr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: readarr
           chart_name: readarr
           version: "{{ charts.services.readarr.version }}"
@@ -999,7 +999,7 @@
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_books }}\
-            {{ helm_common_persistence_downloads }}}\
+            {{ helm_common_persistence_downloads }}\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
@@ -1027,12 +1027,12 @@
         become: true
 
       - name: Install/Upgrade the lidarr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: lidarr
           chart_name: lidarr
           version: "{{ charts.services.lidarr.version }}"
@@ -1041,7 +1041,7 @@
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_music }}\
-            {{ helm_common_persistence_downloads }}}\
+            {{ helm_common_persistence_downloads }}\
             {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
@@ -1069,12 +1069,12 @@
         become: true
 
       - name: Install/Upgrade the ombi chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: ombi
           chart_name: ombi
           version: "{{ charts.services.ombi.version }}"
@@ -1109,12 +1109,12 @@
         become: true
 
       - name: Install/Upgrade the seerr chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: seerr
           chart_name: seerr
           version: "{{ charts.services.seerr.version }}"
@@ -1142,12 +1142,12 @@
       when: charts.services.librespeed.enabled
       block:
       - name: Install/Upgrade the librespeed chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: librespeed
           chart_name: librespeed
           version: "{{ charts.services.librespeed.version }}"
@@ -1176,12 +1176,12 @@
       when: charts.services.calibre_web.enabled
       block:
       - name: Install/Upgrade the calibre-web chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: calibre-web
           chart_name: calibre-web
           version: "{{ charts.services.calibre_web.version }}"
@@ -1191,7 +1191,7 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_persistence_books }}\
-            {{ helm_common_persistence_downloads }}}\
+            {{ helm_common_persistence_downloads }}\
             {{ helm_common_ingress }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.calibre_web.resources.limits.cpu }},\
@@ -1212,12 +1212,12 @@
       when: charts.services.calibre.enabled
       block:
       - name: Install/Upgrade the calibre chart
-        include_tasks: tasks-install-chart.yaml
+        include_tasks: ../tasks/install-chart.yaml
         vars:
           repo_name: TrueCharts
           repo_link: oci://oci.trueforge.org/truecharts
           install_namespace: "{{ namespace_generic_services }}"
-          timeout: "{{ charts.timeout }}"
+          chart_timeout: "{{ charts.timeout }}"
           release_name: calibre
           chart_name: calibre
           version: "{{ charts.services.calibre.version }}"
@@ -1229,7 +1229,7 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_persistence_books }}\
-            {{ helm_common_persistence_downloads }}}\
+            {{ helm_common_persistence_downloads }}\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.calibre.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.calibre.resources.limits.memory }},\

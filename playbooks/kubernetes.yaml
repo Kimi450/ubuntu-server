@@ -1,0 +1,49 @@
+---
+- import_playbook: kubernetes-kubespray.yaml
+  when:
+    - kubespray.enabled
+    - not kubeadm.enabled
+
+- import_playbook: kubernetes-kubeadm.yaml
+  when:
+    - not kubespray.enabled
+    - kubeadm.enabled
+
+- name: Install cluster tooling (kubectl, helm, metrics-server)
+  hosts: all
+  gather_facts: true
+  vars:
+    kubectl_stable_url: "https://dl.k8s.io/release/stable.txt"
+    metrics_server_manifest: "https://raw.githubusercontent.com/pythianarora/total-practice/master/sample-kubernetes-code/metrics-server.yaml"
+  tasks:
+    # https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+    - name: Install kubectl
+      become: true
+      block:
+        - name: Resolve latest stable kubectl version
+          ansible.builtin.uri:
+            url: "{{ kubectl_stable_url }}"
+            return_content: true
+          register: kubectl_stable
+
+        - name: Download kubectl binary
+          ansible.builtin.get_url:
+            url: "https://dl.k8s.io/release/{{ kubectl_stable.content | trim }}/bin/linux/amd64/kubectl"
+            dest: /usr/local/bin/kubectl
+            owner: root
+            group: root
+            mode: '0755'
+
+    # https://helm.sh/docs/intro/install/
+    - name: Install Helm
+      become: true
+      ansible.builtin.shell: |
+        set -o pipefail
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      args:
+        executable: /bin/bash
+        creates: /usr/local/bin/helm
+
+    - name: Apply metrics-server manifest
+      ansible.builtin.command: "kubectl apply -f {{ metrics_server_manifest }}"
+      changed_when: true

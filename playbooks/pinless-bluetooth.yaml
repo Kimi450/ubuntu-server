@@ -38,11 +38,13 @@
             line: 'ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp'
             backrefs: yes
 
-        - name: Reload systemd service
-          include_tasks: tasks-reload-systemd-service.yaml
-          vars:
-            service_name: "{{ bluetooth_service_name }}"
-            become: True
+        - name: "Restart and enable systemd unit {{ bluetooth_service_name }}"
+          become: true
+          ansible.builtin.systemd_service:
+            name: "{{ bluetooth_service_name }}"
+            state: restarted
+            enabled: true
+            daemon_reload: true
 
     - name: "Add {{ ansible_user }} to audio group"
       become: true
@@ -82,11 +84,13 @@
               [Install]
               WantedBy=multi-user.target
 
-        - name: Reload systemd service
-          include_tasks: tasks-reload-systemd-service.yaml
-          vars:
-            service_name: "{{ pulseaudio_system_service_name }}"
-            become: True
+        - name: "Restart and enable systemd unit {{ pulseaudio_system_service_name }}"
+          become: true
+          ansible.builtin.systemd_service:
+            name: "{{ pulseaudio_system_service_name }}"
+            state: restarted
+            enabled: true
+            daemon_reload: true
 
     - name: Setup NoInputNoOutput bt-agent for pinless pairing
       block:
@@ -99,7 +103,7 @@
         - name: "Copy script to {{ bt_agent_service_script_location }}"
           become: true
           copy:
-            src: helpers/remove-paired-devices.sh
+            src: ../files/remove-paired-devices.sh
             dest: "{{ bt_agent_service_script_location }}"
             mode: "0755"
 
@@ -141,11 +145,13 @@
               [Install]
               WantedBy=bluetooth.target
 
-        - name: Reload systemd service
-          include_tasks: tasks-reload-systemd-service.yaml
-          vars:
-            service_name: "{{ bt_agent_service_name }}"
-            become: True
+        - name: "Restart and enable systemd unit {{ bt_agent_service_name }}"
+          become: true
+          ansible.builtin.systemd_service:
+            name: "{{ bt_agent_service_name }}"
+            state: restarted
+            enabled: true
+            daemon_reload: true
 
     - name: "Setup alsa-restore for the {{ ansible_user }}"
       # https://askubuntu.com/questions/132440/headphone-jack-not-working
@@ -168,11 +174,13 @@
             insertafter: '^\[Service\]$'
             line: "User={{ ansible_user }}"
 
-        - name: Reload systemd service
-          include_tasks: tasks-reload-systemd-service.yaml
-          vars:
-            service_name: "{{ service_file_name }}"
-            become: True
+        - name: "Restart and enable systemd unit {{ service_file_name }}"
+          become: true
+          ansible.builtin.systemd_service:
+            name: "{{ service_file_name }}"
+            state: restarted
+            enabled: true
+            daemon_reload: true
 
       vars:
         loc_original_service: /lib/systemd/system/alsa-restore.service

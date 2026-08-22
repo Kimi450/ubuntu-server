@@ -30,9 +30,13 @@
               read only = no
               browsable = yes
 
-    - name: Reload to see new unit file
-      become: True
-      shell: service smbd restart
+    - name: "Restart and enable systemd unit smbd"
+      become: true
+      ansible.builtin.systemd_service:
+        name: "smbd"
+        state: restarted
+        enabled: true
+        daemon_reload: true
 
     - name: Set password
       become: True

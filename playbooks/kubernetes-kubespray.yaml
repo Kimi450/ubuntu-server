@@ -9,7 +9,7 @@
       delegate_to: localhost
       block:
         - name: Clone kuberspray from github
-          include_tasks: tasks-clone-git-repo.yaml
+          include_tasks: ../tasks/clone-git-repo.yaml
           vars:
             repo_dir: "{{ kubespray_repo_dir }}"
             repo_link: https://github.com/kubernetes-sigs/kubespray.git
@@ -92,5 +92,3 @@
     kubespray_inventory_ini: "{{ kubespray_sample_dir }}/inventory.ini"
     kubespray_addons_yml: "{{ kubespray_sample_dir }}/group_vars/k8s_cluster/addons.yml"
     kubespray_k8s_cluster_yml: "{{ kubespray_sample_dir }}/group_vars/k8s_cluster/k8s-cluster.yml"
-
-

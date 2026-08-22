@@ -1,0 +1,6 @@
+- name: "Get all '{{ kind }}' from namespace '{{ delete_namespace }}'s that contain '{{ contains }}'"
+  shell: "kubectl get -n {{ delete_namespace }} {{ kind }} --no-headers -o custom-columns=':metadata.name' | grep {{ contains }}  | sed -z 's/\\n/ /g;s/ $/\\n/'"
+  register: output
+
+- name: "Delete all '{{ kind }}' from namespace '{{ delete_namespace }}' that contain '{{ contains }}'"
+  shell: "kubectl delete -n {{ delete_namespace }} {{ kind }} {{ output.stdout }}"

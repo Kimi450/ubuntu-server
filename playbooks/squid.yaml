@@ -59,7 +59,7 @@
       blockinfile:
         dest: "{{ config_location }}"
         marker: "### ANSIBLE MANAGED BLOCK for ACL CONFIG"
-        insertafter: "include /etc/squid/conf.d/*"
+        insertbefore: "http_access allow localhost"
         block: |
           auth_param basic program {{ basic_ncsa_auth_location.files[0].path }} {{ passwords_loc }}
           auth_param basic realm proxy
@@ -74,11 +74,13 @@
         block: |
           http_access allow authenticated
 
-    - name: Reload systemd service
-      include_tasks: tasks-reload-systemd-service.yaml
-      vars:
-        service_name: "squid"
-        become: True
+    - name: "Restart and enable systemd unit squid"
+      become: true
+      ansible.builtin.systemd_service:
+        name: "squid"
+        state: restarted
+        enabled: true
+        daemon_reload: true
 
     - debug:
         msg: >-
