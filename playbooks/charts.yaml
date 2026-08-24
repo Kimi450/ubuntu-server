@@ -6,7 +6,6 @@
     namespace_monitoring: monitoring
     namespace_generic_services: generic-services
     namespace_cert_manager: cert-manager
-    namespace_ingress: ingress-nginx
     namespace_cloudnative_postgres: "cnpg-system"
     namespace_traefik: traefik
     traefik_gateway_name: "service-gateway"
@@ -197,33 +196,6 @@
       - name: set default storage class
         shell: "kubectl patch storageclass local-path -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"}}}'"
 
-    - name: Install ingress-nginx
-      # https://github.com/kubernetes/ingress-nginx/blob/main/docs/deploy/index.md#quick-start
-      # https://github.com/kubernetes/ingress-nginx/blob/main/docs/deploy/baremetal.md#over-a-nodeport-service
-      when: charts.services.ingress_nginx.enabled
-      block:
-      - name: Install/Upgrade the ingress-nginx chart
-        include_tasks: ../tasks/install-chart.yaml
-        vars:
-          repo_name: nginx-ingress
-          repo_link: https://kubernetes.github.io/ingress-nginx
-          install_namespace: "{{ namespace_ingress }}"
-          chart_timeout: "{{ charts.timeout }}"
-          release_name: ingress-nginx
-          chart_name: ingress-nginx
-          version: "{{ charts.services.ingress_nginx.version }}"
-          # setting proxy-body-size=0 disables size checks for uploads and sets
-          # it as the default for all ingresses handled by this controller
-          #   https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#custom-max-body-size
-          #   https://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size
-          #   https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/configmap.md#proxy-body-size
-          set_options: "--set \
-            controller.config.proxy-body-size=0,\
-            controller.service.type=NodePort,\
-            controller.service.nodePorts.http={{ charts.services.ingress_nginx.http_nodeport }},\
-            controller.service.nodePorts.https={{ charts.services.ingress_nginx.https_nodeport }},\
-            controller.service.externalTrafficPolicy=Local"
-
     - name: Install traefik
       when: charts.services.traefik.enabled
       block:
@@ -244,6 +216,7 @@
             chart_name: traefik
             version: "{{ charts.services.traefik.version }}"
             set_options: "--set \
+              service.spec.externalTrafficPolicy=Local,\
               service.spec.type=NodePort,\
               ports.web.nodePort={{ charts.services.traefik.http_nodeport }},\
               ports.websecure.nodePort={{ charts.services.traefik.https_nodeport }},\

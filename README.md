@@ -490,7 +490,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
       - More information on their [Jellyfin's page for Hardware Acceleration](https://jellyfin.org/docs/general/administration/hardware-acceleration.html)
 - Setup Know Proxies to have valid `X-Forwarded-For` config as per the [documentation](https://jellyfin.org/docs/general/post-install/networking/#known-proxies)
   - Go to `Admin > Dashboard > Networking`
-  - Input the range `10.233.64.0/18` into `Known Proxies` (which is what Kubespray uses by default) for the pod range (where the ingress controller will start as well)
+  - Input the range `10.233.64.0/18` into `Known Proxies` (which is what Kubespray uses by default) for the pod range (where the Gateway controller will start as well)
     - You can use a less restrictive range if you wish as well, eg. `10.0.0.0/8`
   - Go to `Admin > Dashboard`
     - Restart Jellyfin (Shutdown server from the `Dashboard` and k8s will restart, or delete the pod)
@@ -920,34 +920,10 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     | immich      | Ingress        | `immich.<DOMAIN_NAME>`                                            |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
     | librespeed  | Ingress        | `librespeed.<DOMAIN_NAME>`                                        |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
     | calibre-web | Ingress        | `calibre-web.<DOMAIN_NAME>`                                       |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
-    | calibre     | LAN            | `<LAN_IP>:30000` (No ingress rules defined)                       |                            30100 |       `<BEST_NOT_TO_EXPOSE_THIS>` |
+    | calibre     | LAN            | `<LAN_IP>:30000` (No Gateway rules defined)                       |                            30100 |       `<BEST_NOT_TO_EXPOSE_THIS>` |
 
-    NOTE: Security is an unkown when exposing a service to the internet.
-- If you cannot do NAT setup on your router and need the server to run ingress on 80 and 443, you can use this [post's answer](https://stackoverflow.com/questions/55907537/how-to-expose-kubernetes-service-on-prem-using-443-80) to run the ingress controller on host network
-```yaml
-    kind: ...
-    apiVersion: apps/v1
-    metadata:
-    name: nginx-ingress-controller
-    spec:
-    ...
-    template:
-        spec:
-        hostNetwork: true <---------- Add this
-        containers:
-            - name: nginx-ingress-lb
-            image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.21.0
-            ports:
-                - name: http
-                hostPort: 80 <---------- Add this
-                containerPort: 80
-                protocol: TCP
-                - name: https
-                hostPort: 443 <---------- Add this
-                containerPort: 443
-                protocol: TCP
-            ...
-```
+    NOTE: Security is an unknown when exposing a service to the internet.
+
 # Appendix
 
 ## Kubernetes metrics server

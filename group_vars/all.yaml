@@ -79,7 +79,6 @@ kubespray:
   # enable addons config
   addons: []
   # - helm_enabled
-  # - ingress_nginx_enabled
   # - cert_manager_enabled
   # - metallb_enabled
   # - local_path_provisioner_enabled
@@ -195,6 +194,9 @@ charts:
       # Enable this if you are using non-standard ports for your services
       # and need to use the DNS challenge instead of default HTTP challenge
       # for certificates. Probably can leave this as it is.
+      # You will need to provider cloudflare information above
+      #
+      # Keep this on for Gateway API, it is just easier
       dns01_challenge: true
 
     # log monitoring with Loki (Needs Grafana for a UI)
