@@ -8,6 +8,8 @@
     namespace_cert_manager: cert-manager
     namespace_ingress: ingress-nginx
     namespace_cloudnative_postgres: "cnpg-system"
+    namespace_traefik: traefik
+    traefik_gateway_name: "service-gateway"
 
     helm_kube_prometheus_stack_loki_config: "" # default
 
@@ -21,17 +23,6 @@
       operator.verify.enabled=false,\
       workload.main.type=StatefulSet,\
       podOptions.dnsConfig.nameservers={8.8.8.8,8.8.4.4}"
-
-    helm_common_ingress: "\
-      ingress.main.enabled=true,\
-      ingress.main.primary=true,\
-      ingress.main.expandObjectName=true,\
-      ingress.main.ingressClassName=nginx,\
-      ingress.main.integrations.certManager.enabled=true,\
-      ingress.main.integrations.certManager.certificateIssuer=letsencrypt-prod,\
-      ingress.main.integrations.traefik.enabled=false,\
-      ingress.main.hosts[0].paths[0].path='/',\
-      ingress.main.hosts[0].paths[0].pathType='Prefix'"
 
     helm_common_resources: "\
       resources.requests.cpu={{ charts.resources.requests.cpu }},\
@@ -233,6 +224,92 @@
             controller.service.nodePorts.https={{ charts.services.ingress_nginx.https_nodeport }},\
             controller.service.externalTrafficPolicy=Local"
 
+    - name: Install traefik
+      when: charts.services.traefik.enabled
+      block:
+      - name: Apply CRDs
+        command: kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ charts.services.traefik.crd_version }}/standard-install.yaml
+
+      - name: Install traefik
+        when: charts.services.traefik.enabled
+        block:
+        - name: Install/Upgrade the traefik chart
+          include_tasks: ../tasks/install-chart.yaml
+          vars:
+            repo_name: traefik
+            repo_link: https://traefik.github.io/charts
+            install_namespace: "{{ namespace_traefik }}"
+            chart_timeout: "{{ charts.timeout }}"
+            release_name: traefik
+            chart_name: traefik
+            version: "{{ charts.services.traefik.version }}"
+            set_options: "--set \
+              service.spec.type=NodePort,\
+              ports.web.nodePort={{ charts.services.traefik.http_nodeport }},\
+              ports.websecure.nodePort={{ charts.services.traefik.https_nodeport }},\
+              providers.kubernetesGateway.enabled=True"
+
+      - name: Apply reference grant on namespaces
+        ansible.builtin.shell: |
+          kubectl apply -f - <<EOF
+          # https://gateway-api.sigs.k8s.io/reference/api-types/referencegrant/
+          apiVersion: gateway.networking.k8s.io/v1
+          kind: ReferenceGrant
+          metadata:
+            name: {{ item }}-grant
+            namespace: {{ item }}
+          spec:
+            from:
+            - group: gateway.networking.k8s.io
+              kind: HTTPRoute
+              namespace: traefik
+            - group: gateway.networking.k8s.io
+              kind: TLSRoute
+              namespace: traefik
+            to:
+            - group: ""
+              kind: Service
+          EOF
+        loop: "{{ q('ansible.builtin.vars', 'namespace_monitoring', 'namespace_generic_services') }}"
+        loop_control:
+          label: "{{ item }}"
+
+      - name: Apply gateway
+        ansible.builtin.shell: |
+          kubectl apply -f - <<EOF
+            apiVersion: gateway.networking.k8s.io/v1
+            kind: Gateway
+            metadata:
+              name: {{ traefik_gateway_name }}
+              namespace: traefik
+              annotations:
+                # https://cert-manager.io/docs/usage/gateway/
+                cert-manager.io/cluster-issuer: letsencrypt-prod
+            spec:
+              gatewayClassName: traefik
+              listeners:
+                - name: websecure
+                  hostname: "*.{{ domain_name }}"
+                  port: 8443
+                  protocol: HTTPS
+                  allowedRoutes:
+                    namespaces:
+                      from: All
+                  tls:
+                    mode: Terminate
+                    certificateRefs:
+                      # cert-manager auto-populates this secret in traefik namespace
+                      - name: websecure-tls-cert
+                - name: web
+                  hostname: "*.{{ domain_name }}"
+                  port: 8000
+                  protocol: HTTP
+                  allowedRoutes:
+                    namespaces:
+                      from: All
+          EOF
+
+    # Must install Gateway API first
     - name: Install cert-manager
       # https://cert-manager.io/docs/installation/helm/
       # https://cert-manager.io/docs/tutorials/acme/nginx-ingress/
@@ -250,6 +327,7 @@
           version: "{{ charts.services.cert_manager.version }}"
           set_options: "--set \
             ingressShim.defaultIssuerName=letsencrypt-prod,\
+            config.gatewayAPI.enabled=true,\
             prometheus.enabled=true,\
             crds.keep=false,\
             crds.enabled=true"
@@ -275,8 +353,10 @@
                 # Enable the HTTP-01 challenge provider
                 solvers:
                   - http01:
-                      ingress:
-                        ingressClassName: nginx
+                      gatewayHTTPRoute:
+                        parentRefs:
+                          - name: service-gateway
+                            namespace: traefik
           EOF
 
       - name: "install clusterissuer with dns resolver"
@@ -388,14 +468,15 @@
             grafana.initChownData.enabled=false,\
             grafana.persistence.enabled=true,\
             grafana.adminUser={{ charts.services.kube_prometheus_stack.grafana.admin_username }},\
-            grafana.adminPassword={{ charts.services.kube_prometheus_stack.grafana.admin_password }},\
-            grafana.ingress.enabled=true,\
-            grafana.ingress.annotations.cert-manager\\\\.io/cluster-issuer=letsencrypt-prod,\
-            grafana.ingress.annotations.cert-manager\\\\.io/private-key-rotation-policy=Always,\
-            grafana.ingress.tls[0].hosts[0]=grafana.{{ domain_name }},\
-            grafana.ingress.tls[0].secretName=grafana-tls,\
-            grafana.ingress.ingressClassName=nginx,\
-            grafana.ingress.hosts[0]=grafana.{{ domain_name }}"
+            grafana.adminPassword={{ charts.services.kube_prometheus_stack.grafana.admin_password }}"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "kube-prometheus-stack-grafana"
+          service_namespace: "{{ namespace_monitoring }}"
+          service_hostname: "grafana.{{ domain_name }}"
+          service_port: "80"
 
       - name: Search for all Pods labelled app.kubernetes.io/name=grafana
         vars:
@@ -461,7 +542,6 @@
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_ingress }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.immich.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.immich.resources.limits.memory }},\
@@ -493,10 +573,15 @@
             securityContext.container.runAsUser=0,\
             securityContext.container.privileged=true,\
             securityContext.container.runAsNonRoot=false,\
-            securityContext.container.allowPrivilegeEscalation=true,\
-            ingress.main.hosts[0].host='immich.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=immich,\
-            ingress.main.hosts[0].paths[0].service.port=10323"
+            securityContext.container.allowPrivilegeEscalation=true"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "immich"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "immich.{{ domain_name }}"
+          service_port: "10323"
 
       - debug:
           msg: >
@@ -524,13 +609,17 @@
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_downloads }}\
-            {{ helm_common_ingress }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.guacamole.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.guacamole.resources.limits.memory }},\
-            ingress.main.hosts[0].host='guacamole.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=guacamole,\
-            ingress.main.hosts[0].paths[0].service.port=10123"
+            resources.limits.memory={{ charts.services.guacamole.resources.limits.memory }}"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "guacamole"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "guacamole.{{ domain_name }}"
+          service_port: "10123"
 
     - name: Install home-assistant
       when: charts.services.home_assistant.enabled
@@ -560,7 +649,6 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_persistence_config }},\
-            {{ helm_common_ingress }},\
             {{ helm_common_resources}},\
             securityContext.container.privileged=true,\
             persistence.config.hostPath={{ charts.services.configs_dir }}/home-assistant,\
@@ -572,10 +660,15 @@
             resources.limits.memory={{ charts.services.home_assistant.resources.limits.memory }},\
             homeassistant.trusted_proxies[0]='10.0.0.0/8',\
             podOptions.hostNetwork=true,\
-            podOptions.dnsPolicy=ClusterFirstWithHostNet,\
-            ingress.main.hosts[0].host='home-assistant.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=home-assistant,\
-            ingress.main.hosts[0].paths[0].service.port=8123"
+            podOptions.dnsPolicy=ClusterFirstWithHostNet"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "home-assistant"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "home-assistant.{{ domain_name }}"
+          service_port: "8123"
 
     - name: Install jellyfin
       when: charts.services.jellyfin.enabled
@@ -610,7 +703,6 @@
             {{ helm_common_persistence_movies }}\
             {{ helm_common_persistence_music }}\
             {{ helm_common_persistence_books }}\
-            {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.jellyfin.resources.limits.cpu }},\
@@ -626,10 +718,15 @@
             persistence.dev.enabled=true,\
             persistence.dev.type=hostPath,\
             persistence.dev.mountPath=/dev,\
-            persistence.dev.hostPath=/dev,\
-            ingress.main.hosts[0].host='jellyfin.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=jellyfin,\
-            ingress.main.hosts[0].paths[0].service.port=8096"
+            persistence.dev.hostPath=/dev"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "jellyfin"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "jellyfin.{{ domain_name }}"
+          service_port: "8096"
 
       - debug:
           msg: >
@@ -658,12 +755,17 @@
           # - securityContext.container.allowPrivilegeEscalation=true
           set_options: "--set \
             {{ helm_common_general }},\
-            {{ helm_common_ingress }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.jellystat.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.jellystat.resources.limits.memory }},\
-            ingress.main.hosts[0].host='jellystat.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=jellystat"
+            resources.limits.memory={{ charts.services.jellystat.resources.limits.memory }}"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "jellystat"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "jellystat.{{ domain_name }}"
+          service_port: "10681"
 
       - debug:
           msg: >
@@ -694,15 +796,19 @@
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_downloads }}\
-            {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.qbittorrent.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.qbittorrent.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/qbittorrent,\
-            ingress.main.hosts[0].host='qbittorrent.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=qbittorrent,\
-            ingress.main.hosts[0].paths[0].service.port=10095"
+            persistence.config.hostPath={{ charts.services.configs_dir }}/qbittorrent"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "qbittorrent"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "qbittorrent.{{ domain_name }}"
+          service_port: "10095"
 
       - name: Search for qbittorrent pod
         vars:
@@ -776,15 +882,19 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.prowlarr.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.prowlarr.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/prowlarr,\
-            ingress.main.hosts[0].host='prowlarr.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=prowlarr,\
-            ingress.main.hosts[0].paths[0].service.port=9696"
+            persistence.config.hostPath={{ charts.services.configs_dir }}/prowlarr"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "prowlarr"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "prowlarr.{{ domain_name }}"
+          service_port: "9696"
 
       - debug:
           msg: >
@@ -817,15 +927,19 @@
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_movies }}\
             {{ helm_common_persistence_downloads }}\
-            {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.radarr.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.radarr.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/radarr,\
-            ingress.main.hosts[0].host='radarr.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=radarr,\
-            ingress.main.hosts[0].paths[0].service.port=7878"
+            persistence.config.hostPath={{ charts.services.configs_dir }}/radarr"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "radarr"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "radarr.{{ domain_name }}"
+          service_port: "7878"
 
       - debug:
           msg: >
@@ -860,15 +974,19 @@
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_shows }}\
             {{ helm_common_persistence_downloads }}\
-            {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.sonarr.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.sonarr.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/sonarr,\
-            ingress.main.hosts[0].host='sonarr.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=sonarr,\
-            ingress.main.hosts[0].paths[0].service.port=8989"
+            persistence.config.hostPath={{ charts.services.configs_dir }}/sonarr"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "sonarr"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "sonarr.{{ domain_name }}"
+          service_port: "8989"
 
       - debug:
           msg: >
@@ -909,7 +1027,6 @@
             {{ helm_common_persistence_shows }}\
             {{ helm_common_persistence_movies }}\
             {{ helm_common_persistence_cache }}\
-            {{ helm_common_ingress }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.tdarr.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.tdarr.resources.limits.memory }},\
@@ -920,10 +1037,15 @@
             workload.main.podSpec.containers.main.env.apiKey={{ charts.services.tdarr.apiKey }},\
             persistence.configs.enabled=true,\
             persistence.configs.type=hostPath,\
-            persistence.configs.hostPath={{ charts.services.configs_dir }}/tdarr,\
-            ingress.main.hosts[0].host='tdarr.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=tdarr,\
-            ingress.main.hosts[0].paths[0].service.port=8265"
+            persistence.configs.hostPath={{ charts.services.configs_dir }}/tdarr"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "tdarr"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "tdarr.{{ domain_name }}"
+          service_port: "8265"
 
       - debug:
           msg: >
@@ -957,16 +1079,20 @@
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_shows }}\
             {{ helm_common_persistence_movies }}\
-            {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.bazarr.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.bazarr.resources.limits.memory }},\
             persistence.config.hostPath={{ charts.services.configs_dir }}/bazarr,\
-            metrics.main.enabled=false,\
-            ingress.main.hosts[0].host='bazarr.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=bazarr,\
-            ingress.main.hosts[0].paths[0].service.port=6767"
+            metrics.main.enabled=false"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "bazarr"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "bazarr.{{ domain_name }}"
+          service_port: "6767"
 
       - debug:
           msg: >
@@ -1000,15 +1126,19 @@
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_books }}\
             {{ helm_common_persistence_downloads }}\
-            {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.readarr.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.readarr.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/readarr,\
-            ingress.main.hosts[0].host='readarr.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=readarr,\
-            ingress.main.hosts[0].paths[0].service.port=8787"
+            persistence.config.hostPath={{ charts.services.configs_dir }}/readarr"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "readarr"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "readarr.{{ domain_name }}"
+          service_port: "8787"
 
       - debug:
           msg: >
@@ -1042,15 +1172,19 @@
             {{ helm_common_security_contexts }},\
             {{ helm_common_persistence_music }}\
             {{ helm_common_persistence_downloads }}\
-            {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.lidarr.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.lidarr.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/lidarr,\
-            ingress.main.hosts[0].host='lidarr.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=lidarr,\
-            ingress.main.hosts[0].paths[0].service.port=8686"
+            persistence.config.hostPath={{ charts.services.configs_dir }}/lidarr"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "lidarr"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "lidarr.{{ domain_name }}"
+          service_port: "8686"
 
       - debug:
           msg: >
@@ -1082,15 +1216,20 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.ombi.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.ombi.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/ombi,\
-            ingress.main.hosts[0].host='ombi.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=ombi,\
-            ingress.main.hosts[0].paths[0].service.port=3579"
+            persistence.config.hostPath={{ charts.services.configs_dir }}/ombi"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "ombi"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "ombi.{{ domain_name }}"
+          service_port: "3579"
+
       - debug:
           msg: >
             You can log into ombi at 'ombi.{{ domain_name }}'.
@@ -1122,15 +1261,20 @@
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
             {{ helm_common_security_contexts }},\
-            {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.seerr.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.seerr.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/seerr,\
-            ingress.main.hosts[0].host='seerr.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=seerr,\
-            ingress.main.hosts[0].paths[0].service.port=5055"
+            persistence.config.hostPath={{ charts.services.configs_dir }}/seerr"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "seerr"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "seerr.{{ domain_name }}"
+          service_port: "10241"
+
       - debug:
           msg: >
             You can log into seerr at 'seerr.{{ domain_name }}'.
@@ -1156,17 +1300,21 @@
           set_options: "--set \
             {{ helm_common_general }},\
             {{ helm_common_persistence }},\
-            {{ helm_common_ingress }},\
             {{ helm_common_persistence_config }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.librespeed.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.librespeed.resources.limits.memory }},\
             persistence.config.hostPath={{ charts.services.configs_dir }}/librespeed,\
             securityContext.container.PUID=\"{{ uid }}\",\
-            securityContext.container.PGID=\"568\",\
-            ingress.main.hosts[0].host='librespeed.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=librespeed,\
-            ingress.main.hosts[0].paths[0].service.port=10016"
+            securityContext.container.PGID=\"568\""
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "librespeed"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "librespeed.{{ domain_name }}"
+          service_port: "10016"
 
       - debug:
           msg: >
@@ -1192,15 +1340,19 @@
             {{ helm_common_persistence }},\
             {{ helm_common_persistence_books }}\
             {{ helm_common_persistence_downloads }}\
-            {{ helm_common_ingress }},\
             {{ helm_common_resources}},\
             resources.limits.cpu={{ charts.services.calibre_web.resources.limits.cpu }},\
             resources.limits.memory={{ charts.services.calibre_web.resources.limits.memory }},\
             securityContext.container.PUID=\"{{ uid }}\",\
-            securityContext.container.PGID=\"568\",\
-            ingress.main.hosts[0].host='calibre-web.{{ domain_name }}',\
-            ingress.main.hosts[0].paths[0].service.name=calibre-web,\
-            ingress.main.hosts[0].paths[0].service.port=8083"
+            securityContext.container.PGID=\"568\""
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "calibre-web"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "calibre-web.{{ domain_name }}"
+          service_port: "8083"
 
       - debug:
           msg: >
