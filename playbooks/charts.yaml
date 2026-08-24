@@ -7,8 +7,8 @@
     namespace_generic_services: generic-services
     namespace_cert_manager: cert-manager
     namespace_cloudnative_postgres: "cnpg-system"
-    namespace_traefik: traefik
-    traefik_gateway_name: "service-gateway"
+    namespace_gateway_controller: gateway
+    gateway_controller_name: "service-gateway"
 
     helm_kube_prometheus_stack_loki_config: "" # default
 
@@ -196,31 +196,26 @@
       - name: set default storage class
         shell: "kubectl patch storageclass local-path -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"}}}'"
 
-    - name: Install traefik
-      when: charts.services.traefik.enabled
+    - name: Install envoy
+      when: charts.services.envoy.enabled
       block:
       - name: Apply CRDs
-        command: kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ charts.services.traefik.crd_version }}/standard-install.yaml
+        command: kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ charts.services.envoy.crd_version }}/standard-install.yaml
 
-      - name: Install traefik
-        when: charts.services.traefik.enabled
+      - name: Install envoy
+        when: charts.services.envoy.enabled
         block:
-        - name: Install/Upgrade the traefik chart
+        - name: Install/Upgrade the envoy chart
           include_tasks: ../tasks/install-chart.yaml
           vars:
-            repo_name: traefik
-            repo_link: https://traefik.github.io/charts
-            install_namespace: "{{ namespace_traefik }}"
+            repo_name: envoy
+            repo_link: oci://docker.io/envoyproxy
+            install_namespace: "{{ namespace_gateway_controller }}"
             chart_timeout: "{{ charts.timeout }}"
-            release_name: traefik
-            chart_name: traefik
-            version: "{{ charts.services.traefik.version }}"
-            set_options: "--set \
-              service.spec.externalTrafficPolicy=Local,\
-              service.spec.type=NodePort,\
-              ports.web.nodePort={{ charts.services.traefik.http_nodeport }},\
-              ports.websecure.nodePort={{ charts.services.traefik.https_nodeport }},\
-              providers.kubernetesGateway.enabled=True"
+            release_name: envoy
+            chart_name: gateway-helm
+            version: "{{ charts.services.envoy.version }}"
+            set_options: ""
 
       - name: Apply reference grant on namespaces
         ansible.builtin.shell: |
@@ -235,10 +230,10 @@
             from:
             - group: gateway.networking.k8s.io
               kind: HTTPRoute
-              namespace: traefik
+              namespace: {{ namespace_gateway_controller }}
             - group: gateway.networking.k8s.io
               kind: TLSRoute
-              namespace: traefik
+              namespace: {{ namespace_gateway_controller }}
             to:
             - group: ""
               kind: Service
@@ -247,23 +242,67 @@
         loop_control:
           label: "{{ item }}"
 
+      - name: Apply envoyproxy for config
+        ansible.builtin.shell: |
+          kubectl apply -f - <<EOF
+            apiVersion: gateway.envoyproxy.io/v1alpha1
+            kind: EnvoyProxy
+            metadata:
+              name: custom-proxy-config
+              namespace: {{ namespace_gateway_controller }}
+            spec:
+              provider:
+                type: Kubernetes
+                kubernetes:
+                  envoyService:
+                    type: NodePort
+                    externalTrafficPolicy: Local
+                    patch:
+                      type: StrategicMerge
+                      value:
+                        spec:
+                          ports:
+                            - name: http
+                              nodePort: {{ charts.services.envoy.http_nodeport }}
+                              port: 80
+                            - name: https
+                              nodePort: {{ charts.services.envoy.https_nodeport }}
+                              port: 443
+          EOF
+
+      - name: Apply gateway class
+        ansible.builtin.shell: |
+          kubectl apply -f - <<EOF
+            apiVersion: gateway.networking.k8s.io/v1
+            kind: GatewayClass
+            metadata:
+              name: envoy
+            spec:
+              controllerName: gateway.envoyproxy.io/gatewayclass-controller
+              parametersRef:
+                group: gateway.envoyproxy.io
+                kind: EnvoyProxy
+                name: custom-proxy-config
+                namespace: {{ namespace_gateway_controller }}
+          EOF
+
       - name: Apply gateway
         ansible.builtin.shell: |
           kubectl apply -f - <<EOF
             apiVersion: gateway.networking.k8s.io/v1
             kind: Gateway
             metadata:
-              name: {{ traefik_gateway_name }}
-              namespace: traefik
+              name: {{ gateway_controller_name }}
+              namespace: {{ namespace_gateway_controller }}
               annotations:
                 # https://cert-manager.io/docs/usage/gateway/
                 cert-manager.io/cluster-issuer: letsencrypt-prod
             spec:
-              gatewayClassName: traefik
+              gatewayClassName: envoy
               listeners:
-                - name: websecure
+                - name: https
                   hostname: "*.{{ domain_name }}"
-                  port: 8443
+                  port: 443
                   protocol: HTTPS
                   allowedRoutes:
                     namespaces:
@@ -271,11 +310,11 @@
                   tls:
                     mode: Terminate
                     certificateRefs:
-                      # cert-manager auto-populates this secret in traefik namespace
-                      - name: websecure-tls-cert
-                - name: web
+                      # cert-manager auto-populates this secret in envoy namespace
+                      - name: https-tls-cert
+                - name: http
                   hostname: "*.{{ domain_name }}"
-                  port: 8000
+                  port: 80
                   protocol: HTTP
                   allowedRoutes:
                     namespaces:
@@ -305,7 +344,7 @@
             crds.keep=false,\
             crds.enabled=true"
 
-      - name: "install clusterissuer CR with account email: {{ charts.services.cert_manager.email }}"
+      - name: "NOT WORKING: install clusterissuer CR with account email: {{ charts.services.cert_manager.email }}"
         when: not charts.services.cert_manager.dns01_challenge
         shell: |
           kubectl apply -f - <<EOF
@@ -329,7 +368,7 @@
                       gatewayHTTPRoute:
                         parentRefs:
                           - name: service-gateway
-                            namespace: traefik
+                            namespace: {{ namespace_gateway_controller }}
           EOF
 
       - name: "install clusterissuer with dns resolver"

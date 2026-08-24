@@ -172,7 +172,7 @@ charts:
       version: "v0.0.31" # dont use "latest" here
 
     # for gateway api proxy
-    traefik:
+    envoy:
       enabled: true
       # https://gateway-api.sigs.k8s.io/guides/getting-started/introduction/#install-standard-channel
       crd_version: "v1.6.1"

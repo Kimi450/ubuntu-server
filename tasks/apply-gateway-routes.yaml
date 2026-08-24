@@ -7,8 +7,8 @@
         name: {{ service_name }}-route
       spec:
         parentRefs:
-        - name: {{ traefik_gateway_name }}
-          namespace: {{ namespace_traefik }}
+        - name: {{ gateway_controller_name }}
+          namespace: {{ namespace_gateway_controller }}
         hostnames:
         - {{ service_hostname }}
         rules:
@@ -26,8 +26,8 @@
         name: {{ service_name }}-route
       spec:
         parentRefs:
-        - name: {{ traefik_gateway_name }}
-          namespace: {{ namespace_traefik }}
+        - name: {{ gateway_controller_name }}
+          namespace: {{ namespace_gateway_controller }}
         hostnames:
         - {{ service_hostname }}
         rules:
