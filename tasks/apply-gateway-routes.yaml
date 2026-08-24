@@ -1,0 +1,38 @@
+- name: Apply HTTPRoute {{ service_namespace }}
+  shell: |
+    kubectl apply -f - <<EOF
+      apiVersion: gateway.networking.k8s.io/v1
+      kind: HTTPRoute
+      metadata:
+        name: {{ service_name }}-route
+      spec:
+        parentRefs:
+        - name: {{ traefik_gateway_name }}
+          namespace: {{ namespace_traefik }}
+        hostnames:
+        - {{ service_hostname }}
+        rules:
+        - backendRefs:
+          - name: {{ service_name }}
+            port: {{ service_port }}
+            namespace: {{ service_namespace }}
+    EOF
+- name: Apply TLSRoute on {{ service_namespace }}
+  shell: |
+    kubectl apply -f - <<EOF
+      apiVersion: gateway.networking.k8s.io/v1
+      kind: TLSRoute
+      metadata:
+        name: {{ service_name }}-route
+      spec:
+        parentRefs:
+        - name: {{ traefik_gateway_name }}
+          namespace: {{ namespace_traefik }}
+        hostnames:
+        - {{ service_hostname }}
+        rules:
+        - backendRefs:
+          - name: {{ service_name }}
+            port: {{ service_port }}
+            namespace: {{ service_namespace }}
+    EOF

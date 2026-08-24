@@ -172,10 +172,12 @@ charts:
       enabled: false
       version: "v0.0.31" # dont use "latest" here
 
-    # nginx ingress controller for reverse proxy
-    ingress_nginx:
-      enabled: false
-      version: "latest" # specify a version to not install the latest version
+    # for gateway api proxy
+    traefik:
+      enabled: true
+      # https://gateway-api.sigs.k8s.io/guides/getting-started/introduction/#install-standard-channel
+      crd_version: "v1.6.1"
+      version: "latest"
 
       # Nodeports to setup on your machine which you need to forward
       # on your router
