@@ -9,6 +9,7 @@
     namespace_cloudnative_postgres: "cnpg-system"
     namespace_gateway_controller: gateway
     gateway_controller_name: "service-gateway"
+    namespace_palworld: palworld-server
 
     helm_kube_prometheus_stack_loki_config: "" # default
 
@@ -1409,3 +1410,116 @@
             You can log into calibre at '{{ ip }}:30000'.
             Data directories from the host are available under '/mnt-data' and
             can be used by the application.
+
+
+    - name: Install palworld-server
+      when: charts.services.palworld_server.enabled
+      block:
+      - name: Create ns
+        ansible.builtin.shell: kubectl create ns {{ namespace_palworld }}
+        ignore_errors: true
+
+      - name: Create secret
+        ansible.builtin.shell: |
+          kubectl create secret generic -n {{ namespace_palworld }} palworld-passwords \
+            --from-literal=SERVER_PASSWORD="{{ charts.services.palworld_server.server_password }}" \
+            --from-literal=ADMIN_PASSWORD="{{ charts.services.palworld_server.admin_password }}"
+        ignore_errors: true
+
+      - name: Install/Upgrade the palworld-server chart
+        include_tasks: ../tasks/install-chart.yaml
+        vars:
+          repo_name: kriegalex
+          repo_link: https://kriegalex.github.io/k8s-charts/
+          install_namespace: "{{ namespace_palworld }}"
+          chart_timeout: "{{ charts.timeout }}"
+          release_name: palworld-server
+          chart_name: palworld-server
+          version: "{{ charts.services.palworld_server.version }}"
+          set_options: "--set \
+            secret.existingSecret=palworld-passwords,\
+            service.type=ClusterIP"
+
+      - name: Apply envoyproxy for config
+        ansible.builtin.shell: |
+          kubectl apply -f - <<EOF
+            apiVersion: gateway.envoyproxy.io/v1alpha1
+            kind: EnvoyProxy
+            metadata:
+              name: custom-proxy-config
+              namespace: {{ namespace_palworld }}
+            spec:
+              provider:
+                type: Kubernetes
+                kubernetes:
+                  envoyService:
+                    type: NodePort
+                    externalTrafficPolicy: Local
+                    patch:
+                      type: StrategicMerge
+                      value:
+                        spec:
+                          ports:
+                            - name: palworld-udp
+                              nodePort: {{ charts.services.palworld_server.node_port }}
+                              port: 8211
+          EOF
+
+      - name: Apply gateway class
+        ansible.builtin.shell: |
+          kubectl apply -f - <<EOF
+            apiVersion: gateway.networking.k8s.io/v1
+            kind: GatewayClass
+            metadata:
+              name: palworld-server
+            spec:
+              controllerName: gateway.envoyproxy.io/gatewayclass-controller
+              parametersRef:
+                group: gateway.envoyproxy.io
+                kind: EnvoyProxy
+                name: custom-proxy-config
+                namespace: {{ namespace_palworld }}
+          EOF
+
+      - name: Apply gateway
+        ansible.builtin.shell: |
+          kubectl apply -f - <<EOF
+            apiVersion: gateway.networking.k8s.io/v1
+            kind: Gateway
+            metadata:
+              name: palworld-gateway
+              namespace: {{ namespace_palworld }}
+              annotations:
+                # https://cert-manager.io/docs/usage/gateway/
+                cert-manager.io/cluster-issuer: letsencrypt-prod
+            spec:
+              gatewayClassName: palworld-server
+              listeners:
+                - name: palworld-udp
+                  protocol: UDP
+                  port: 8211
+                  allowedRoutes:
+                    kinds:
+                      - kind: UDPRoute
+                    namespaces:
+                      from: All
+          EOF
+
+      - name: Apply route
+        ansible.builtin.shell: |
+          kubectl apply -f - <<EOF
+            apiVersion: gateway.networking.k8s.io/v1
+            kind: UDPRoute
+            metadata:
+              name: palworld-game-route
+              namespace: palworld-server
+            spec:
+              parentRefs:
+                - name: palworld-gateway
+                  namespace: {{ namespace_palworld }}
+                  sectionName: palworld-udp
+              rules:
+                - backendRefs:
+                    - name: palworld-server
+                      port: 8211
+          EOF

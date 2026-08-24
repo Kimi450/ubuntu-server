@@ -882,6 +882,13 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     Auto Approve Music
     ```
 
+#### Setup Palworld Server
+- Server for the game Palworld built on top of
+  - [palworld-server-docker](https://github.com/thijsvanloef/palworld-server-docker)
+  - [palworld-server](https://github.com/kriegalex/k8s-charts/tree/main/charts/palworld-server)
+- Set the config in the `all` file and let it run, it will install everything in the dedicate namespace which you can delete to clean up
+- Expose the `node_port` as a `UDP` service in your router and you should be able to just connect to it
+
 #### Use Squid
 - Use the username and password from the `group_vars/all.yaml` file to use this as a proxy server
 - The address would be `<PUBLIC_IP>:<GROUP_VARS_PORT>` or `<DOMAIN_NAME>:<GROUP_VARS_PORT>` or `<LAN_IP>:<GROUP_VARS_PORT>`

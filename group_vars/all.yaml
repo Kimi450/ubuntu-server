@@ -445,6 +445,17 @@ charts:
           cpu: 2
           memory: "6000M"
 
+    # palworld game server
+    palworld_server:
+      enabled: false
+      version: "latest" # specify a version to not install the latest version
+
+      # port at which the game UDP port is exposed on the host
+      node_port: 30100
+
+      server_password: ChangeMe_ServerPassword
+      admin_password: ChangeMe_AdminPassword
+
     # book monitoring
     readarr:
       enabled: false
