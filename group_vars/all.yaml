@@ -450,6 +450,13 @@ charts:
       enabled: false
       version: "latest" # specify a version to not install the latest version
 
+      # image of the container (helm chart sometimes is not kept up to date)
+      # https://github.com/thijsvanloef/palworld-server-docker
+      image_version: v2.7.3
+
+      # one of the game settings
+      base_camp_worker_max_num: 30
+
       # port at which the game UDP port is exposed on the host
       node_port: 30100
 

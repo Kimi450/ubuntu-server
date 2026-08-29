@@ -1437,8 +1437,11 @@
           chart_name: palworld-server
           version: "{{ charts.services.palworld_server.version }}"
           set_options: "--set \
+            extraEnv[0].name=BASE_CAMP_WORKER_MAX_NUM,\
+            image.tag={{ charts.services.palworld_server.image_version }},\
             secret.existingSecret=palworld-passwords,\
-            service.type=ClusterIP"
+            service.type=ClusterIP \
+            --set-string extraEnv[0].value={{ charts.services.palworld_server.base_camp_worker_max_num }}"
 
       - name: Apply envoyproxy for config
         ansible.builtin.shell: |
