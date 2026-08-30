@@ -1205,6 +1205,72 @@
             Data directories from the host are available under '/mnt-data' and
             can be used by the application.
 
+    - name: Install ollama
+      when: charts.services.ollama.enabled
+      block:
+      - name: Create config directory on hostpath for ollama
+        file:
+          path: "{{ charts.services.configs_dir }}/ollama"
+          state: directory
+          mode: '0777'
+        become: true
+
+      - name: Install/Upgrade the ollama chart
+        include_tasks: ../tasks/install-chart.yaml
+        vars:
+          repo_name: TrueCharts
+          repo_link: oci://oci.trueforge.org/truecharts
+          install_namespace: "{{ namespace_generic_services }}"
+          chart_timeout: "{{ charts.timeout }}"
+          release_name: ollama
+          chart_name: ollama
+          version: "{{ charts.services.ollama.version }}"
+          set_options: "--set \
+            {{ helm_common_general }},\
+            {{ helm_common_resources}},\
+            {{ helm_common_persistence_config }},\
+            resources.limits.cpu={{ charts.services.ollama.resources.limits.cpu }},\
+            resources.limits.memory={{ charts.services.ollama.resources.limits.memory }},\
+            persistence.config.hostPath={{ charts.services.configs_dir }}/ollama"
+
+      - name: Run commands on the pod
+        vars:
+          ansible_python_interpreter: "{{ venv_python }}"
+        # https://docs.ollama.com/import
+        # https://docs.ollama.com/cli
+        block:
+          - name: "Remove model(s)"
+            kubernetes.core.k8s_exec:
+              namespace: "{{ namespace_generic_services }}"
+              pod: "ollama-0"
+              container: ollama
+              command: ollama rm {{ item }}
+            ignore_errors: yes
+            loop: "{{ charts.services.ollama.models.remove }}"
+
+          - name: "Add model(s)"
+            kubernetes.core.k8s_exec:
+              namespace: "{{ namespace_generic_services }}"
+              pod: "ollama-0"
+              container: ollama
+              command: ollama run {{ item }}
+            ignore_errors: yes
+            loop: "{{ charts.services.ollama.models.run }}"
+
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "ollama"
+          service_namespace: "{{ namespace_generic_services }}"
+          service_hostname: "ollama.{{ domain_name }}"
+          service_port: "10686"
+
+      - debug:
+          msg: >
+            You can log into ollama at 'ollama.{{ domain_name }}'.
+            Data directories are available under '/mnt-data' and can be used by
+            ollama.
+
     - name: Install ombi
       when: charts.services.ombi.enabled
       block:

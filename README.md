@@ -812,6 +812,14 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   - Generate an API key from Jellyfin and use it here
     - It will be in Jellyfin under `Dashboard -> API Key`
 
+#### Setup Ollama
+- **NOTE**: This is a resource intensive service
+- Make sure you add whatever models you want in the `all.yaml` file
+  - You cannot run whatever model you want, these are resource limited. You will get crashes on the pod/server if you misconfigure this.
+  - Leave enough headroom for the server OS to make sure your server stays stable
+- Just follow onscreen instructions to create an account
+- Go to your `User` (Bottom left) -> `Settings` -> `Models` to configure access for the models. By default they should be available to you anyway.
+
 #### Setup Immich
 - Just follow onscreen instructions to create an account
 - Setup the config as you please from there!
@@ -886,7 +894,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
 - Server for the game Palworld built on top of
   - [palworld-server-docker](https://github.com/thijsvanloef/palworld-server-docker)
   - [palworld-server](https://github.com/kriegalex/k8s-charts/tree/main/charts/palworld-server)
-- Set the config in the `all` file and let it run, it will install everything in the dedicate namespace which you can delete to clean up
+- Set the config in the `all.yaml` file and let it run, it will install everything in the dedicate namespace which you can delete to clean up
 - Expose the `node_port` as a `UDP` service in your router and you should be able to just connect to it
 
 #### Use Squid
@@ -907,7 +915,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
   - `<DOMAIN_NAME>`
 - Setup NAT-ing for the the following ports on your router to gain external access. On your router:
   - Set a static IP for your server (if applicable) so the router doesnt assign a different IP to the machine breaking your port-forwarding setup
-  - Following are some sample rules based on the `all` file defaults for port forwarding, feel free to tweak to your needs.
+  - Following are some sample rules based on the `all.yaml` file defaults for port forwarding, feel free to tweak to your needs.
 
     | Service     | Default access | Where                                                             | Server port                      |                Public facing port |
     |-------------|----------------|-------------------------------------------------------------------|----------------------------------|-----------------------------------|
@@ -925,6 +933,8 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     | readarr     | Ingress        | `readarr.<DOMAIN_NAME>`                                           |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
     | lidarr      | Ingress        | `lidarr.<DOMAIN_NAME>`                                            |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
     | immich      | Ingress        | `immich.<DOMAIN_NAME>`                                            |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
+    | palworld-server | Ingress        | `<DOMAIN_NAME>`                                            |     30123 (UDP) |           30123 (UDP) |
+    | ollama      | Ingress        | `ollama.<DOMAIN_NAME>`                                            |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
     | librespeed  | Ingress        | `librespeed.<DOMAIN_NAME>`                                        |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
     | calibre-web | Ingress        | `calibre-web.<DOMAIN_NAME>`                                       |     30080 (HTTP) / 30443 (HTTPS) |           80 (HTTP) / 443 (HTTPS) |
     | calibre     | LAN            | `<LAN_IP>:30000` (No Gateway rules defined)                       |                            30100 |       `<BEST_NOT_TO_EXPOSE_THIS>` |

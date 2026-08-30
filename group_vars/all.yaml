@@ -445,6 +445,28 @@ charts:
           cpu: 2
           memory: "6000M"
 
+    # self hosted AI models
+    # NOTE: This is very resource intensive
+    ollama:
+      enabled: false
+      version: "latest" # specify a version to not install the latest version
+      resources:
+        # kubernetes resource limits for the pods
+        # leave some headroom for the OS to not lose server access in case of an issue
+        limits:
+          cpu: 2
+          memory: "4000M"
+
+      # semantics: https://docs.ollama.com/cli
+      models:
+        remove: []
+        run:
+          # - llama3.2:1b
+          # - qwen2.5:3b
+          # - phi3.5
+          # - gemma2:2b
+          - deepseek-r1:1.5b
+
     # palworld game server
     palworld_server:
       enabled: false
