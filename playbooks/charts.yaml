@@ -490,6 +490,7 @@
           service_namespace: "{{ namespace_monitoring }}"
           service_hostname: "grafana.{{ domain_name }}"
           service_port: "80"
+          service_protocol: "tcp"
 
       - name: Search for all Pods labelled app.kubernetes.io/name=grafana
         vars:
@@ -595,6 +596,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "immich.{{ domain_name }}"
           service_port: "10323"
+          service_protocol: "tcp"
 
       - debug:
           msg: >
@@ -633,6 +635,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "guacamole.{{ domain_name }}"
           service_port: "10123"
+          service_protocol: "tcp"
 
     - name: Install home-assistant
       when: charts.services.home_assistant.enabled
@@ -682,6 +685,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "home-assistant.{{ domain_name }}"
           service_port: "8123"
+          service_protocol: "tcp"
 
     - name: Install jellyfin
       when: charts.services.jellyfin.enabled
@@ -740,6 +744,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "jellyfin.{{ domain_name }}"
           service_port: "8096"
+          service_protocol: "tcp"
 
       - debug:
           msg: >
@@ -779,6 +784,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "jellystat.{{ domain_name }}"
           service_port: "10681"
+          service_protocol: "tcp"
 
       - debug:
           msg: >
@@ -822,6 +828,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "qbittorrent.{{ domain_name }}"
           service_port: "10095"
+          service_protocol: "tcp"
 
       - name: Search for qbittorrent pod
         vars:
@@ -908,6 +915,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "prowlarr.{{ domain_name }}"
           service_port: "9696"
+          service_protocol: "tcp"
 
       - debug:
           msg: >
@@ -953,6 +961,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "radarr.{{ domain_name }}"
           service_port: "7878"
+          service_protocol: "tcp"
 
       - debug:
           msg: >
@@ -1000,6 +1009,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "sonarr.{{ domain_name }}"
           service_port: "8989"
+          service_protocol: "tcp"
 
       - debug:
           msg: >
@@ -1059,6 +1069,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "tdarr.{{ domain_name }}"
           service_port: "8265"
+          service_protocol: "tcp"
 
       - debug:
           msg: >
@@ -1106,6 +1117,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "bazarr.{{ domain_name }}"
           service_port: "6767"
+          service_protocol: "tcp"
 
       - debug:
           msg: >
@@ -1152,6 +1164,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "readarr.{{ domain_name }}"
           service_port: "8787"
+          service_protocol: "tcp"
 
       - debug:
           msg: >
@@ -1198,6 +1211,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "lidarr.{{ domain_name }}"
           service_port: "8686"
+          service_protocol: "tcp"
 
       - debug:
           msg: >
@@ -1264,6 +1278,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "ollama.{{ domain_name }}"
           service_port: "10686"
+          service_protocol: "tcp"
 
       - debug:
           msg: >
@@ -1308,6 +1323,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "ombi.{{ domain_name }}"
           service_port: "3579"
+          service_protocol: "tcp"
 
       - debug:
           msg: >
@@ -1353,6 +1369,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "seerr.{{ domain_name }}"
           service_port: "10241"
+          service_protocol: "tcp"
 
       - debug:
           msg: >
@@ -1394,6 +1411,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "librespeed.{{ domain_name }}"
           service_port: "10016"
+          service_protocol: "tcp"
 
       - debug:
           msg: >
@@ -1432,6 +1450,7 @@
           service_namespace: "{{ namespace_generic_services }}"
           service_hostname: "calibre-web.{{ domain_name }}"
           service_port: "8083"
+          service_protocol: "tcp"
 
       - debug:
           msg: >
@@ -1574,21 +1593,13 @@
                       from: All
           EOF
 
-      - name: Apply route
-        ansible.builtin.shell: |
-          kubectl apply -f - <<EOF
-            apiVersion: gateway.networking.k8s.io/v1
-            kind: UDPRoute
-            metadata:
-              name: palworld-game-route
-              namespace: palworld-server
-            spec:
-              parentRefs:
-                - name: palworld-gateway
-                  namespace: {{ namespace_palworld }}
-                  sectionName: palworld-udp
-              rules:
-                - backendRefs:
-                    - name: palworld-server
-                      port: 8211
-          EOF
+      - name: Apply gateway routes
+        include_tasks: ../tasks/apply-gateway-routes.yaml
+        vars:
+          service_name: "palworld-server"
+          service_namespace: "{{ namespace_palworld }}"
+          service_port: "8211"
+          gateway_section_name: palworld-udp
+          gateway_controller_name: "palworld-gateway"
+          namespace_gateway_controller: "{{ namespace_palworld }}"
+          service_protocol: "udp"
