@@ -543,6 +543,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
     *.arj
     *.lzh
     *.uue
+    *.exe
     ```
 
 #### Setup Calibre
