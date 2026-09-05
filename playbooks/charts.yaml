@@ -188,6 +188,17 @@
               -}}
           loop: "{{ charts.services.qbittorrent.persistence }}"
 
+    - name: Create ns
+      ansible.builtin.shell: kubectl create ns {{ item }}
+      ignore_errors: true
+      loop:
+      - "{{ namespace_monitoring }}"
+      - "{{ namespace_generic_services }}"
+      - "{{ namespace_cert_manager }}"
+      - "{{ namespace_cloudnative_postgres }}"
+      - "{{ namespace_gateway_controller }}"
+      - "{{ namespace_palworld }}"
+
     - name: Install rancher local-path-provisioner
       when: charts.services.local_path_provisioner.enabled
       block:
