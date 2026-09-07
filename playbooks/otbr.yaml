@@ -41,7 +41,7 @@
         - name: Setup OTBR agent to have persistent data storage in {{ config_path }}
           become: true
           shell: |
-            grep -q "\-\-data\-path" /etc/default/otbr-agent || sudo sed -i 's/OTBR_AGENT_OPTS="/&--data-path {{ config_path }} /' /etc/default/otbr-agent
+            grep -q "\-\-data\-path" /etc/default/otbr-agent || sed -i 's@OTBR_AGENT_OPTS="@&--data-path {{ config_path }} @' /etc/default/otbr-agent
 
         - name: Setup OTBR web port to 8080
           become: true
