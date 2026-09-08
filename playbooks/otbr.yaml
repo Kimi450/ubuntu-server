@@ -126,7 +126,7 @@
           shell: |
             ifconfig wpan0
 
-        - name: Create config directory on hostpath for python-matter-server
+        - name: Create config directory on hostpath for matter-server
           file:
             path: "{{ charts.services.configs_dir }}/matter-server"
             state: directory
@@ -156,7 +156,7 @@
                     dnsPolicy: ClusterFirstWithHostNet
                     containers:
                       - name: matter-server
-                        image: ghcr.io/home-assistant-libs/python-matter-server:stable
+                        image: ghcr.io/matter-js/matterjs-server:stable
                         ports:
                           - containerPort: 5580
                         volumeMounts:
