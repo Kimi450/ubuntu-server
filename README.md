@@ -332,6 +332,14 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
       sudo ot-ctl router table
       # The Neighbor Table is the master list of all devices that are exactly one hop away (within direct radio range) and with which this device has established a secure link.
       sudo ot-ctl neighbor table
+      # force the otbr agent to become a leader
+      # might be needed if you move machines and wanna carry over the thread and matter datasets (I have only tried this with carrying over the disk to the new machine)
+      # Make sure to set the same ipv4 address
+      sudo ot-ctl state leader
+      sudo ot-ctl state # to confirm state
+      # get information about who is the current leader
+      curl http://localhost:8081/node
+      # you may need to powercycle all the router nodes (turn them off for 5 minutes) sometimes to reset states of the routes and network state
       ```
     - Try to restart Home Assistant
       - Go to `Settings` and restart on the top right
