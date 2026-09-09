@@ -146,6 +146,8 @@ otbr:
   networkkey: "c0dedda7ac0dedda7ac0dedda7a00001" # 32 characters of a-e and 0-9
   extpanid: "c0dedda7a1d00001" # 16 characters of a-e and 0-9
   channel: 11 # between 11 and 24 inclusive
+  meshlocalprefix: "fd3b:5da5:e165:ebc7::" # prefix for ipv6 network for the mesh
+  pskc: "8e204a59025abb4eea3212953e67f977" # authenticate an external Thread Commissioner so it can securely join and manage your Thread network
   activetimestamp: 10
 
 # =================== Select what charts you wish to install ===================
