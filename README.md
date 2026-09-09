@@ -340,6 +340,7 @@ The above section will mount `/mnt/b/downloads` onto the pod as `/data-mnt/disk-
       # get information about who is the current leader
       curl http://localhost:8081/node
       # you may need to powercycle all the router nodes (turn them off for 5 minutes) sometimes to reset states of the routes and network state
+      # you may also need to power down the otbr agent for a few hours to see if this makes a difference (or shutting down the machine)
       ```
     - Try to restart Home Assistant
       - Go to `Settings` and restart on the top right
