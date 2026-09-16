@@ -1122,20 +1122,29 @@ You can use this manifest to test out memory (amend as needed to test CPU) usage
 apiVersion: v1
 kind: Pod
 metadata:
-  name: memory-demo
+  name: stress
   labels:
-    app: memory-test
+    app: stress
 spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: "RuntimeDefault"
   containers:
-  - name: memory-demo-ctr
-    image: polinux/stress
+  - name: stress-ctr
+    image: alexeiled/stress-ng:latest
+    args: ["-c", "4", "--vm", "1", "--vm-bytes", "11G", "--timeout", "900s"]
     resources:
       requests:
-        memory: "3Gi"
+        cpu: 100m
+        memory: "1Gi"
       limits:
+        cpu: 8
         memory: "8Gi"
-    # This command simply tells the 'stress' tool to allocate 3GB
-    # so you can actually see the usage in your monitoring tools.
-    command: ["stress"]
-    args: ["--vm", "1", "--vm-bytes", "3G", "--vm-keep"]
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ["ALL"]
+    imagePullPolicy: IfNotPresent
 ```
