@@ -26,7 +26,7 @@
       become: True
       replace:
         path: "{{ config_location }}"
-        regexp: '^host_port'
+        regexp: '^http_port.*$'
         replace: "http_port {{ squid.port }}"
 
     - name: "Generate authentication information"
