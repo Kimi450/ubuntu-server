@@ -236,7 +236,7 @@ charts:
         # kubernetes resource limits for the pods
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
-          cpu: 2
+          cpu: 4
           memory: "6000M"
 
       # base dir for all immich info, including backups, cache, etc
@@ -258,7 +258,7 @@ charts:
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
           cpu: 2
-          memory: "6000M"
+          memory: "500M"
 
     # home automation portal
     home_assistant:
@@ -269,7 +269,7 @@ charts:
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
           cpu: 2
-          memory: "6000M"
+          memory: "2000M"
 
     # media client
     jellyfin:
@@ -279,8 +279,8 @@ charts:
         # kubernetes resource limits for the pods
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
-          cpu: 2
-          memory: "6000M"
+          cpu: 4
+          memory: "2000M"
 
     # media client
     jellystat:
@@ -290,8 +290,8 @@ charts:
         # kubernetes resource limits for the pods
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
-          cpu: 2
-          memory: "6000M"
+          cpu: 1
+          memory: "300M"
 
     # torrents
     qbittorrent:
@@ -302,7 +302,7 @@ charts:
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
           cpu: 2
-          memory: "6000M"
+          memory: "500M"
 
       # dirs to download files
       # you can specify different mounts present on your server
@@ -324,7 +324,7 @@ charts:
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
           cpu: 2
-          memory: "6000M"
+          memory: "1000M"
 
     # to manage indexers
     prowlarr:
@@ -335,7 +335,7 @@ charts:
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
           cpu: 2
-          memory: "6000M"
+          memory: "500M"
 
     # movie monitoring
     radarr:
@@ -346,7 +346,7 @@ charts:
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
           cpu: 2
-          memory: "6000M"
+          memory: "600M"
 
       # dirs to store and organise movies
       # you can specify different mounts present on your server
@@ -368,7 +368,7 @@ charts:
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
           cpu: 2
-          memory: "6000M"
+          memory: "600M"
 
       # dirs to store and organise shows
       # you can specify different mounts present on your server
@@ -423,7 +423,7 @@ charts:
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
           cpu: 2
-          memory: "6000M"
+          memory: "600M"
 
     # movie and show interface
     seerr:
@@ -434,7 +434,7 @@ charts:
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
           cpu: 2
-          memory: "6000M"
+          memory: "600M"
 
     # speed test to server
     librespeed:
@@ -445,7 +445,7 @@ charts:
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
           cpu: 2
-          memory: "6000M"
+          memory: "50M"
 
     # self hosted AI models
     # NOTE: This is very resource intensive
@@ -496,7 +496,7 @@ charts:
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
           cpu: 2
-          memory: "6000M"
+          memory: "600M"
 
       # dirs to store and organise books
       # you can specify different mounts present on your server
@@ -518,7 +518,7 @@ charts:
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
           cpu: 2
-          memory: "6000M"
+          memory: "600M"
 
       # dirs to store and organise music
       # you can specify different mounts present on your server
@@ -540,7 +540,7 @@ charts:
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
           cpu: 2
-          memory: "6000M"
+          memory: "1000M"
 
     # book management
     calibre:
@@ -551,7 +551,7 @@ charts:
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
           cpu: 2
-          memory: "6000M"
+          memory: "2000M"
 
     # movie, show and music interface
     ombi:
@@ -562,7 +562,7 @@ charts:
         # leave some headroom for the OS to not lose server access in case of an issue
         limits:
           cpu: 2
-          memory: "6000M"
+          memory: "1000M"
 
 # =================== Bluetooth setup ===================
 # to allow pinless bluetooth connections to the server
