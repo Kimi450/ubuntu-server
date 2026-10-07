@@ -16,14 +16,24 @@
               HandleLidSwitch=ignore
               HandleLidSwitchExternalPower=ignore
               HandleLidSwitchDocked=ignore
+          register: logind_conf
 
         - name: Restart service
-          shell: systemctl restart systemd-logind
+          ansible.builtin.systemd:
+            name: systemd-logind
+            state: restarted
+          when: logind_conf.changed
 
         - name: Disable sleep in systemd
           # https://www.unixtutorial.org/disable-sleep-on-ubuntu-server/
-          become: true
-          shell: systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+          ansible.builtin.systemd:
+            name: "{{ item }}"
+            masked: true
+          loop:
+            - sleep.target
+            - suspend.target
+            - hibernate.target
+            - hybrid-sleep.target
 
     - name: Upgrade the system
       become: true
@@ -95,16 +105,22 @@
             repo_dir:  "{{ useful_files_repo_dir }}"
             repo_link:  https://github.com/Kimi450/useful-files.git
 
-        - name: combine bashrc
-          ansible.builtin.shell: |-
-            cat {{ useful_files_repo_dir }}/.genericrc >> {{ useful_files_repo_dir }}/bash/.bashrc
-          register: hosts_contents
-
         - name: Transfer bashrc file
           copy:
             remote_src: True
             src: "{{ useful_files_repo_dir }}/bash/.bashrc"
             dest: "{{ basics.home_dir }}"
+
+        - name: Read generic rc file
+          ansible.builtin.slurp:
+            src: "{{ useful_files_repo_dir }}/.genericrc"
+          register: genericrc
+
+        # appended to the home copy (not the repo) so reruns don't duplicate it
+        - name: Append generic rc to bashrc
+          ansible.builtin.blockinfile:
+            path: "{{ basics.home_dir }}/.bashrc"
+            block: "{{ genericrc.content | b64decode }}"
 
         - name: Transfer vimrc edit script
           copy:

@@ -26,7 +26,9 @@
 
     - name: Enable bluetooth
       become: true
-      shell: rfkill unblock bluetooth
+      # no rfkill module exists; command avoids the shell and it's a no-op when already unblocked
+      ansible.builtin.command: rfkill unblock bluetooth
+      changed_when: false
 
     - name: "Change bluetooth service to enable volume control"
       block:

@@ -1,23 +1,26 @@
 - name: Apply HTTPRoute {{ service_namespace }}
   when: service_protocol == "tcp"
-  shell: |
-    kubectl apply -f - <<EOF
+  vars:
+    ansible_python_interpreter: "{{ venv_python }}"
+  kubernetes.core.k8s:
+    state: present
+    definition:
       apiVersion: gateway.networking.k8s.io/v1
       kind: HTTPRoute
       metadata:
-        name: {{ service_name }}-route
-        namespace: {{ service_namespace }}
+        name: "{{ service_name }}-route"
+        namespace: "{{ service_namespace }}"
       spec:
         parentRefs:
-        - name: {{ gateway_controller_name }}
-          namespace: {{ namespace_gateway_controller }}
+        - name: "{{ gateway_controller_name }}"
+          namespace: "{{ namespace_gateway_controller }}"
         hostnames:
-        - {{ service_hostname }}
+        - "{{ service_hostname }}"
         rules:
         - backendRefs:
-          - name: {{ service_name }}
-            port: {{ service_port }}
-            namespace: {{ service_namespace }}
+          - name: "{{ service_name }}"
+            port: "{{ service_port | int }}"
+            namespace: "{{ service_namespace }}"
           matches:
             - path:
                 type: PathPrefix
@@ -25,25 +28,26 @@
           timeouts:
             request: 120s
             backendRequest: 120s
-    EOF
 
 - name: Apply UDPRoute {{ service_namespace }}
   when: service_protocol == "udp"
-  shell: |
-    kubectl apply -f - <<EOF
+  vars:
+    ansible_python_interpreter: "{{ venv_python }}"
+  kubernetes.core.k8s:
+    state: present
+    definition:
       apiVersion: gateway.networking.k8s.io/v1
       kind: UDPRoute
       metadata:
-        name: {{ service_name }}-route
-        namespace: {{ service_namespace }}
+        name: "{{ service_name }}-route"
+        namespace: "{{ service_namespace }}"
       spec:
         parentRefs:
-        - name: {{ gateway_controller_name }}
-          namespace: {{ namespace_gateway_controller }}
-          sectionName: {{ gateway_section_name }}
+        - name: "{{ gateway_controller_name }}"
+          namespace: "{{ namespace_gateway_controller }}"
+          sectionName: "{{ gateway_section_name }}"
         rules:
         - backendRefs:
-          - name: {{ service_name }}
-            port: {{ service_port }}
-            namespace: {{ service_namespace }}
-    EOF
+          - name: "{{ service_name }}"
+            port: "{{ service_port | int }}"
+            namespace: "{{ service_namespace }}"

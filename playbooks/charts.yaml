@@ -11,42 +11,42 @@
     gateway_controller_name: "service-gateway"
     namespace_palworld: palworld-server
 
-    helm_kube_prometheus_stack_loki_config: "" # default
+    helm_kube_prometheus_stack_loki_config: [] # default
 
     # The following has been set to disable Truecharts own injection
     # of manifests for SCALE products I believe either way I dont need it:
     # - manifestManager.enabled=false
-    helm_common_general: "\
-      global.metallb.addServiceAnnotations=false,\
-      global.traefik.addServiceAnnotations=false,\
-      portal.open.enabled=false,\
-      operator.verify.enabled=false,\
-      workload.main.type=StatefulSet,\
-      podOptions.dnsConfig.nameservers={8.8.8.8,8.8.4.4}"
+    helm_common_general:
+      - "global.metallb.addServiceAnnotations=false"
+      - "global.traefik.addServiceAnnotations=false"
+      - "portal.open.enabled=false"
+      - "operator.verify.enabled=false"
+      - "workload.main.type=StatefulSet"
+      - "podOptions.dnsConfig.nameservers={8.8.8.8,8.8.4.4}"
 
-    helm_common_resources: "\
-      resources.requests.cpu={{ charts.resources.requests.cpu }},\
-      resources.requests.memory={{ charts.resources.requests.memory }}"
+    helm_common_resources:
+      - "resources.requests.cpu={{ charts.resources.requests.cpu }}"
+      - "resources.requests.memory={{ charts.resources.requests.memory }}"
 
     # persistence.config.hostPathType=DirectoryOrCreate doesnt work
     # because it creates the dir with root ownership and no write permissions
-    helm_common_persistence: "\
-      persistence.shared.enabled=false,\
-      persistence.shm.enabled=false,\
-      persistence.temp.enabled=false,\
-      persistence.varlogs.enabled=false"
+    helm_common_persistence:
+      - "persistence.shared.enabled=false"
+      - "persistence.shm.enabled=false"
+      - "persistence.temp.enabled=false"
+      - "persistence.varlogs.enabled=false"
 
-    helm_common_persistence_config: "\
-      persistence.config.enabled=true,\
-      persistence.config.type=hostPath"
+    helm_common_persistence_config:
+      - "persistence.config.enabled=true"
+      - "persistence.config.type=hostPath"
 
     # readOnlyRootFilesystem=false is needed for the app to be able to take
     # backups in /config/Backups
     # runAsUser={{ uid }} gives write access on the pod
-    helm_common_security_contexts: "\
-      securityContext.container.readOnlyRootFilesystem=false,\
-      securityContext.container.runAsUser={{ uid }},\
-      securityContext.container.runAsGroup=568"
+    helm_common_security_contexts:
+      - "securityContext.container.readOnlyRootFilesystem=false"
+      - "securityContext.container.runAsUser={{ uid }}"
+      - "securityContext.container.runAsGroup=568"
 
     venv_dir: "{{ basics.home_dir }}/.venv-install-charts"
     venv_python: "{{ venv_dir }}/bin/python3"
@@ -56,6 +56,7 @@
       pip:
         name:
           - kubernetes
+          - pyyaml # needed by kubernetes.core.helm modules
         virtualenv: "{{ venv_dir }}"
         # On Debian-based systems the correct python*-venv package must
         # be installed to use the `venv` module.
@@ -80,12 +81,12 @@
         - name: Set facts
           set_fact:
             helm_common_persistence_cache: >-
-              {{- helm_common_persistence_cache | default('')
-                  + 'persistence.cache-' + item.name + '.enabled=true,'
-                  + 'persistence.cache-' + item.name + '.type=hostPath,'
-                  + 'persistence.cache-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.cache-' + item.name + '.mountPath=/data-mnt/' + item.name + '/cache,'
-              -}}
+              {{ helm_common_persistence_cache | default([]) + [
+                  'persistence.cache-' + item.name + '.enabled=true',
+                  'persistence.cache-' + item.name + '.type=hostPath',
+                  'persistence.cache-' + item.name + '.hostPath=' + item.host_path,
+                  'persistence.cache-' + item.name + '.mountPath=/data-mnt/' + item.name + '/cache',
+              ] }}
           loop: "{{ charts.services.tdarr.persistence }}"
 
     - name: Process variable to add disks
@@ -100,12 +101,12 @@
         - name: Set facts
           set_fact:
             helm_common_persistence_movies: >-
-              {{- helm_common_persistence_movies | default('')
-                  + 'persistence.movies-' + item.name + '.enabled=true,'
-                  + 'persistence.movies-' + item.name + '.type=hostPath,'
-                  + 'persistence.movies-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.movies-' + item.name + '.mountPath=/data-mnt/' + item.name + '/movies,'
-              -}}
+              {{ helm_common_persistence_movies | default([]) + [
+                  'persistence.movies-' + item.name + '.enabled=true',
+                  'persistence.movies-' + item.name + '.type=hostPath',
+                  'persistence.movies-' + item.name + '.hostPath=' + item.host_path,
+                  'persistence.movies-' + item.name + '.mountPath=/data-mnt/' + item.name + '/movies',
+              ] }}
           loop: "{{ charts.services.radarr.persistence }}"
 
     - name: Process variable to add disks
@@ -120,12 +121,12 @@
         - name: Set facts
           set_fact:
             helm_common_persistence_shows: >-
-              {{- helm_common_persistence_shows | default('')
-                  + 'persistence.shows-' + item.name + '.enabled=true,'
-                  + 'persistence.shows-' + item.name + '.type=hostPath,'
-                  + 'persistence.shows-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.shows-' + item.name + '.mountPath=/data-mnt/' + item.name + '/shows,'
-              -}}
+              {{ helm_common_persistence_shows | default([]) + [
+                  'persistence.shows-' + item.name + '.enabled=true',
+                  'persistence.shows-' + item.name + '.type=hostPath',
+                  'persistence.shows-' + item.name + '.hostPath=' + item.host_path,
+                  'persistence.shows-' + item.name + '.mountPath=/data-mnt/' + item.name + '/shows',
+              ] }}
           loop: "{{ charts.services.sonarr.persistence }}"
 
     - name: Process variable to add disks
@@ -140,12 +141,12 @@
         - name: Set facts
           set_fact:
             helm_common_persistence_books: >-
-              {{- helm_common_persistence_books | default('')
-                  + 'persistence.books-' + item.name + '.enabled=true,'
-                  + 'persistence.books-' + item.name + '.type=hostPath,'
-                  + 'persistence.books-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.books-' + item.name + '.mountPath=/data-mnt/' + item.name + '/books,'
-              -}}
+              {{ helm_common_persistence_books | default([]) + [
+                  'persistence.books-' + item.name + '.enabled=true',
+                  'persistence.books-' + item.name + '.type=hostPath',
+                  'persistence.books-' + item.name + '.hostPath=' + item.host_path,
+                  'persistence.books-' + item.name + '.mountPath=/data-mnt/' + item.name + '/books',
+              ] }}
           loop: "{{ charts.services.readarr.persistence }}"
 
     - name: Process variable to add disks
@@ -160,12 +161,12 @@
         - name: Set facts
           set_fact:
             helm_common_persistence_music: >-
-              {{- helm_common_persistence_music | default('')
-                  + 'persistence.music-' + item.name + '.enabled=true,'
-                  + 'persistence.music-' + item.name + '.type=hostPath,'
-                  + 'persistence.music-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.music-' + item.name + '.mountPath=/data-mnt/' + item.name + '/music,'
-              -}}
+              {{ helm_common_persistence_music | default([]) + [
+                  'persistence.music-' + item.name + '.enabled=true',
+                  'persistence.music-' + item.name + '.type=hostPath',
+                  'persistence.music-' + item.name + '.hostPath=' + item.host_path,
+                  'persistence.music-' + item.name + '.mountPath=/data-mnt/' + item.name + '/music',
+              ] }}
           loop: "{{ charts.services.lidarr.persistence }}"
 
     - name: Process variable to add disks
@@ -180,17 +181,21 @@
         - name: Set facts
           set_fact:
             helm_common_persistence_downloads: >-
-              {{- helm_common_persistence_downloads | default('')
-                  + 'persistence.downloads-' + item.name + '.enabled=true,'
-                  + 'persistence.downloads-' + item.name + '.type=hostPath,'
-                  + 'persistence.downloads-' + item.name + '.hostPath=' +  item.host_path + ','
-                  + 'persistence.downloads-' + item.name + '.mountPath=/data-mnt/' + item.name + '/downloads,'
-              -}}
+              {{ helm_common_persistence_downloads | default([]) + [
+                  'persistence.downloads-' + item.name + '.enabled=true',
+                  'persistence.downloads-' + item.name + '.type=hostPath',
+                  'persistence.downloads-' + item.name + '.hostPath=' + item.host_path,
+                  'persistence.downloads-' + item.name + '.mountPath=/data-mnt/' + item.name + '/downloads',
+              ] }}
           loop: "{{ charts.services.qbittorrent.persistence }}"
 
     - name: Create ns
-      ansible.builtin.shell: kubectl create ns {{ item }}
-      ignore_errors: true
+      vars:
+        ansible_python_interpreter: "{{ venv_python }}"
+      kubernetes.core.k8s:
+        kind: Namespace
+        name: "{{ item }}"
+        state: present
       loop:
       - "{{ namespace_monitoring }}"
       - "{{ namespace_generic_services }}"
@@ -203,10 +208,25 @@
       when: charts.services.local_path_provisioner.enabled
       block:
       - name: apply manifests
-        shell: "kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/{{ charts.services.local_path_provisioner.version }}/deploy/local-path-storage.yaml"
+        vars:
+          ansible_python_interpreter: "{{ venv_python }}"
+        kubernetes.core.k8s:
+          state: present
+          # k8s `src` only takes local files, so fetch the manifest on the control node
+          definition: "{{ lookup('ansible.builtin.url', 'https://raw.githubusercontent.com/rancher/local-path-provisioner/' ~ charts.services.local_path_provisioner.version ~ '/deploy/local-path-storage.yaml', split_lines=False) | from_yaml_all | list }}"
 
       - name: set default storage class
-        shell: "kubectl patch storageclass local-path -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"}}}'"
+        vars:
+          ansible_python_interpreter: "{{ venv_python }}"
+        kubernetes.core.k8s:
+          state: patched
+          kind: StorageClass
+          api_version: storage.k8s.io/v1
+          name: local-path
+          definition:
+            metadata:
+              annotations:
+                storageclass.kubernetes.io/is-default-class: "true"
 
     - name: Install envoy
       when: charts.services.envoy.enabled
@@ -227,7 +247,7 @@
             release_name: envoy
             chart_name: gateway-helm
             version: "{{ charts.services.envoy.version }}"
-            set_options: ""
+            set_options: []
 
       - name: Apply reference grant on namespaces
         ansible.builtin.shell: |
@@ -349,12 +369,12 @@
           release_name: cert-manager
           chart_name: cert-manager
           version: "{{ charts.services.cert_manager.version }}"
-          set_options: "--set \
-            ingressShim.defaultIssuerName=letsencrypt-prod,\
-            config.gatewayAPI.enabled=true,\
-            prometheus.enabled=true,\
-            crds.keep=false,\
-            crds.enabled=true"
+          set_options:
+            - "ingressShim.defaultIssuerName=letsencrypt-prod"
+            - "config.gatewayAPI.enabled=true"
+            - "prometheus.enabled=true"
+            - "crds.keep=false"
+            - "crds.enabled=true"
 
       - name: "NOT WORKING: install clusterissuer CR with account email: {{ charts.services.cert_manager.email }}"
         when: not charts.services.cert_manager.dns01_challenge
@@ -440,20 +460,20 @@
           release_name: loki-stack
           chart_name: loki-stack
           version: "{{ charts.services.loki_stack.version }}"
-          set_options: "--set \
-            loki.isDefault=False,\
-            test_pod.enable=False,\
-            fluent-bit.enabled=True,\
-            promtail.enabled=False"
+          set_options:
+            - "loki.isDefault=False"
+            - "test_pod.enable=False"
+            - "fluent-bit.enabled=True"
+            - "promtail.enabled=False"
 
       - name: Set config for Grafana to add Loki as a data source
         set_fact:
-          helm_kube_prometheus_stack_loki_config: "\
-            grafana.additionalDataSources[0].name=Loki,\
-            grafana.additionalDataSources[0].type=loki,\
-            grafana.additionalDataSources[0].access=proxy,\
-            grafana.additionalDataSources[0].isDefault=False,\
-            grafana.additionalDataSources[0].url='http://loki-stack.{{ namespace_monitoring }}:3100',"
+          helm_kube_prometheus_stack_loki_config:
+            - "grafana.additionalDataSources[0].name=Loki"
+            - "grafana.additionalDataSources[0].type=loki"
+            - "grafana.additionalDataSources[0].access=proxy"
+            - "grafana.additionalDataSources[0].isDefault=False"
+            - "grafana.additionalDataSources[0].url='http://loki-stack.{{ namespace_monitoring }}:3100'"
 
     - name: Install kube-prometheus-stack
       when: charts.services.kube_prometheus_stack.enabled
@@ -469,30 +489,30 @@
           release_name: kube-prometheus-stack
           chart_name: kube-prometheus-stack
           version: "{{ charts.services.kube_prometheus_stack.version }}"
-          set_options: "--set \
-            {{ helm_kube_prometheus_stack_loki_config }}\
-            prometheus.prometheusSpec.retention={{ charts.services.kube_prometheus_stack.prometheus.retention }},\
-            prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes={'ReadWriteOnce'},\
-            prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage='50Gi',\
-            prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false,\
-            prometheus.prometheusSpec.serviceMonitorNamespaceSelector=null,\
-            prometheus.prometheusSpec.serviceMonitorSelector=null,\
-            prometheus.prometheusSpec.ruleSelectorNilUsesHelmValues=false,\
-            prometheus.prometheusSpec.ruleNamespaceSelector=null,\
-            prometheus.prometheusSpec.ruleSelector=null,\
-            prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues=false,\
-            prometheus.prometheusSpec.podMonitorNamespaceSelector=null,\
-            prometheus.prometheusSpec.podMonitorSelector=null,\
-            prometheus.prometheusSpec.probeSelectorNilUsesHelmValues=false,\
-            prometheus.prometheusSpec.probeSelectorNamespaceSelector=null,\
-            prometheus.prometheusSpec.probeSelector=null,\
-            prometheus.prometheusSpec.additionalScrapeConfigs[0].job_name=kubernetes-service-scraper,\
-            prometheus.prometheusSpec.additionalScrapeConfigs[0].kubernetes_sd_configs[0].role=service,\
-            prometheus.prometheusSpec.scrapeInterval={{ charts.services.kube_prometheus_stack.prometheus.scrape_interval }},\
-            grafana.initChownData.enabled=false,\
-            grafana.persistence.enabled=true,\
-            grafana.adminUser={{ charts.services.kube_prometheus_stack.grafana.admin_username }},\
-            grafana.adminPassword={{ charts.services.kube_prometheus_stack.grafana.admin_password }}"
+          set_options:
+            - "{{ helm_kube_prometheus_stack_loki_config }}"
+            - "prometheus.prometheusSpec.retention={{ charts.services.kube_prometheus_stack.prometheus.retention }}"
+            - "prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes={'ReadWriteOnce'}"
+            - "prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage='50Gi'"
+            - "prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false"
+            - "prometheus.prometheusSpec.serviceMonitorNamespaceSelector=null"
+            - "prometheus.prometheusSpec.serviceMonitorSelector=null"
+            - "prometheus.prometheusSpec.ruleSelectorNilUsesHelmValues=false"
+            - "prometheus.prometheusSpec.ruleNamespaceSelector=null"
+            - "prometheus.prometheusSpec.ruleSelector=null"
+            - "prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues=false"
+            - "prometheus.prometheusSpec.podMonitorNamespaceSelector=null"
+            - "prometheus.prometheusSpec.podMonitorSelector=null"
+            - "prometheus.prometheusSpec.probeSelectorNilUsesHelmValues=false"
+            - "prometheus.prometheusSpec.probeSelectorNamespaceSelector=null"
+            - "prometheus.prometheusSpec.probeSelector=null"
+            - "prometheus.prometheusSpec.additionalScrapeConfigs[0].job_name=kubernetes-service-scraper"
+            - "prometheus.prometheusSpec.additionalScrapeConfigs[0].kubernetes_sd_configs[0].role=service"
+            - "prometheus.prometheusSpec.scrapeInterval={{ charts.services.kube_prometheus_stack.prometheus.scrape_interval }}"
+            - "grafana.initChownData.enabled=false"
+            - "grafana.persistence.enabled=true"
+            - "grafana.adminUser={{ charts.services.kube_prometheus_stack.grafana.admin_username }}"
+            - "grafana.adminPassword={{ charts.services.kube_prometheus_stack.grafana.admin_password }}"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -548,8 +568,8 @@
           release_name: cnpg
           chart_name: cloudnative-pg
           version: "{{ charts.services.cnpg.version }}"
-          set_options: "--set \
-            crds.create=true"
+          set_options:
+            - "crds.create=true"
 
     - name: Install immich
       when: charts.services.immich.enabled
@@ -564,41 +584,41 @@
           release_name: immich
           chart_name: immich
           version: "{{ charts.services.immich.version }}"
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_security_contexts }},\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.immich.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.immich.resources.limits.memory }},\
-            immich.enable_ml={{ charts.services.immich.enable_ml }},\
-            persistence.mlcache.enabled=true,\
-            persistence.mlcache.type=hostPath,\
-            persistence.mlcache.hostPath={{ charts.services.immich.host_path }}/mlcache,\
-            persistence.microcache.enabled=true,\
-            persistence.microcache.type=hostPath,\
-            persistence.microcache.hostPath={{ charts.services.immich.host_path }}/microcache,\
-            persistence.library.enabled=true,\
-            persistence.library.type=hostPath,\
-            persistence.library.hostPath={{ charts.services.immich.host_path }}/library,\
-            persistence.uploads.enabled=true,\
-            persistence.uploads.type=hostPath,\
-            persistence.uploads.hostPath={{ charts.services.immich.host_path }}/uploads,\
-            persistence.backups.enabled=true,\
-            persistence.backups.type=hostPath,\
-            persistence.backups.hostPath={{ charts.services.immich.host_path }}/backups,\
-            persistence.thumbs.enabled=true,\
-            persistence.thumbs.type=hostPath,\
-            persistence.thumbs.hostPath={{ charts.services.immich.host_path }}/thumbs,\
-            persistence.profile.enabled=true,\
-            persistence.profile.type=hostPath,\
-            persistence.profile.hostPath={{ charts.services.immich.host_path }}/profile,\
-            persistence.video.enabled=true,\
-            persistence.video.type=hostPath,\
-            persistence.video.hostPath={{ charts.services.immich.host_path }}/encoded-video,\
-            securityContext.container.runAsUser=0,\
-            securityContext.container.privileged=true,\
-            securityContext.container.runAsNonRoot=false,\
-            securityContext.container.allowPrivilegeEscalation=true"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_security_contexts }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.immich.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.immich.resources.limits.memory }}"
+            - "immich.enable_ml={{ charts.services.immich.enable_ml }}"
+            - "persistence.mlcache.enabled=true"
+            - "persistence.mlcache.type=hostPath"
+            - "persistence.mlcache.hostPath={{ charts.services.immich.host_path }}/mlcache"
+            - "persistence.microcache.enabled=true"
+            - "persistence.microcache.type=hostPath"
+            - "persistence.microcache.hostPath={{ charts.services.immich.host_path }}/microcache"
+            - "persistence.library.enabled=true"
+            - "persistence.library.type=hostPath"
+            - "persistence.library.hostPath={{ charts.services.immich.host_path }}/library"
+            - "persistence.uploads.enabled=true"
+            - "persistence.uploads.type=hostPath"
+            - "persistence.uploads.hostPath={{ charts.services.immich.host_path }}/uploads"
+            - "persistence.backups.enabled=true"
+            - "persistence.backups.type=hostPath"
+            - "persistence.backups.hostPath={{ charts.services.immich.host_path }}/backups"
+            - "persistence.thumbs.enabled=true"
+            - "persistence.thumbs.type=hostPath"
+            - "persistence.thumbs.hostPath={{ charts.services.immich.host_path }}/thumbs"
+            - "persistence.profile.enabled=true"
+            - "persistence.profile.type=hostPath"
+            - "persistence.profile.hostPath={{ charts.services.immich.host_path }}/profile"
+            - "persistence.video.enabled=true"
+            - "persistence.video.type=hostPath"
+            - "persistence.video.hostPath={{ charts.services.immich.host_path }}/encoded-video"
+            - "securityContext.container.runAsUser=0"
+            - "securityContext.container.privileged=true"
+            - "securityContext.container.runAsNonRoot=false"
+            - "securityContext.container.allowPrivilegeEscalation=true"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -630,14 +650,14 @@
           # specifically the trusted proxies dont get configured blocking
           # ingress access. This is because the configmaps cannot be mounted
           # at the expected location (subdir in the hostpath mount)
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_downloads }}\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.guacamole.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.guacamole.resources.limits.memory }}"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_security_contexts }}"
+            - "{{ helm_common_persistence_downloads }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.guacamole.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.guacamole.resources.limits.memory }}"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -672,22 +692,22 @@
           # specifically the trusted proxies dont get configured blocking
           # ingress access. This is because the configmaps cannot be mounted
           # at the expected location (subdir in the hostpath mount)
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_persistence_config }},\
-            {{ helm_common_resources}},\
-            securityContext.container.privileged=true,\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/home-assistant,\
-            persistence.dev.enabled=true,\
-            persistence.dev.type=hostPath,\
-            persistence.dev.mountPath=/dev,\
-            persistence.dev.hostPath=/dev,\
-            resources.limits.cpu={{ charts.services.home_assistant.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.home_assistant.resources.limits.memory }},\
-            homeassistant.trusted_proxies[0]='10.0.0.0/8',\
-            podOptions.hostNetwork=true,\
-            podOptions.dnsPolicy=ClusterFirstWithHostNet"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_persistence_config }}"
+            - "{{ helm_common_resources }}"
+            - "securityContext.container.privileged=true"
+            - "persistence.config.hostPath={{ charts.services.configs_dir }}/home-assistant"
+            - "persistence.dev.enabled=true"
+            - "persistence.dev.type=hostPath"
+            - "persistence.dev.mountPath=/dev"
+            - "persistence.dev.hostPath=/dev"
+            - "resources.limits.cpu={{ charts.services.home_assistant.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.home_assistant.resources.limits.memory }}"
+            - "homeassistant.trusted_proxies[0]='10.0.0.0/8'"
+            - "podOptions.hostNetwork=true"
+            - "podOptions.dnsPolicy=ClusterFirstWithHostNet"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -723,30 +743,30 @@
           # - securityContext.container.runAsUser=0
           # - securityContext.container.privileged=true
           # - securityContext.container.allowPrivilegeEscalation=true
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_shows }}\
-            {{ helm_common_persistence_movies }}\
-            {{ helm_common_persistence_music }}\
-            {{ helm_common_persistence_books }}\
-            {{ helm_common_persistence_config }},\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.jellyfin.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.jellyfin.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/jellyfin,\
-            securityContext.container.runAsUser=0,\
-            securityContext.container.privileged=true,\
-            securityContext.container.runAsNonRoot=false,\
-            securityContext.container.allowPrivilegeEscalation=true,\
-            persistence.cache.enabled=true,\
-            persistence.cache.accessMode=ReadWriteOnce,\
-            persistence.cache.size=50G,\
-            persistence.dev.enabled=true,\
-            persistence.dev.type=hostPath,\
-            persistence.dev.mountPath=/dev,\
-            persistence.dev.hostPath=/dev"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_security_contexts }}"
+            - "{{ helm_common_persistence_shows }}"
+            - "{{ helm_common_persistence_movies }}"
+            - "{{ helm_common_persistence_music }}"
+            - "{{ helm_common_persistence_books }}"
+            - "{{ helm_common_persistence_config }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.jellyfin.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.jellyfin.resources.limits.memory }}"
+            - "persistence.config.hostPath={{ charts.services.configs_dir }}/jellyfin"
+            - "securityContext.container.runAsUser=0"
+            - "securityContext.container.privileged=true"
+            - "securityContext.container.runAsNonRoot=false"
+            - "securityContext.container.allowPrivilegeEscalation=true"
+            - "persistence.cache.enabled=true"
+            - "persistence.cache.accessMode=ReadWriteOnce"
+            - "persistence.cache.size=50G"
+            - "persistence.dev.enabled=true"
+            - "persistence.dev.type=hostPath"
+            - "persistence.dev.mountPath=/dev"
+            - "persistence.dev.hostPath=/dev"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -782,11 +802,11 @@
           # - securityContext.container.runAsUser=0
           # - securityContext.container.privileged=true
           # - securityContext.container.allowPrivilegeEscalation=true
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.jellystat.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.jellystat.resources.limits.memory }}"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.jellystat.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.jellystat.resources.limits.memory }}"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -821,16 +841,16 @@
           release_name: qbittorrent
           chart_name: qbittorrent
           version: "{{ charts.services.qbittorrent.version }}"
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_downloads }}\
-            {{ helm_common_persistence_config }},\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.qbittorrent.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.qbittorrent.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/qbittorrent"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_security_contexts }}"
+            - "{{ helm_common_persistence_downloads }}"
+            - "{{ helm_common_persistence_config }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.qbittorrent.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.qbittorrent.resources.limits.memory }}"
+            - "persistence.config.hostPath={{ charts.services.configs_dir }}/qbittorrent"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -877,13 +897,13 @@
           release_name: flaresolverr
           chart_name: flaresolverr
           version: "{{ charts.services.flaresolverr.version }}"
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.flaresolverr.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.flaresolverr.resources.limits.memory }},\
-            persistence.config.enabled=false"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.flaresolverr.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.flaresolverr.resources.limits.memory }}"
+            - "persistence.config.enabled=false"
 
       - debug:
           msg: >
@@ -909,15 +929,15 @@
           release_name: prowlarr
           chart_name: prowlarr
           version: "{{ charts.services.prowlarr.version }}"
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_config }},\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.prowlarr.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.prowlarr.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/prowlarr"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_security_contexts }}"
+            - "{{ helm_common_persistence_config }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.prowlarr.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.prowlarr.resources.limits.memory }}"
+            - "persistence.config.hostPath={{ charts.services.configs_dir }}/prowlarr"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -953,17 +973,17 @@
           release_name: radarr
           chart_name: radarr
           version: "{{ charts.services.radarr.version }}"
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_movies }}\
-            {{ helm_common_persistence_downloads }}\
-            {{ helm_common_persistence_config }},\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.radarr.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.radarr.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/radarr"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_security_contexts }}"
+            - "{{ helm_common_persistence_movies }}"
+            - "{{ helm_common_persistence_downloads }}"
+            - "{{ helm_common_persistence_config }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.radarr.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.radarr.resources.limits.memory }}"
+            - "persistence.config.hostPath={{ charts.services.configs_dir }}/radarr"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -1001,17 +1021,17 @@
           release_name: sonarr
           chart_name: sonarr
           version: "{{ charts.services.sonarr.version }}"
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_shows }}\
-            {{ helm_common_persistence_downloads }}\
-            {{ helm_common_persistence_config }},\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.sonarr.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.sonarr.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/sonarr"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_security_contexts }}"
+            - "{{ helm_common_persistence_shows }}"
+            - "{{ helm_common_persistence_downloads }}"
+            - "{{ helm_common_persistence_config }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.sonarr.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.sonarr.resources.limits.memory }}"
+            - "persistence.config.hostPath={{ charts.services.configs_dir }}/sonarr"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -1055,23 +1075,23 @@
           # operations. Without setting this the "Copy Action" was failing
           # For API key
           # https://docs.tdarr.io/docs/installation/variables#tdarr-server-variables
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_persistence_shows }}\
-            {{ helm_common_persistence_movies }}\
-            {{ helm_common_persistence_cache }}\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.tdarr.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.tdarr.resources.limits.memory }},\
-            securityContext.container.PUID=\"{{ uid }}\",\
-            securityContext.container.PGID=\"568\",\
-            workload.main.podSpec.containers.main.env.auth=true,\
-            workload.main.podSpec.containers.main.env.seededApiKey={{ charts.services.tdarr.apiKey }},\
-            workload.main.podSpec.containers.main.env.apiKey={{ charts.services.tdarr.apiKey }},\
-            persistence.configs.enabled=true,\
-            persistence.configs.type=hostPath,\
-            persistence.configs.hostPath={{ charts.services.configs_dir }}/tdarr"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_persistence_shows }}"
+            - "{{ helm_common_persistence_movies }}"
+            - "{{ helm_common_persistence_cache }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.tdarr.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.tdarr.resources.limits.memory }}"
+            - "securityContext.container.PUID=\"{{ uid }}\""
+            - "securityContext.container.PGID=\"568\""
+            - "workload.main.podSpec.containers.main.env.auth=true"
+            - "workload.main.podSpec.containers.main.env.seededApiKey={{ charts.services.tdarr.apiKey }}"
+            - "workload.main.podSpec.containers.main.env.apiKey={{ charts.services.tdarr.apiKey }}"
+            - "persistence.configs.enabled=true"
+            - "persistence.configs.type=hostPath"
+            - "persistence.configs.hostPath={{ charts.services.configs_dir }}/tdarr"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -1108,18 +1128,18 @@
           release_name: bazarr
           chart_name: bazarr
           version: "{{ charts.services.bazarr.version }}"
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_shows }}\
-            {{ helm_common_persistence_movies }}\
-            {{ helm_common_persistence_config }},\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.bazarr.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.bazarr.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/bazarr,\
-            metrics.main.enabled=false"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_security_contexts }}"
+            - "{{ helm_common_persistence_shows }}"
+            - "{{ helm_common_persistence_movies }}"
+            - "{{ helm_common_persistence_config }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.bazarr.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.bazarr.resources.limits.memory }}"
+            - "persistence.config.hostPath={{ charts.services.configs_dir }}/bazarr"
+            - "metrics.main.enabled=false"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -1156,17 +1176,17 @@
           release_name: readarr
           chart_name: readarr
           version: "{{ charts.services.readarr.version }}"
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_books }}\
-            {{ helm_common_persistence_downloads }}\
-            {{ helm_common_persistence_config }},\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.readarr.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.readarr.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/readarr"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_security_contexts }}"
+            - "{{ helm_common_persistence_books }}"
+            - "{{ helm_common_persistence_downloads }}"
+            - "{{ helm_common_persistence_config }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.readarr.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.readarr.resources.limits.memory }}"
+            - "persistence.config.hostPath={{ charts.services.configs_dir }}/readarr"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -1203,17 +1223,17 @@
           release_name: lidarr
           chart_name: lidarr
           version: "{{ charts.services.lidarr.version }}"
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_music }}\
-            {{ helm_common_persistence_downloads }}\
-            {{ helm_common_persistence_config }},\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.lidarr.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.lidarr.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/lidarr"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_security_contexts }}"
+            - "{{ helm_common_persistence_music }}"
+            - "{{ helm_common_persistence_downloads }}"
+            - "{{ helm_common_persistence_config }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.lidarr.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.lidarr.resources.limits.memory }}"
+            - "persistence.config.hostPath={{ charts.services.configs_dir }}/lidarr"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -1250,13 +1270,13 @@
           release_name: ollama
           chart_name: ollama
           version: "{{ charts.services.ollama.version }}"
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_resources}},\
-            {{ helm_common_persistence_config }},\
-            resources.limits.cpu={{ charts.services.ollama.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.ollama.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/ollama"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_resources }}"
+            - "{{ helm_common_persistence_config }}"
+            - "resources.limits.cpu={{ charts.services.ollama.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.ollama.resources.limits.memory }}"
+            - "persistence.config.hostPath={{ charts.services.configs_dir }}/ollama"
 
       - name: Run commands on the pod
         vars:
@@ -1270,7 +1290,7 @@
               pod: "ollama-0"
               container: ollama
               command: ollama rm {{ item }}
-            ignore_errors: yes
+            ignore_errors: true
             loop: "{{ charts.services.ollama.models.remove }}"
 
           - name: "Add model(s)"
@@ -1279,7 +1299,7 @@
               pod: "ollama-0"
               container: ollama
               command: ollama run {{ item }}
-            ignore_errors: yes
+            ignore_errors: true
             loop: "{{ charts.services.ollama.models.run }}"
 
       - name: Apply gateway routes
@@ -1317,15 +1337,15 @@
           release_name: ombi
           chart_name: ombi
           version: "{{ charts.services.ombi.version }}"
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_config }},\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.ombi.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.ombi.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/ombi"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_security_contexts }}"
+            - "{{ helm_common_persistence_config }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.ombi.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.ombi.resources.limits.memory }}"
+            - "persistence.config.hostPath={{ charts.services.configs_dir }}/ombi"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -1363,15 +1383,15 @@
           release_name: seerr
           chart_name: seerr
           version: "{{ charts.services.seerr.version }}"
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_security_contexts }},\
-            {{ helm_common_persistence_config }},\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.seerr.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.seerr.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/seerr"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_security_contexts }}"
+            - "{{ helm_common_persistence_config }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.seerr.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.seerr.resources.limits.memory }}"
+            - "persistence.config.hostPath={{ charts.services.configs_dir }}/seerr"
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -1404,16 +1424,16 @@
           version: "{{ charts.services.librespeed.version }}"
           # PUID={{ uid }} gives write access on the pod
           # 568 is the default user ID, added to the groups cause why not
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_persistence_config }},\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.librespeed.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.librespeed.resources.limits.memory }},\
-            persistence.config.hostPath={{ charts.services.configs_dir }}/librespeed,\
-            securityContext.container.PUID=\"{{ uid }}\",\
-            securityContext.container.PGID=\"568\""
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_persistence_config }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.librespeed.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.librespeed.resources.limits.memory }}"
+            - "persistence.config.hostPath={{ charts.services.configs_dir }}/librespeed"
+            - "securityContext.container.PUID=\"{{ uid }}\""
+            - "securityContext.container.PGID=\"568\""
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -1443,16 +1463,16 @@
           version: "{{ charts.services.calibre_web.version }}"
           # PUID={{ uid }} gives write access on the pod
           # 568 is the default user ID, added to the groups cause why not
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_persistence_books }}\
-            {{ helm_common_persistence_downloads }}\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.calibre_web.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.calibre_web.resources.limits.memory }},\
-            securityContext.container.PUID=\"{{ uid }}\",\
-            securityContext.container.PGID=\"568\""
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_persistence_books }}"
+            - "{{ helm_common_persistence_downloads }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.calibre_web.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.calibre_web.resources.limits.memory }}"
+            - "securityContext.container.PUID=\"{{ uid }}\""
+            - "securityContext.container.PGID=\"568\""
 
       - name: Apply gateway routes
         include_tasks: ../tasks/apply-gateway-routes.yaml
@@ -1486,20 +1506,20 @@
           # 568 is the default user ID, added to the groups cause why not
           # securityContext.container.seccompProfile.type is required for the
           # guacamole VNC client to be able to make sys calls (required )
-          set_options: "--set \
-            {{ helm_common_general }},\
-            {{ helm_common_persistence }},\
-            {{ helm_common_persistence_books }}\
-            {{ helm_common_persistence_downloads }}\
-            {{ helm_common_resources}},\
-            resources.limits.cpu={{ charts.services.calibre.resources.limits.cpu }},\
-            resources.limits.memory={{ charts.services.calibre.resources.limits.memory }},\
-            securityContext.container.PUID=\"{{ uid }}\",\
-            securityContext.container.PGID=\"568\",\
-            securityContext.container.seccompProfile.type=Unconfined,\
-            service.main.type=NodePort,\
-            service.main.ports.main.nodePort=30000,\
-            service.webserver.enabled=true"
+          set_options:
+            - "{{ helm_common_general }}"
+            - "{{ helm_common_persistence }}"
+            - "{{ helm_common_persistence_books }}"
+            - "{{ helm_common_persistence_downloads }}"
+            - "{{ helm_common_resources }}"
+            - "resources.limits.cpu={{ charts.services.calibre.resources.limits.cpu }}"
+            - "resources.limits.memory={{ charts.services.calibre.resources.limits.memory }}"
+            - "securityContext.container.PUID=\"{{ uid }}\""
+            - "securityContext.container.PGID=\"568\""
+            - "securityContext.container.seccompProfile.type=Unconfined"
+            - "service.main.type=NodePort"
+            - "service.main.ports.main.nodePort=30000"
+            - "service.webserver.enabled=true"
 
       - debug:
           msg: >
@@ -1511,10 +1531,6 @@
     - name: Install palworld-server
       when: charts.services.palworld_server.enabled
       block:
-      - name: Create ns
-        ansible.builtin.shell: kubectl create ns {{ namespace_palworld }}
-        ignore_errors: true
-
       - name: Create secret
         ansible.builtin.shell: |
           kubectl create secret generic -n {{ namespace_palworld }} palworld-passwords \
@@ -1532,12 +1548,13 @@
           release_name: palworld-server
           chart_name: palworld-server
           version: "{{ charts.services.palworld_server.version }}"
-          set_options: "--set \
-            extraEnv[0].name=BASE_CAMP_WORKER_MAX_NUM,\
-            image.tag={{ charts.services.palworld_server.image_version }},\
-            secret.existingSecret=palworld-passwords,\
-            service.type=ClusterIP \
-            --set-string extraEnv[0].value={{ charts.services.palworld_server.base_camp_worker_max_num }}"
+          set_options:
+            - "extraEnv[0].name=BASE_CAMP_WORKER_MAX_NUM"
+            - "image.tag={{ charts.services.palworld_server.image_version }}"
+            - "secret.existingSecret=palworld-passwords"
+            - "service.type=ClusterIP"
+          set_string_options:
+            - "extraEnv[0].value={{ charts.services.palworld_server.base_camp_worker_max_num }}"
 
       - name: Apply envoyproxy for config
         ansible.builtin.shell: |

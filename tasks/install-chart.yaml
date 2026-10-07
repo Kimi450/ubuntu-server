@@ -1,14 +1,14 @@
 - name: Install {{ release_name }} {{ version }}
+  vars:
+    ansible_python_interpreter: "{{ venv_python }}"
   block:
   - name: "Non-OCI Registry Workflow"
     when: "not 'oci' in repo_link"
     block:
     - name: "Add helm repo {{ repo_name }} {{ repo_link }}"
-      shell: "helm repo add {{ repo_name }} {{ repo_link }}"
-      ignore_errors: True
-
-    - name: Update helm repo
-      shell: helm repo update
+      kubernetes.core.helm_repository:
+        name: "{{ repo_name }}"
+        repo_url: "{{ repo_link }}"
 
     - name: "Set chart location to {{ repo_name }}/{{ chart_name }}"
       set_fact:
@@ -22,4 +22,20 @@
         chart_location: "{{ repo_link }}/{{ chart_name }}"
 
   - name: Install chart {{ release_name }} {{ version }}
-    shell: "helm upgrade -i -n {{ install_namespace }} {{ release_name }} {{ chart_location }} {{ set_options }} --timeout {{ chart_timeout }} {{ '--version ' + version if version != 'latest' }} --create-namespace --wait"
+    kubernetes.core.helm:
+      name: "{{ release_name }}"
+      chart_ref: "{{ chart_location }}"
+      chart_version: "{{ omit if version == 'latest' else version }}"
+      release_namespace: "{{ install_namespace }}"
+      create_namespace: true
+      update_repo_cache: "{{ 'oci' not in repo_link }}"
+      wait: true
+      timeout: "{{ chart_timeout }}"
+      # set_options is a list of `k=v` strings (nested lists are flattened);
+      # set_string_options are passed with --set-string
+      set_values: >-
+        {{ (set_options | flatten
+              | map('community.general.dict_kv', 'value') | list)
+           + (set_string_options | default([]) | flatten
+              | map('community.general.dict_kv', 'value')
+              | map('combine', {'value_type': 'string'}) | list) }}
